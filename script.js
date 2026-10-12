@@ -1,13 +1,24 @@
 /* ═══════════════════════════════════════════════════════════════
-   STARTING AND STOPPING — Grade 4 Science, Quarter 1, Lesson 1.1
-   NGSS 4-PS3-1 · 4-PS3-3
+   ENERGY AND MOTION — Grade 4 Science, Quarter 1, Lesson 1.2
+   NGSS 4-PS3-1
 
-   Flow:  read-aloud → vocabulary → vocabulary check
-          → Test 1 (predict · 8 runs · graph)
-          → Test 2 (predict · 6 runs · graph)
-          → data analysis (8 items, answered from the student's own table)
-          → written explanation (CER, 2 prompts)
-          → exit ticket (6 items)
+   Built from the science lesson template (Lesson 1.1, Starting and
+   Stopping, tag template-v1). The engine is the template's; what this
+   lesson is lives in data/lesson.js and data/questions.js.
+
+   Flow:  the opening pages, each teaching page followed at once by its
+          check (cover · big question · why care · what we just talked
+          about · meet the tool · the plan · I can · pick a name)
+          → the words → word check
+          → every page-set in LEARN, each followed by its check
+          → the stop at the end of the day
+   Which pages there are, their order, the rail and the stops are worked
+   out from the data (CHECKS, LEARN, DAY_GATES, DAYS_BUILT): see PHASES.
+
+   This lesson has NO TEST yet (no pushes, no data table). The template's
+   track, distance model, helper, data table, graph and written answer were
+   taken out; they are in the template (git show 5388b7a:script.js) for the
+   day a test is added.
 
    Standards this site follows (same as the math review sites):
      · skill tags on every item, misses saved as "[ID] (Skill) q (picked: …)"
@@ -22,7 +33,6 @@ const SCORES_KEY   = 'sci_energymotion_scores_v1';
 const SESSION_ID_KEY = 'sci_energymotion_session_id_v1';
 const TEACHER_PIN  = '9377';
 const GAME_KEY     = 'energymotion-lesson';
-const WRITTEN_KEY  = 'energymotion_written';
 
 const SESSION_ID = (() => {
   let id = localStorage.getItem(SESSION_ID_KEY);
@@ -57,7 +67,7 @@ function sheetBody(done) {
     game:      GAME_KEY,
     sessionId: SESSION_ID + (done ? '-F' : ''),
     name:      app.studentName || 'Unknown',
-    form:      'Lesson 1.1 — Starting and Stopping',
+    form:      LESSON.code + ' — ' + LESSON.title,
     score:     app.score,
     total:     total,
     percent:   pct,
@@ -72,35 +82,12 @@ function sheetBody(done) {
     timestamp:  new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
   };
 }
-/* PART 2 — the two written explanations, graded by Mr. O.
-   Same shape every other site uses: tab "<game>_written", a fixed
-   row of w1/w2/w3, paired to the score row by student name. */
-function submitWritten() {
-  /* Teacher preview must never write a student's save or a sheet row. */
-  if (window.PREVIEW) return;
-  try {
-    fetch(SHEET_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action:    'written',
-        game:      WRITTEN_KEY,
-        sessionId: SESSION_ID + '-written',
-        name:      app.studentName || 'Unknown',
-        w1: app.written.W01 || '', w2: '', w3: '',
-        elapsed:   app.timerSeconds,
-        timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
-      })
-    }).catch(() => {});
-  } catch (e) {}
-}
-
 function post(done) {
   /* Teacher preview must never write a student's save or a sheet row. */
   if (window.PREVIEW) return;
-  /* No name, no row. The cart check is answered before the name page, and
-     every change of screen posts progress: without this, each student sent
-     a row with nobody's name on it (qa C9 caught it before it shipped).
+  /* No name, no row. The opening checks are answered before the name page,
+     and every change of screen posts progress: without this, each student
+     sent a row with nobody's name on it (qa C9 caught it before it shipped).
      The answers are not lost — they go with the student at "Start the
      lesson" and are in the first row sent after that. */
   if (!app.studentName) return;
@@ -562,16 +549,26 @@ function joinLabels(root, els) {
 /* ══════════════════════════════════════════════════════
    WORD HELP — the definitions, always one tap away
 
-   Shown on every screen between the word check and the exit ticket. The
-   lesson words come from LESSON.vocab so there is one source of truth; the
-   method words (trial, average, claim…) come from METHOD_WORDS, because
-   those were used on screen dozens of times and never defined once.
+   Shown on every working screen after the words. The lesson words come from
+   LESSON.vocab so there is one source of truth; the things the lesson talks
+   about (roller coaster, hill, track…) come from THING_WORDS; the words of
+   a test's method (trial, average…) come from METHOD_WORDS, which is empty
+   until the lesson has a test.
 ══════════════════════════════════════════════════════ */
 /* THE OPENING PAGES, in order: everything a student goes through before the
    lesson has their name. One list, because six places need to know it (the
    rail, the help bar, the word button, the preview, the resume button, and
-   PHASES itself) and a page added to five of them is a page that half works. */
-const OPENING = ['cover', 'why', 'care', 'summary', 'sumq', 'cart', 'cartq', 'plan', 'planq', 'goals', 'start'];
+   PHASES itself) and a page added to five of them is a page that half works.
+
+   Only the PAGES are listed. A check comes right after the page it is about,
+   and which page that is, is data: CHECKS[...].after in data/questions.js.
+   So a check added there shows up here without this list being touched. */
+const checkAfter = page => page === 'vocab'
+  ? ((window.VOCAB_Q || []).length ? 'vq' : '')                         /* the word check follows the words */
+  : (Object.keys(window.CHECKS || {}).find(c => window.CHECKS[c].after === page) || '');
+const withCheck = page => checkAfter(page) ? [page, checkAfter(page)] : [page];
+const OPENING_PAGES = ['cover', 'why', 'care', 'summary', 'tool', 'plan', 'goals', 'start'];
+const OPENING = OPENING_PAGES.reduce((all, p) => all.concat(withCheck(p)), []);
 const WH_HIDE_ON = OPENING.concat(['vocab', 'end']);
 
 function buildWordHelp() {
@@ -630,52 +627,39 @@ function buildWordHelp() {
   };
 }
 
-/* What to do, on the screen they are on, at the moment they forget. The
-   steps are stated once on the predict screen and then gone — by push six a
-   student who lost the routine had nowhere to look. Marcos 10/9: "frequent
-   and constant reminding of what to do and how to do it." */
-const DO_STEPS = {
-  vq:       ['Read the question. Tap the speaker to hear the question read to you.',
-             'Tap the answer you think is right.',
-             'Press <b>Check my answer</b>.'],
-  analysis: ['Look at <b>your own data table</b> on this screen. The distances are the ones you measured.',
-             'Read the question, then find the answer in your table.',
-             'Tap your answer, then press <b>Check my answer</b>.'],
-  claims:   ['You are building one explanation out of three picks.',
-             'First the <b>claim</b> — what you think is true.',
-             'Then the <b>evidence</b> — the distances from your data table.',
-             'Then the <b>reasoning</b> — the reason why.'],
-  exit:     ['Last few questions. Nothing new &mdash; same as before.',
-             'Read the question, tap your answer, press <b>Check my answer</b>.']
-};
+/* What to do, on the screen they are on, at the moment they forget. Marcos
+   10/9: "frequent and constant reminding of what to do and how to do it."
+
+   A lesson with no test has three kinds of working screen: a question, a
+   page-set to listen to, and the stop at the end of a day. The steps for a
+   page-set are the lesson's own "On every page" lines (INTRO_PLAN.every in
+   data/lesson.js), so the help says what the plan page said, in the same
+   words. The steps for the last stop are the stop's own lines. */
+const Q_STEPS = ['Read the question. Tap the speaker to hear the question read to you.',
+                 'Tap the answer you think is right.',
+                 'Read what the page says about your answer. Then press the green button.'];
+/* The stop at the end of the last built day: what the page says, and what
+   the help panel says there. One list, so the two cannot disagree. */
+const STOP_LINES = ['<b>You are done for today.</b>',
+                    'Everything you did today is saved.',
+                    'Close the computer now.'];
 function doStepsFor(phase) {
-  const m = /^(predict|run|graph)([ABCD])$/.exec(phase);
-  if (m) {
-    const inv = invOf(m[2]);
-    if (m[1] === 'predict')
-      return ['Read what this test changes.', 'Make your guess. A guess is never marked wrong.',
-              'Press <b>Lock in my prediction</b>.'];
-    if (m[1] === 'run') return (inv && inv.doSteps) || null;
-    return ['Look at the bars. A longer bar means ' + moverOf(inv.runs[0]) + ' traveled farther.',
-            'Read what the page says about your guess.', 'Press <b>Next</b> to keep going.'];
-  }
-  return DO_STEPS[phase] || null;
+  if (isQPhase(phase)) return Q_STEPS;
+  if (isGate(phase)) return isLastStop(phase) ? STOP_LINES
+    : ['Put your hand up.', 'Ask Mr. O if you should go on to the next day.'];
+  if (isLearn(phase) || phase === 'vocab')
+    return ((window.INTRO_PLAN || {}).every || []).map(e => '<b>' + e.t + '.</b> ' + e.d);
+  return null;
 }
 function renderDoSteps(phase) {
   const host = document.getElementById('wh-do');
   if (!host) return;
   const steps = doStepsFor(phase);
-  if (!steps) { host.innerHTML = '<p class="wh-def">Keep going &mdash; press the green button to move on.</p>'; }
+  if (!steps || !steps.length) { host.innerHTML = '<p class="wh-def">Keep going &mdash; press the green button to move on.</p>'; }
   else {
     host.innerHTML = '<ol class="wh-steps">' +
       steps.map(t => '<li>' + t + '</li>').join('') + '</ol>';
   }
-  /* On a push screen: what this push is using, in full, any time they want
-     it again. It is heard once when it is new, and then lives here. */
-  const m = /^run([ABCD])$/.exec(phase);
-  const run = m && invOf(m[1]).runs[app.runIndex[m[1]]];
-  if (run) host.innerHTML += '<p class="wh-def"><b>What you are using for this one</b></p>' +
-    setupBits(run).map(b => '<p class="wh-ex">' + b.pic + '<b>' + b.name + '</b> &mdash; ' + b.full + '</p>').join('');
   attachSpeakers(host);
 }
 
@@ -704,48 +688,77 @@ function logEvent(kind, extra) {
 }
 
 /* ══════════════════════════════════════════════════════
-   PHASES
+   PHASES — worked out from the data, never kept by hand
+
+   The template listed its phases (predictA, runA, ... checkD) in three
+   places. Here the lesson is whatever the data says it is:
+
+     the opening pages, each followed by its check        (OPENING)
+     Day 1: the words, the word check
+     every day: each page-set in LEARN that belongs to that day (`day` on
+       the page-set, 1 when left out), each followed by the check that
+       names it in CHECKS[...].after
+     the stop at the end of the day                       (DAY_GATES, by `day`)
+     the last questions and the end screen, once EXIT_Q is written
+
+   Only days up to DAYS_BUILT are in the lesson. So Day 2 is added as data:
+   its page-sets in LEARN with day:2, their checks in CHECKS, its stop in
+   DAY_GATES, and DAYS_BUILT = 2.
+
+   UNDERSTANDING CHECKS sit right after the thing they ask about (Marcos
+   10/11: "frequent understanding checks", two or three questions at a
+   time). qa.js C27 holds that.
 ══════════════════════════════════════════════════════ */
-/* UNDERSTANDING CHECKS sit right after the thing they ask about (Marcos 10/11:
-   "frequent understanding checks", two or three questions at a time):
-   sumq, cartq and planq after three of the opening pages (in OPENING), vq
-   after the six words, and checkA-D after each test's results page. Which
-   questions each one asks is CHECKS in data/questions.js. */
-const PHASES = [...OPENING,'vocab','vq','predictA','runA','graphA','checkA',
-                'daygate',                              /* end of Day 1 */
-                'predictB','runB','graphB','checkB',
-                'predictC','runC','graphC','checkC',
-                'daygate2',                             /* end of Day 2 */
-                'predictD','runD','graphD','checkD','analysis','claims','write','exit','end'];
+const BUILT_DAYS = Math.max(1, window.DAYS_BUILT || 1);   /* how many days of the lesson exist yet */
+const LEARN_KEYS = Object.keys(window.LEARN || {});
+const GATE_KEYS  = Object.keys(window.DAY_GATES || {});
+const isLearn = phase => LEARN_KEYS.indexOf(phase) !== -1;
+const isGate  = phase => GATE_KEYS.indexOf(phase) !== -1;
 
-/* Session 1 is the words and Test 1 — the only investigation that
-   runs two trials, because averaging only needs teaching once. Session 2 is
-   the other three at one push each, plus all of the thinking. Thirty minutes
-   a session is the entire budget; see the lesson plan for where it goes.
-   The site resumes mid-lab, so the split costs the student nothing. */
-/* THREE DAYS (10/10). With every step heard and every word explained, two
-   thirty-minute sessions could not hold it. Marcos: "We probably need to
-   stretch it out to 3 days", a test every day:
-     Day 1  opening pages, six words, Test 1 (surfaces)        -> 'daygate'
-     Day 2  Test 2 (push size), Test 3 (ramp)                  -> 'daygate2'
-     Day 3  Test 4 (car and truck), data questions, explanation, exit ticket
-   The stops are data (DAY_GATES in data/lesson.js); moving one means moving
-   its name in PHASES and editing that entry. */
+const PHASES = OPENING.slice();
+const RAIL = [];          /* the steps along the top: one for the words, one for each page-set */
+const DAY_OF = {};        /* which day a phase belongs to */
+for (let d = 1; d <= BUILT_DAYS; d++) {
+  const parts = [];
+  if (d === 1) parts.push({ key:'words', l:'Words', phases:withCheck('vocab') });
+  LEARN_KEYS.filter(k => (window.LEARN[k].day || 1) === d)
+    .forEach(k => parts.push({ key:k, l:window.LEARN[k].rail || window.LEARN[k].title, phases:withCheck(k) }));
+  /* the stop belongs to the last part of its day */
+  const gate = GATE_KEYS.find(g => window.DAY_GATES[g].day === d);
+  if (gate && parts.length) parts[parts.length - 1].phases.push(gate);
+  parts.forEach(p => {
+    RAIL.push({ key:p.key, n:'Day ' + d, l:p.l, phases:p.phases });
+    p.phases.forEach(x => { PHASES.push(x); DAY_OF[x] = d; });
+  });
+}
+/* The last questions and the end screen are not written yet. The day EXIT_Q
+   exists in data/questions.js, both come back after the last built day. */
+if ((window.EXIT_Q || []).length) {
+  RAIL.push({ key:'exit', n:'Day ' + BUILT_DAYS, l:'Exit', phases:['exit', 'end'] });
+  PHASES.push('exit', 'end'); DAY_OF.exit = DAY_OF.end = BUILT_DAYS;
+}
 
-const RAIL = [
-  { key:'words', n:'Day 1', l:'Words',   phases:['vocab','vq'] },
-  { key:'invA',  n:'Day 1', l:'Surfaces',phases:['predictA','runA','graphA','checkA','daygate'] },
-  { key:'invB',  n:'Day 2', l:'Push',    phases:['predictB','runB','graphB','checkB'] },
-  { key:'invC',  n:'Day 2', l:'Ramp',    phases:['predictC','runC','graphC','checkC','daygate2'] },
-  { key:'invD',  n:'Day 3', l:'Truck',   phases:['predictD','runD','graphD','checkD'] },
-  { key:'anal',  n:'Day 3', l:'Analyze', phases:['analysis'] },
-  { key:'write', n:'Day 3', l:'Explain', phases:['claims','write'] },
-  { key:'exit',  n:'Day 3', l:'Exit',    phases:['exit','end'] }
-];
+/* THE STOP WITH NO WAY ON. A stop at the end of a day is the end of the
+   lesson as far as the lesson is built when nothing comes after it in
+   PHASES. That stop saves, says to close the computer, and has no button
+   (renderDayGate; qa.js C31). */
+const isLastStop = phase => isGate(phase) && PHASES.indexOf(phase) === PHASES.length - 1;
 
-/* (The old one-paragraph intro text lived here. Nothing has read it since
-   the plan became tiles; removed so stale wording cannot be mistaken for
-   something a student sees.) */
+/* A short name for a phase: the sheet's status column and the "You stopped
+   at ..." note on the name page. From the data, like everything above. */
+function phaseName(p) {
+  if (p === 'vocab') return 'Words';
+  if (p === 'vq') return 'Word check';
+  if ((window.CHECKS || {})[p]) return window.CHECKS[p].title;
+  if (isLearn(p)) return window.LEARN[p].rail || window.LEARN[p].title;
+  if (isGate(p)) return 'End of Day ' + (window.DAY_GATES[p].day || 1);
+  return ({ exit:'Exit ticket', end:'Done' })[p] || p;
+}
+/* The small label over a working screen's title: "Day 1 · Words". */
+function dayLabel(phase) {
+  const step = RAIL.find(st => st.phases.indexOf(phase) !== -1);
+  return step ? step.n + ' &middot; ' + step.l : '';
+}
 
 /* ══════════════════════════════════════════════════════
    APP
@@ -755,14 +768,10 @@ const app = {
   score:0, missedQuestions:[], events:[],
   startedAt:'', finishedAt:'',
   timerSeconds:0, timerInterval:null, timerOn:false,
-  labStart:null, labEnd:null,
 
   qIndex:0, qLocked:false, qTry:1, firstPick:null,
-  checkAns:{}, vocabAns:{}, analysisAns:{}, claimsAns:{}, exitAns:{}, resumeAt:'',
-  written:{}, predictions:{},
-  data:{ A:[], B:[], C:[], D:[] },
-  runIndex:{ A:0, B:0, C:0, D:0 },
-  lastRun:null,
+  /* answers, by where they are kept: the checks, the word check, the last questions */
+  checkAns:{}, vocabAns:{}, exitAns:{}, resumeAt:'',
   heard:{},        /* guide.js: how many steps of each guided screen were heard to the end */
 
   /* ── screens ── */
@@ -782,23 +791,10 @@ const app = {
     if (el) { attachSpeakers(el); setTimeout(() => attachSpeakers(el), 0); }
   },
 
-  phaseLabel() {
-    const m = { sumq:'First questions', cartq:'Cart check', planq:'Plan check', vocab:'Words', vq:'Word check',
-      predictA:'Surfaces predict', runA:'Surfaces runs', graphA:'Surfaces graph', checkA:'Surfaces questions',
-      predictB:'Push predict',     runB:'Push runs',     graphB:'Push graph',     checkB:'Push questions',
-      predictC:'Ramp predict',     runC:'Ramp runs',     graphC:'Ramp graph',     checkC:'Ramp questions',
-      predictD:'Truck predict',    runD:'Truck runs',    graphD:'Truck graph',    checkD:'Truck questions',
-      analysis:'Analyze data', claims:'Build the explanation', write:'Explain',
-      daygate:'End of Day 1', daygate2:'End of Day 2', exit:'Exit ticket', end:'Done' };
-    return m[this.phase] || this.phase;
-  },
+  phaseLabel() { return phaseName(this.phase); },
 
   /* every question of every question screen (each is asked on exactly one: qa C27) */
   totalItems() { return Object.keys(Q_PHASE).reduce((n, p) => n + bankFor(p).length, 0); },
-  labSeconds() {
-    if (this.labStart == null) return 0;
-    return Math.max(0, (this.labEnd == null ? this.timerSeconds : this.labEnd) - this.labStart);
-  },
 
   /* ── timer (time ON TASK) ── */
   startTimer() {
@@ -827,19 +823,17 @@ const app = {
     /* Never write a session with no student in it. Closing the tab on the
        cover — before anyone has picked a name — used to save an EMPTY
        session over the real one, wiping a student's yesterday. Caught
-       10/9: a planted save with 8 pushes came back with 0. Guarding here
-       rather than at each caller closes every path at once. */
+       10/9 in Lesson 1.1: a planted save came back empty. Guarding here
+       rather than at each caller closes every path at once (qa C1). */
     if (!this.studentName) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         studentName:this.studentName, phase:this.phase, score:this.score,
         missedQuestions:this.missedQuestions, events:this.events,
         startedAt:this.startedAt, finishedAt:this.finishedAt,
-        timerSeconds:this.timerSeconds, labStart:this.labStart, labEnd:this.labEnd,
+        timerSeconds:this.timerSeconds,
         qIndex:this.qIndex, checkAns:this.checkAns, resumeAt:this.resumeAt,
-        vocabAns:this.vocabAns, analysisAns:this.analysisAns, claimsAns:this.claimsAns,
-        exitAns:this.exitAns, written:this.written, predictions:this.predictions,
-        data:this.data, runIndex:this.runIndex, tabSwitches:tabSwitchCount,
+        vocabAns:this.vocabAns, exitAns:this.exitAns, tabSwitches:tabSwitchCount,
         heard:this.heard,
         savedAt:new Date().toISOString()
       }));
@@ -858,27 +852,15 @@ const app = {
 
   restore(s) {
     this.studentName = s.studentName || '';
-    this.phase = s.phase || 'vocab';
-    this.score = s.score || 0;
-    this.missedQuestions = s.missedQuestions || [];
     this.events = s.events || [];
     this.startedAt = s.startedAt || new Date().toISOString();
     this.finishedAt = s.finishedAt || '';
     this.timerSeconds = s.timerSeconds || 0;
-    this.labStart = (s.labStart == null ? null : s.labStart);
-    this.labEnd   = (s.labEnd == null ? null : s.labEnd);
     this.qIndex = s.qIndex || 0;
-    this.checkAns = s.checkAns || {};
-    this.vocabAns = s.vocabAns || {};
-    this.analysisAns = s.analysisAns || {};
-    this.claimsAns = s.claimsAns || {};
-    this.exitAns = s.exitAns || {};
-    this.written = s.written || {};
-    this.predictions = s.predictions || {};
-    /* the saved pushes are made to fit today's lesson (see fitSaved) */
+    /* the saved lesson is made to fit the lesson as it is today (see fitSaved) */
     const fit = fitSaved(s);
-    this.data = fit.data; this.runIndex = fit.runIndex; this.heard = fit.heard; this.phase = fit.phase;
-    this.refit = fit.redo || fit.catchUp;
+    this.heard = fit.heard; this.phase = fit.phase;
+    this.refit = fit.catchUp;
     this.resumeAt = fit.resumeAt;
     Object.assign(this, fit.answers);                 /* only the questions asked today */
     this.score = fit.score; this.missedQuestions = fit.missed;
@@ -897,23 +879,10 @@ const app = {
        belong to which step from what is visible. */
     if (phase === 'vocab')    { this.startTimer(); renderVocab(); this.show('vocab-screen'); attachSpeakers(document.getElementById('vocab-screen'));
                                 guide.run(document.getElementById('vocab-screen'), { id: 'vocab' }); }
-    else if (isQPhase(phase))      { if (phase === 'exit' && this.labEnd == null) this.labEnd = this.timerSeconds;
-                                     this.qIndex = firstUnanswered(bankFor(phase), answersFor(phase)); renderQ(); }
-    else if (phase === 'predictA') { if (this.labStart == null) this.labStart = this.timerSeconds; renderPredict(LAB.invA); }
-    else if (phase === 'predictB') { renderPredict(LAB.invB); }
-    else if (phase === 'predictC') { renderPredict(LAB.invC); }
-    else if (phase === 'predictD') { renderPredict(LAB.invD); }
-    else if (phase === 'runA')     { renderRun('A'); }
-    else if (phase === 'runB')     { renderRun('B'); }
-    else if (phase === 'runC')     { renderRun('C'); }
-    else if (phase === 'runD')     { renderRun('D'); }
-    else if (phase === 'graphA')   { renderGraph('A'); }
-    else if (phase === 'graphB')   { renderGraph('B'); }
-    else if (phase === 'graphC')   { renderGraph('C'); }
-    else if (phase === 'graphD')   { renderGraph('D'); }
-    else if (phase === 'daygate' || phase === 'daygate2') { renderDayGate(phase); }
-    else if (phase === 'write')    { renderWrite(); }
-    else if (phase === 'end')      { finish(); }
+    else if (isLearn(phase))  { this.startTimer(); renderLearn(phase); }
+    else if (isQPhase(phase)) { this.qIndex = firstUnanswered(bankFor(phase), answersFor(phase)); renderQ(); }
+    else if (isGate(phase))   { renderDayGate(phase); }
+    else if (phase === 'end') { finish(); }
     submitPartial();
   },
 
@@ -941,7 +910,7 @@ const app = {
       } else {
         const page = OPENING[at + 1];
         if (isQPhase(page)) this.go(page);
-        else ({ why: showWhy, care: showCare, summary: showSummary, cart: showCart, plan: showPlan, goals: showGoals })[page]();
+        else OPENERS[page]();
       }
       return;
     }
@@ -987,7 +956,7 @@ function buildCover() {
   document.getElementById('cover-go').onclick = () => { logEvent('cover_begin'); showWhy(); };
 
   /* Coming back? The resume button lives on the name-picker page, which is
-     now six pages in. If this device holds an unfinished lesson, the cover
+     ten pages in. If this device holds an unfinished lesson, the cover
      offers a shortcut straight to the name picker — and the name check there
      still stops one student picking up another's work on a shared device. */
   const back = document.getElementById('cv-resume');
@@ -996,7 +965,7 @@ function buildCover() {
     back.classList.remove('hidden');
     document.getElementById('cv-resume-go').onclick = () => {
       logEvent('cover_resume');
-      app.phase = 'start'; app.show('start-screen'); drawRail();
+      showStart();
     };
   }
   attachSpeakers(document.getElementById('cover-screen'));
@@ -1015,14 +984,14 @@ function buildStart() {
 
   /* THE BIG BUTTON NEVER CLEARS SAVED WORK (10/10). The lesson takes three
      days, so on Day 2 and Day 3 every student comes back through this page
-     with saved pushes. The big button here used to turn into "Start over
+     with saved work. The big button here used to turn into "Start over
      from the beginning" and clear them on one tap, with the real way back a
      small button beside it. Now, while this device holds a saved lesson:
      "Pick up where I left off" is the big button, and the button that
      clears the saved lesson is the small one and asks for the teacher PIN.
      The same holds when the saved lesson is under another name (a wrong
      pick in the list, or a shared computer), where one tap on "Start the
-     lesson" cleared the other student's pushes just the same. And the same
+     lesson" cleared the other student's work just the same. And the same
      holds when the saved lesson is FINISHED: the end screen asks for the
      PIN before it starts over, and this page did not. Marcos 10/10: "PIN
      it". A student doing a make-up on a classmate's computer needs Mr. O. */
@@ -1043,20 +1012,16 @@ function buildStart() {
     if (resumable) {
       const m = Math.floor((s.timerSeconds || 0) / 60);
       const howLong = m < 1 ? 'less than a minute' : m + ' minute' + (m === 1 ? '' : 's');
-      /* A lesson saved before the pushes changed goes back to the first test
-         that is no longer full. Say so here, before the student presses. */
+      /* A lesson saved before a check was added goes to that check first.
+         Say so here, before the student presses. */
       const fit = fitSaved(s);
       document.getElementById('resume-text').innerHTML =
-        'You stopped at <b>' + (s.phase === 'runA' || s.phase === 'runB' ? 'the lab' : app.phaseLabel.call({ phase:s.phase })) +
+        'You stopped at <b>' + phaseName(fit.resumeAt || fit.phase) +
         '</b> after ' + howLong + ' of work. ' +
-        (fit.redo
-          ? 'The lesson changed: you now do every push <b>' + (window.TIMES || 'more than once') + '</b>. You will go back to <b>Test ' +
-            ({ A:1, B:2, C:3, D:4 })[fit.redo] + '</b> to finish the pushes. Your answers are saved.' +
-            (fit.catchUp ? ' First you will answer some new questions.' : '')
-          : fit.catchUp
-            ? 'The lesson changed: there are new questions about what you already did. You will answer the new questions first. ' +
-              'Then you will go on from where you stopped. Your work is saved.'
-            : 'Nothing you finished will be asked again.');
+        (fit.catchUp
+          ? 'The lesson changed: there are new questions about what you already did. You will answer the new questions first. ' +
+            'Then you will go on from where you stopped. Your work is saved.'
+          : 'Nothing you finished will be asked again.');
       begin.textContent = 'Start over (teacher PIN)';
     } else if (finished) {
       document.getElementById('resume-text').textContent =
@@ -1083,22 +1048,20 @@ function buildStart() {
        answers, their points, their misses and their record go with this
        student. (Nothing else from before the name is kept, as before.) */
     const openChecks = OPENING.filter(isQPhase);
-    const cartIds = openChecks.reduce((all, p) => all.concat(bankFor(p).map(q => q.id)), []);
-    const cart = {
-      ans: Object.fromEntries(Object.entries(app.checkAns || {}).filter(([id]) => cartIds.indexOf(id) !== -1)),
-      missed: (app.missedQuestions || []).filter(m => cartIds.indexOf(m.id) !== -1),
-      events: (app.events || []).filter(e => e.e === 'answer' && cartIds.indexOf(e.id) !== -1)
+    const openIds = openChecks.reduce((all, p) => all.concat(bankFor(p).map(q => q.id)), []);
+    const kept = {
+      ans: Object.fromEntries(Object.entries(app.checkAns || {}).filter(([id]) => openIds.indexOf(id) !== -1)),
+      missed: (app.missedQuestions || []).filter(m => openIds.indexOf(m.id) !== -1),
+      events: (app.events || []).filter(e => e.e === 'answer' && openIds.indexOf(e.id) !== -1)
     };
     app.studentName = sel.value;
     app.clearSaved();
-    app.checkAns = cart.ans; app.missedQuestions = cart.missed; app.events = cart.events;
-    app.score = Object.keys(cart.ans).length - cart.missed.length;
+    app.checkAns = kept.ans; app.missedQuestions = kept.missed; app.events = kept.events;
+    app.score = Object.keys(kept.ans).length - kept.missed.length;
     app.resumeAt = '';
-    app.vocabAns = {}; app.analysisAns = {}; app.claimsAns = {}; app.exitAns = {};
-    app.written = {}; app.predictions = {};
-    app.data = { A:[], B:[], C:[], D:[] }; app.runIndex = { A:0, B:0, C:0, D:0 };
+    app.vocabAns = {}; app.exitAns = {};
     app.heard = {};
-    app.timerSeconds = 0; app.labStart = null; app.labEnd = null;
+    app.timerSeconds = 0;
     app.startedAt = new Date().toISOString();
     logEvent('start', { name:app.studentName });
     document.getElementById('who-chip').textContent = app.studentName;
@@ -1157,30 +1120,33 @@ function recapHTML(which) {
   '</div>';
 }
 
-/* The plan, as tiles: two days side by side with a picture for each test,
-   then the three things they do every time, then one calm line. Each tile
-   is one read-aloud block so a student can hear just that piece. */
+/* The plan, as tiles: what today holds, a picture for each part, one short
+   step about the later days, then the three things a student does on every
+   page, then one calm line. Each tile is one read-aloud block so a student
+   can hear just that piece. The two headings are data too (INTRO_PLAN.head
+   and .everyHead): the template had "Which test, which day" written here. */
 function planHTML() {
   const P = window.INTRO_PLAN;
   if (!P) return '';
-  const tArt = window.THING_ART || {};
-  /* One page per idea: today's tests, next time's tests, then what happens
-     every single time. Each tile is a step that has to be heard (guide.js). */
+  const tArt = window.TILE_ART || {};
+  /* One page per idea: what today holds (with the short preview of the later
+     days under it), then what happens on every page. Each tile is a step
+     that has to be heard (guide.js). */
   return P.days.map((day, k) =>
-      '<div data-gpage><span class="plan-h">Which test, which day</span>' +
+      '<div data-gpage><span class="plan-h">' + (P.head || '') + '</span>' +
       '<div class="plan-day"><p class="pday">' + day.label + '</p>' +
       day.tests.map(t =>
-        '<div class="ptile" data-step>' + art(t.inv ? INV_ART[t.inv] : tArt[t.art], 'ptart') +
+        '<div class="ptile" data-step>' + art(tArt[t.art], 'ptart') +
         '<div><b class="pt">' + t.t + '</b><span class="pd">' + t.d + '</span></div></div>'
       ).join('') + '</div>' +
-      /* the later days as ONE short step under today's test: a preview,
+      /* the later days as ONE short step under today's parts: a preview,
          not the plan (INTRO_PLAN.later) */
       (k === P.days.length - 1 && P.later
         ? '<div class="plan-day"><div class="ptile" data-step>' + art(tArt[P.later.art], 'ptart') +
           '<div><b class="pt">' + P.later.label + '</b><span class="pd">' + P.later.text + '</span></div></div></div>'
         : '') +
       '</div>').join('') +
-    '<div data-gpage><span class="plan-h">Every single time</span>' +
+    '<div data-gpage><span class="plan-h">' + (P.everyHead || '') + '</span>' +
     '<div class="plan-every">' + P.every.map((e, i) =>
       '<div class="ptile step3" data-step><span class="pnum" data-noread>' + (i + 1) + '</span>' +
       art(tArt[e.art], 'ptart') +
@@ -1189,9 +1155,9 @@ function planHTML() {
     '<p class="plan-calm" data-step>' + P.calm + '</p></div>';
 }
 
-/* Page two: the big question, "you will be the scientist", and why they
-   should care. Its tiles are built at boot by buildCover; speakers are
-   attached here because they no longer live inside the cover. */
+/* Page two: the big question, and every word in the big question explained.
+   Speakers are attached here because the page no longer lives inside the
+   cover. */
 function showWhy() {
   app.phase = 'why'; drawRail();
   app.show('why-screen');
@@ -1201,7 +1167,7 @@ function showWhy() {
 }
 
 /* Why should you care — its own page, so the three cards are not a scroll
-   away under the big question. */
+   away under the big question. The cards are built at boot by buildCover. */
 function showCare() {
   app.phase = 'care'; drawRail();
   app.show('care-screen');
@@ -1218,33 +1184,52 @@ function showSummary() {
   guide.run(document.getElementById('summary-screen'), { id: 'summary' });
   /* Nothing on these pages speaks on its own. Marcos 10/9: "this read on its
      own. It shouldn't." Twenty-two devices would all start talking at once. */
-  nextOrCheck('sum-next', 'summary', showCart);
+  nextOrCheck('sum-next', 'summary', showTool);
+}
+
+/* A TEACHING PAGE-SET: one page per idea, one picture at the top of each
+   page (SCENE_ART), then the points one under the other so the order is
+   never in doubt, each point with a small picture (TILE_ART) and each one a
+   step that has to be heard (guide.js). Meet the tool is one of these; so is
+   every page-set inside the lesson (LEARN). Same shape, same code. */
+function pagesHTML(pages) {
+  const scenes = window.SCENE_ART || {}, pics = window.TILE_ART || {};
+  return (pages || []).map(pg =>
+    '<div data-gpage>' + (pg.head ? '<h3 class="page-h">' + pg.head + '</h3>' : '') +
+    (scenes[pg.scene] ? '<div class="cscene" data-noread>' + scenes[pg.scene] + '</div>' : '') +
+    '<div class="page-list">' + pg.tiles.map(c =>
+      '<div class="ptile crow" data-step>' + art(pics[c.art], 'ptart') +
+      '<div><b class="pt">' + c.t + '</b><span class="pd">' + c.d + '</span></div></div>').join('') +
+    '</div></div>').join('');
+}
+
+/* Meet the tool — the thing this lesson thinks with (TOOL and TOOL_PAGES in
+   data/lesson.js). What we just talked about names the tool first, because
+   Mr. O shows the video first; no page before that one may (qa.js C11). */
+function showTool() {
+  app.phase = 'tool'; drawRail();
+  document.getElementById('tool-head').innerHTML = (window.TOOL || {}).title || '';
+  document.getElementById('tool-pages').innerHTML = pagesHTML(window.TOOL_PAGES);
+  app.show('tool-screen');
+  guide.run(document.getElementById('tool-screen'), { id: 'tool' });
+  nextOrCheck('tool-next', 'tool', showPlan);     /* the button says what comes next: the questions about the tool */
+}
+
+/* A PAGE-SET INSIDE THE LESSON (any key of LEARN): taught the same way, then
+   checked. The label over the title is the day and the name on the rail. */
+function renderLearn(key) {
+  const L = window.LEARN[key];
+  document.getElementById('learn-eyebrow').innerHTML = dayLabel(key);
+  document.getElementById('learn-head').innerHTML = L.title || '';
+  document.getElementById('learn-pages').innerHTML = pagesHTML(L.pages);
+  app.show('learn-screen');
+  attachSpeakers(document.getElementById('learn-screen'));
+  guide.run(document.getElementById('learn-screen'), { id: key });
+  nextOrCheck('learn-next', key, () => app.next());
 }
 
 /* The plan gets its own page. Marcos 10/9: the summary was one long screen,
    "perhaps push it to another page". */
-/* Meet your cart — the cart is introduced here and mentioned nowhere earlier.
-   Every point has a picture as well as words. */
-function showCart() {
-  app.phase = 'cart'; drawRail();
-  /* Three pages: what the cart is, why we use a cart, and how the distance the
-     cart travels gives the answer. One picture at the top of each page, then
-     the points one under the other so the order is never in doubt. */
-  const pics = Object.assign({}, window.THING_ART || {}, window.CART_ART || {},
-    { surfaces: INV_ART.A, watch: (window.THING_ART || {}).investigation, clue: (window.THING_ART || {}).investigation });
-  const scenes = { start: window.MEET_CART_SCENE, surfaces: window.CART_SCENE_SURFACES, distance: window.CART_SCENE_DISTANCE };
-  document.getElementById('cart-pages').innerHTML = (window.CART_PAGES || []).map(pg =>
-    '<div data-gpage>' + (pg.head ? '<h3 class="cart-h">' + pg.head + '</h3>' : '') +
-    '<div class="cscene" data-noread>' + (scenes[pg.scene] || '') + '</div>' +
-    '<div class="cart-list">' + pg.tiles.map(c =>
-      '<div class="ptile crow" data-step>' + art(pics[c.art], 'ptart') +
-      '<div><b class="pt">' + c.t + '</b><span class="pd">' + c.d + '</span></div></div>').join('') +
-    '</div></div>').join('');
-  app.show('cart-screen');
-  guide.run(document.getElementById('cart-screen'), { id: 'cart' });
-  nextOrCheck('cart-next', 'cart', showPlan);     /* the button says what comes next: the questions about the cart */
-}
-
 function showPlan() {
   app.phase = 'plan'; drawRail();
   const host = document.getElementById('ra-text');
@@ -1255,14 +1240,14 @@ function showPlan() {
   nextOrCheck('ra-next', 'plan', showGoals);
 }
 
-/* BY THE END YOU CAN — the four "I can" lines, each one heard before the
+/* BY THE END YOU CAN — the "I can" lines, each one heard before the
    name page exists. They used to sit on the name page, where a student could
    pick a name and press Start without hearing one of them (Marcos 10/10:
    "are the students forced to read this page?"). One line to a step, a
    picture beside each; the page title is read with the first line. */
 function showGoals() {
   app.phase = 'goals'; drawRail();
-  const pics = Object.assign({}, window.WORD_ART || {}, window.THING_ART || {}, { push: INV_ART.B });
+  const pics = window.TILE_ART || {};
   const which = LESSON.icanArt || [];
   document.getElementById('goals-list').innerHTML = LESSON.icanKid.map((line, i) =>
     '<div class="ptile crow" data-step>' + art(pics[which[i]], 'ptart') +
@@ -1271,10 +1256,16 @@ function showGoals() {
   attachSpeakers(document.getElementById('goals-screen'));
   guide.run(document.getElementById('goals-screen'), { id: 'goals' });
   /* ...and then the name picker, not straight into the lesson. */
-  document.getElementById('goals-next').onclick = () => {
-    speech.stop(); app.phase = 'start'; app.show('start-screen'); drawRail();
-  };
+  document.getElementById('goals-next').onclick = () => { speech.stop(); showStart(); };
 }
+
+/* The name page. It asks for a name and nothing else (qa.js C26). */
+function showStart() { app.phase = 'start'; app.show('start-screen'); drawRail(); }
+
+/* How each opening page is opened. next() uses this to go on from a check
+   among the opening pages, and the teacher preview to show any of them. */
+const OPENERS = { why: showWhy, care: showCare, summary: showSummary, tool: showTool,
+                  plan: showPlan, goals: showGoals, start: showStart };
 
 /* ══════════════════════════════════════════════════════
    VOCABULARY
@@ -1282,13 +1273,18 @@ function showGoals() {
 function renderVocab() {
   /* One word per page (Marcos 10/9: "Split them"), each heard before the next
      appears (guide.js) — for the words that are NEW here. The words already
-     taught on an opening page share one short reminder page first (10/11:
-     "reference force and friction but focus more on the other vocab words
-     that have not been talked about"). Which is which is `met` on the word
-     in data/lesson.js. */
+     taught share one short reminder page first (10/11: "reference force and
+     friction but focus more on the other vocab words that have not been
+     talked about"). Which is which is `met` on the word in data/lesson.js;
+     a `met` word was taught on an earlier page of this lesson, or in an
+     earlier lesson (`from`). The heading reads the same for both kinds. */
   const met = LESSON.vocab.filter(v => v.met), fresh = LESSON.vocab.filter(v => !v.met);
   const num = n => ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'][n] || String(n);
   const spanish = v => '<div class="es" data-noread>en espa&ntilde;ol: ' + v.es + '</div>';
+  /* the label and the title, from the day and from how many words there are */
+  const n = num(LESSON.vocab.length);
+  document.getElementById('vocab-eyebrow').innerHTML = dayLabel('vocab');
+  document.getElementById('vocab-head').textContent = n.charAt(0).toUpperCase() + n.slice(1) + ' words for today';
   document.getElementById('vocab-cards').innerHTML =
     (met.length
       ? '<div class="vpage" data-gpage><div class="vmet" data-step>' +
@@ -1319,22 +1315,17 @@ function renderVocab() {
    QUESTION ENGINE — vocabulary check, data analysis, exit ticket
 ══════════════════════════════════════════════════════ */
 /* Which questions a question screen asks, and where its answers are kept.
-   A check after a test asks that test's questions out of ANALYSIS_Q (CHECKS,
-   data/questions.js) and keeps the answers with the other data answers;
-   Day 3's 'analysis' asks the data questions no check has. */
-const CHECK_IDS = () => Object.values(window.CHECKS || {}).reduce((all, c) => all.concat(c.ids || []), []);
-const Q_PHASE = {
-  vq:       { bank: () => VOCAB_Q,    ans: 'vocabAns' },
-  analysis: { bank: () => ANALYSIS_Q.filter(q => CHECK_IDS().indexOf(q.id) === -1), ans: 'analysisAns' },
-  claims:   { bank: () => CLAIMS_Q,   ans: 'claimsAns' },
-  exit:     { bank: () => EXIT_Q,     ans: 'exitAns' }
-};
-Object.keys(window.CHECKS || {}).forEach(p => {
-  if (Q_PHASE[p]) return;
-  const c = window.CHECKS[p], ids = c.ids || [];
-  Q_PHASE[p] = c.bank
-    ? { bank: () => window[c.bank] || [], ans: 'checkAns' }                 /* a list of its own (the opening checks) */
-    : { bank: () => ids.map(id => ANALYSIS_Q.find(q => q.id === id)).filter(Boolean), ans: 'analysisAns' };
+   The word check asks VOCAB_Q. Every check in CHECKS (data/questions.js)
+   names its own list (`bank`). The last questions (EXIT_Q) are not written
+   yet; the day they are, they are asked on 'exit' (see PHASES). */
+const Q_PHASE = {};
+if ((window.VOCAB_Q || []).length) Q_PHASE.vq   = { bank: () => window.VOCAB_Q, ans: 'vocabAns' };
+if ((window.EXIT_Q || []).length)  Q_PHASE.exit = { bank: () => window.EXIT_Q,  ans: 'exitAns' };
+/* only the checks that are in the lesson: a check written for a day that is
+   not built yet is not asked and does not count toward the score */
+Object.keys(window.CHECKS || {}).filter(p => PHASES.indexOf(p) !== -1).forEach(p => {
+  const c = window.CHECKS[p];
+  Q_PHASE[p] = { bank: () => window[c.bank] || [], ans: 'checkAns' };
 });
 /* The Next button of a page that is followed by a check says so, and leads
    there: "Answer 3 questions about what we talked about". With no check
@@ -1353,64 +1344,15 @@ function firstUnanswered(bank, ans) {
   return bank.length; /* all done */
 }
 
-/* An item's stem and its choices may both be built from the student's own
-   averages, so the question is made out of their table rather than a key. */
-function stemOf(q) {
-  if (q.adaptive) return adaptiveStem();
-  if (typeof q.qFrom === 'function') return q.qFrom(labSummary());
-  return q.q;
-}
-function optsOf(q) {
-  if (q.adaptive) return adaptiveOpts().opts;
-  if (typeof q.optsFrom === 'function') return q.optsFrom(labSummary());
-  return q.opts;
-}
-function correctIndex(q) {
-  if (q.adaptive) return adaptiveOpts().correct;
-  if (typeof q.resolve === 'function') {
-    const want = stripTags(String(q.resolve(labSummary()))).toLowerCase();
-    const i = optsOf(q).findIndex(o => stripTags(o).toLowerCase() === want);
-    return i < 0 ? 0 : i;
-  }
-  return q.a;
-}
+/* A question's words, its choices and its right answer. Three small
+   functions on purpose: in a lesson with a test they are where a question is
+   built out of the student's own data table (the template did that with
+   `qFrom`, `optsFrom` and `resolve`). Here every question is fixed. */
+function stemOf(q) { return q.q; }
+function optsOf(q) { return q.opts; }
+function correctIndex(q) { return q.a; }
 
-/* L22 — the item that used to be the third written answer. It asks about the
-   prediction this student's data did NOT support, naming the investigation and
-   what they said. If all four held, it asks why the least obvious one worked.
-   The order of the choices is fixed per student, not reshuffled, so leaving and
-   coming back shows the same question. */
-const INV_NAME = { A:'Test 1 (the surfaces)', B:'Test 2 (how hard the push)',
-                   C:'Test 3 (how tall the ramp)', D:'Test 4 (car against truck)' };
-
-function adaptiveTarget() {
-  const miss = missedPredictions();
-  if (miss.length) return { inv:miss[0].inv, said:miss[0].said, got:miss[0].got, missed:true };
-  return { inv:'D', said:stripTags(app.predictions.D || ''), got:lowerFirst(labSummary().fartherD) + ' traveled farther', missed:false };
-}
-function adaptiveStem() {
-  const t = adaptiveTarget();
-  if (t.missed) {
-    return 'In <b>' + INV_NAME[t.inv] + '</b> you predicted <b>' + (t.said || 'something else') +
-           '</b>, but your data showed that <b>' + t.got + '</b>. Which best explains what happened?';
-  }
-  return 'All four of your predictions matched your data &mdash; good scientific thinking. ' +
-         'Take <b>' + INV_NAME.D + '</b>: your data showed that <b>' + t.got +
-         '</b>. Why did the test turn out that way?';
-}
-function adaptiveOpts() {
-  const t = adaptiveTarget();
-  const right = WHY_BANK[t.inv];
-  /* the correct choice sits in a different slot per investigation, so a student
-     cannot learn "it is always B" from a neighbour */
-  const slot = { A:0, B:1, C:2, D:1 }[t.inv];
-  const opts = WHY_DISTRACTORS.slice();
-  opts.splice(slot, 0, right);
-  return { opts:opts, correct:slot };
-}
-
-const PHASE_TITLE = { vq:'Word check', analysis:'Look back at your tests',
-                      claims:'Build the explanation', exit:'Exit ticket' };
+const PHASE_TITLE = { vq:'Word check', exit:'Exit ticket' };
 Object.keys(window.CHECKS || {}).forEach(p => { PHASE_TITLE[p] = window.CHECKS[p].title; });
 
 function renderQ() {
@@ -1430,26 +1372,6 @@ function renderQ() {
   /* Read-aloud says the question AND the four choices — a student who cannot
      read the options cannot answer a question they understood. */
 
-  /* L06–L13 ask the student to read their own table. Keeping it on the same
-     screen means the question tests the science, not their memory of a table
-     from two screens back. */
-  /* The table goes with the QUESTION, whichever screen asks the question.
-     It used to go with two named screens, so the explanation questions,
-     which are answered from the same data, had none (Marcos 10/11: "It
-     should be right there"). `inv` on the question: one test, or all four. */
-  const dataBox = document.getElementById('q-data');
-  const which = ['A','B','C','D'].includes(q.inv) ? q.inv : null;
-  const allFour = q.inv === 'all' || q.inv === '&mdash;';
-  if (which || allFour) {
-    dataBox.className = '';
-    dataBox.innerHTML = '<div class="qdata"><div class="qdata-h">' +
-      (which ? 'My Test ' + ({ A:1, B:2, C:3, D:4 }[which] || which) + ' data table' : 'My four tests: the average distance in each one') + '</div>' +
-      (which ? '<div class="tablewrap"><table class="data">' + tableHTML(which) + '</table></div>'
-             : '<div class="qtables">' + allTablesHTML() + '</div>') + '</div>';
-  } else {
-    dataBox.className = 'hidden';
-    dataBox.innerHTML = '';
-  }
   document.getElementById('q-fb').innerHTML = '';
   document.getElementById('q-next').classList.add('hidden');
   document.getElementById('q-bar').style.width = Math.round((app.qIndex / bank.length) * 100) + '%';
@@ -1544,1104 +1466,154 @@ function answerQ(q, picked, bank, ans) {
 
 /* A one-line reason, so a wrong answer still teaches something. */
 /* Feedback comes from the question itself (questions.js, `why`). */
-function whyRight(q) {
-  if (typeof q.why === 'function') { try { return q.why(labSummary()); } catch (e) { return ''; } }
-  return q.why || '';
-}
+function whyRight(q) { return q.why || ''; }
 
 /* ══════════════════════════════════════════════════════
-   THE LAB
+   A SAVED LESSON MUST FIT THE LESSON AS IT IS TODAY
+
+   The lesson is built a day at a time, and a question or a page can change
+   after students have saved work on their computers. Marcos 10/10, picking
+   up his own saved Lesson 1.1 after a change: "this is not where i left
+   off." The rule from that day, for the parts this lesson has:
+
+   - A place the lesson no longer has (a page that was renamed or taken
+     out): the student starts again at the first word. Nothing answered is
+     asked again and nothing heard has to be heard again.
+   - Answers to questions the lesson no longer asks are taken out, and so is
+     the point for each one that was right: the score is out of the
+     questions asked today.
+   - A check that was added (or moved earlier) after this lesson was saved
+     sits BEHIND the student, never asked. Those questions count toward the
+     score, so the student is sent to the first such check, and from there
+     next() walks the rest and then returns the student to `resumeAt`.
+
+   (The template also fitted saved PUSHES to the runs of each test. This
+   lesson has no test; that half is in the template, git show
+   5388b7a:script.js, fitSaved, for the day a test is added.)
+
+   Pure: takes what was saved, returns what to use. A damaged save must not
+   stop the page, so nothing here trusts the shape of what it is given.
 ══════════════════════════════════════════════════════ */
-/* The canvas is only as tall as the tallest thing drawn on it (the 3-book
-   ramp), so the button and the data table can sit right under the cart. */
-const TRACK = { w:900, h:132, x0:28, y:92 };
-/* The start line sits further right on a ramp run so the ramp has room to the
-   left of zero; the scale follows it, so a centimetre is a centimetre either way. */
-const RAMP_ROOM = 150;
-const originX = run => TRACK.x0 + (run && run.ramp ? RAMP_ROOM : 0);
-const CM_PX = run => (TRACK.w - originX(run) - 40) / LAB.trackCm;
-
-/* One run's distance, in whole centimetres.
-     pushed  : d = v0² / (2µg)              — Investigations A and B
-     ramp    : d = h / µ                     — Test 3 (v² = 2gh at the bottom)
-     mass    : d = v0² / (2µg) ÷ m           — Test 4 (same work, more mass)
-   Every run carries about ±4%, so two trials of the same setup never match
-   exactly and the average is worth taking. */
-function distanceCm(run, vary) {
-  const mu = LAB.surfaces[run.surface].mu;
-  let base;
-  if (run.ramp) {
-    base = LAB.ramps[run.ramp].cm / mu;
-  } else {
-    const v0 = LAB.pushes[run.push].v0;
-    base = (v0 * v0) / (2 * mu * LAB.G) * 100;
-    if (run.vehicle) base = base / LAB.vehicles[run.vehicle].mass;
-  }
-  const f = vary ? 1 + (Math.random() * 0.08 - 0.04) : 1;
-  return Math.max(5, Math.round(base * f));
-}
-
-/* How long the real cart would take to stop — only used to pace the animation,
-   so a low-friction run visibly rolls longer than a high-friction one. */
-function stopTime(run) {
-  const mu = LAB.surfaces[run.surface].mu;
-  const v = run.ramp ? Math.sqrt(2 * LAB.G * (LAB.ramps[run.ramp].cm / 100))
-                     : LAB.pushes[run.push].v0 / (run.vehicle ? 1 : 1);
-  return v / (mu * LAB.G);
-}
-const MAX_STOP_TIME = 5.71;   /* ice + big push, the slowest stop in the model */
-
-function drawTrack(run, cartCm, travelledCm) {
-  const c = document.getElementById('track');
-  if (!c) return;
-  const g = c.getContext('2d');
-  const s = LAB.surfaces[run.surface];
-  const X0 = originX(run);
-  const css = getComputedStyle(document.body);
-  const ink = css.getPropertyValue('--ink').trim() || '#16211F';
-  const faint = css.getPropertyValue('--ink-faint').trim() || '#7E918C';
-  const sheet = css.getPropertyValue('--surface').trim() || '#fff';
-
-  g.clearRect(0, 0, TRACK.w, TRACK.h);
-  g.fillStyle = sheet; g.fillRect(0, 0, TRACK.w, TRACK.h);
-
-  /* the surface band */
-  g.fillStyle = s.color;
-  g.fillRect(0, TRACK.y, TRACK.w, 30);
-  g.globalAlpha = 0.35; g.fillStyle = '#000';
-  for (let x = 0; x < TRACK.w; x += 6) {
-    const bump = s.mu * 26;                     /* rougher surface, taller texture */
-    g.fillRect(x, TRACK.y + 30 - bump * (0.4 + 0.6 * Math.abs(Math.sin(x))), 3, bump);
-  }
-  g.globalAlpha = 1;
-
-  /* meter marks */
-  g.strokeStyle = faint; g.fillStyle = faint;
-  g.font = '600 15px "IBM Plex Mono", monospace'; g.lineWidth = 2;
-  for (let m = 0; m <= 9; m++) {
-    const x = X0 + m * 100 * CM_PX(run);
-    g.beginPath(); g.moveTo(x, TRACK.y - 9); g.lineTo(x, TRACK.y); g.stroke();
-    /* centimeters, the unit the readout and the data table use. The marks
-       said "1 m" to "9 m" beside a readout in cm: two units, never explained. */
-    if (m > 0) g.fillText((m * 100) + ' cm', x - 27, TRACK.y - 14);   /* 0 is the START line */
-  }
-
-  /* start line */
-  g.strokeStyle = ink; g.lineWidth = 2;
-  g.beginPath(); g.moveTo(X0, TRACK.y - 64); g.lineTo(X0, TRACK.y); g.stroke();
-  g.font = '700 15px "IBM Plex Mono", monospace'; g.fillStyle = ink;
-  g.fillText('START', X0 + 5, TRACK.y - 68);
-
-  /* distance trail */
-  if (travelledCm > 0) {
-    g.strokeStyle = s.color; g.lineWidth = 3; g.setLineDash([5, 4]);
-    g.beginPath(); g.moveTo(X0, TRACK.y + 2);
-    g.lineTo(X0 + travelledCm * CM_PX(run), TRACK.y + 2); g.stroke();
-    g.setLineDash([]);
-  }
-
-  /* the ramp, when the run has one: a board on a stack of books, drawn to the
-     LEFT of the start line so the measured distance still begins at zero */
-  if (run.ramp) {
-    const h = LAB.ramps[run.ramp].cm * 1.5;        /* drawn taller than scale, to read */
-    const topY = TRACK.y - h, bx = X0 - RAMP_ROOM;
-    g.fillStyle = '#8D6E63';
-    g.beginPath(); g.moveTo(bx, topY); g.lineTo(X0, TRACK.y); g.lineTo(X0, TRACK.y + 6);
-    g.lineTo(bx, topY + 8); g.closePath(); g.fill();
-    const bookH = Math.max(6, h / LAB.ramps[run.ramp].blocks);
-    ['#C62828', '#1565C0', '#2E7D32'].slice(0, LAB.ramps[run.ramp].blocks).forEach((col, i) => {
-      g.fillStyle = col;
-      g.fillRect(bx - 16, TRACK.y - (i + 1) * bookH, 52, bookH - 2);
-    });
-    g.fillStyle = ink; g.font = '700 15px "IBM Plex Mono", monospace';
-    g.fillText(LAB.ramps[run.ramp].name, bx - 14, TRACK.y + 21);
-  }
-
-  /* the vehicle — drawn a third bigger than it used to be, in its own scaled
-     frame so every measurement below stays as it was */
-  const big = run.vehicle === 'truck';
-  const W = big ? 54 : 36, H = big ? 24 : 18;
-  g.save();
-  g.translate(X0 + cartCm * CM_PX(run), TRACK.y - 2);
-  g.scale(1.35, 1.35);
-  g.fillStyle = 'rgba(0,0,0,.18)';
-  g.beginPath(); g.ellipse(W / 2, 3, W * 0.62, 4, 0, 0, Math.PI * 2); g.fill();
-  g.fillStyle = big ? '#37474F' : '#C62828';
-  roundRect(g, 0, -8 - H, W, H, 4); g.fill();
-  g.fillStyle = big ? '#263238' : '#90302A';
-  roundRect(g, 5, -16 - H, big ? 20 : 24, 10, 3); g.fill();
-  const wheels = big ? [10, 28, 44] : [9, 27];
-  g.fillStyle = '#2B2B2B';
-  wheels.forEach(wx => { g.beginPath(); g.arc(wx, -6, 6.5, 0, Math.PI * 2); g.fill(); });
-  g.fillStyle = '#9E9E9E';
-  wheels.forEach(wx => { g.beginPath(); g.arc(wx, -6, 2.4, 0, Math.PI * 2); g.fill(); });
-  g.restore();
-
-  /* The surface's name used to be written under the band, in small type
-     that the canvas edge cut in half. It is on the strip above the track
-     now, where a speaker can read it. */
-
-  /* The track is the lesson. Keep a spoken equivalent on it so a student using a
-     screen reader gets the same information as one watching the cart. */
-  c.setAttribute('aria-label',
-    'Track 900 centimeters long. Surface: ' + stripTags(s.name) + ', ' + s.note + '. ' +
-    (run.ramp ? 'Ramp of ' + LAB.ramps[run.ramp].name + ' at the start. ' : '') +
-    (run.vehicle ? 'Vehicle: ' + LAB.vehicles[run.vehicle].name + '. ' : '') +
-    (cartCm > 0 ? 'The cart is ' + Math.round(cartCm) + ' centimeters from the start.'
-                : 'The cart is at the start line.'));
-}
-function roundRect(g, x, y, w, h, r) {
-  g.beginPath();
-  g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r);
-  g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r);
-  g.arcTo(x, y, x + w, y, r); g.closePath();
-}
-
-function renderPredict(inv) {
-  app.show('lab-screen');
-  document.getElementById('predict-card').classList.remove('hidden');
-  document.getElementById('run-card').classList.add('hidden');
-  document.getElementById('graph-card').classList.add('hidden');
-
-  document.getElementById('pr-eyebrow').innerHTML = inv.label;
-  document.getElementById('pr-head').innerHTML = art(INV_ART[inv.id], 'invart') + inv.heading;
-  document.getElementById('pr-plain').innerHTML = inv.headingPlain || '';
-  document.getElementById('pr-question').innerHTML = inv.question;
-  /* what gets measured in this test, and what that measurement shows */
-  document.getElementById('pr-measure').innerHTML = inv.measure || '';
-  document.getElementById('pr-same-lb').innerHTML = inv.sameLabel;
-  document.getElementById('pr-same-v').innerHTML = inv.sameValue;
-  document.getElementById('pr-chg-lb').innerHTML = inv.changeLabel;
-  document.getElementById('pr-chg-v').innerHTML = inv.changeValue;
-
-  /* Say the job out loud before they start: how many pushes, why that many,
-     and the exact buttons to press. A student who cannot infer the routine
-     from the interface should not have to. */
-  document.getElementById('pr-docount').textContent = inv.doCount || '';
-  document.getElementById('pr-dowhy').innerHTML     = inv.doWhy || '';   /* carries <dfn> */
-  const steps = document.getElementById('pr-dosteps');
-  steps.innerHTML = '';
-  (inv.doSteps || []).forEach(t => {
-    const li = document.createElement('li');
-    li.setAttribute('data-step', '');
-    li.innerHTML = t;
-    steps.appendChild(li);
-  });
-  document.getElementById('pr-predict').innerHTML = inv.predictQ;
-
-  const box = document.getElementById('pr-opts');
-  const nx = document.getElementById('pr-next');
-  const already = app.predictions[inv.id];
-  box.innerHTML = '';
-  inv.predictOpts.forEach((o, i) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'opt' + (already === o ? ' sel' : '');
-    b.innerHTML = '<span class="ltr">' + 'ABCD'[i] + '</span><span>' + o + '</span>';
-    b.onclick = () => {
-      [...box.children].forEach(x => x.classList.remove('sel'));
-      b.classList.add('sel');
-      app.predictions[inv.id] = o;
-      nx.disabled = false;
-      app.save();
-    };
-    box.appendChild(b);
-  });
-  nx.disabled = !already;
-  attachSpeakers(document.getElementById('predict-card'));
-  guide.run(document.getElementById('predict-card'), { id: 'predict' + inv.id });
-  nx.onclick = () => { logEvent('predict', { inv:inv.id, v:stripTags(app.predictions[inv.id]) }); app.next(); };
-
-}
-
-/* Describes a run in the words of whatever it varies. */
-function setupLine(run) {
-  const bits = [];
-  if (run.vehicle) bits.push('<b>' + LAB.vehicles[run.vehicle].name + '</b>');
-  if (run.ramp)    bits.push('ramp of <b>' + LAB.ramps[run.ramp].name + '</b>');
-  bits.push('<b>' + LAB.surfaces[run.surface].name + '</b>');
-  if (run.push)    bits.push('<b>' + LAB.pushes[run.push].name + '</b> ' + LAB.pushes[run.push].arrows);
-  if (run.ramp)    bits.push('let go, no push');
-  return bits.join(' &middot; ');
-}
-
-function renderRun(invKey) {
-  const inv = invOf(invKey);
-  app.show('lab-screen');
-  document.getElementById('predict-card').classList.add('hidden');
-  document.getElementById('run-card').classList.remove('hidden');
-  document.getElementById('graph-card').classList.add('hidden');
-
-  document.getElementById('run-eyebrow').innerHTML = inv.label;
-  document.getElementById('run-head').innerHTML = inv.heading;
-  document.getElementById('table-head').innerHTML = inv.label + ' &mdash; my data table';
-
-  app.lastRun = null;
-  paintRun(invKey);
-  attachSpeakers(document.getElementById('run-card'));
-}
-
-/* WHAT moved, by name, for every sentence about a push. Tests 1 and 2 push a
-   cart, Test 3 rolls a car down a ramp, Test 4 pushes a car and then a truck.
-   Marcos 10/10: "the distance the cart traveled. Be more specific in what is
-   happening." */
-function moverOf(run) {
-  if (run && run.vehicle) return 'the ' + stripTags(LAB.vehicles[run.vehicle].name).toLowerCase();
-  return run && run.ramp ? 'the car' : 'the cart';
-}
-const lowerFirst = t => String(t || '').replace(/^[A-Z]/, c => c.toLowerCase());
-/* The readout beside the button: a sentence, not the label "Distance:". */
-function traveledText(run, cm, stopped) {
-  const who = moverOf(run).replace(/^t/, 'T');
-  return who + (stopped ? ' traveled ' : ' has traveled ') + cm + ' cm';
-}
-
-/* Every piece of one push, in a child's words. Used three ways: the strip
-   above the track (short), the "new this time" card (full, heard once), and
-   the Stuck? panel (full, any time). */
-function setupBits(run) {
-  const bits = [];
-  const sf = LAB.surfaces[run.surface];
-  if (sf) bits.push({ key:'surface:' + run.surface, kind:'surface', pic:art(SURFACE_ART[run.surface], 'swatch'),
-    name:stripTags(sf.name), short:sf.note, full:sf.note + (sf.ex ? ' &mdash; ' + sf.ex : '') });
-  if (run.ramp) { const r = LAB.ramps[run.ramp];
-    bits.push({ key:'ramp:' + run.ramp, kind:'ramp', pic:art((window.THING_ART || {}).ramp, 'swatch'),
-      name:'Ramp of ' + r.name, short:'let the car go, no push',
-      full:(r.note || '') + '. You let the car go. You do not push the car.' }); }
-  if (run.vehicle) { const v = LAB.vehicles[run.vehicle];
-    bits.push({ key:'vehicle:' + run.vehicle, kind:'vehicle', pic:art(INV_ART.D, 'swatch'),
-      name:stripTags(v.name), short:v.note || '', full:(v.note || '') + (v.ex ? ' &mdash; ' + v.ex : '') }); }
-  if (run.push && !run.ramp) { const pu = LAB.pushes[run.push];
-    bits.push({ key:'push:' + run.push, kind:'push', pic:art(INV_ART.B, 'swatch'),
-      name:stripTags(pu.name), short:'', arrows:pu.arrows, full:pu.note || '' }); }
-  return bits;
-}
-const bitKeys = run => [run.surface && 'surface:' + run.surface, run.ramp && 'ramp:' + run.ramp,
-  run.vehicle && 'vehicle:' + run.vehicle, run.push && !run.ramp && 'push:' + run.push].filter(Boolean);
-
-/* THE HELPER — a voice beside the student that reacts to each push.
-   Marcos 10/10: "maybe we should include commentary from an experiment
-   assistant. 'Hey that push went further than the one before', 'That was
-   way different than what our prediction thought'. Gets the kids thinking."
-
-   Every line is made from the student's own numbers and ends by pointing at
-   something to think about. Nothing is invented: the helper only compares
-   distances that are in the table, and the prediction the student locked in.
-   It follows the lesson's rules — names the thing, gives the distances, no
-   "it". Pure: give it the rows recorded so far and it returns the words.
-
-   rows  the runs of THIS test already recorded (not the one that just landed)
-   pred  the prediction locked in for this test (plain text)                 */
-function helperSays(invKey, i, cm, rows, pred) {
-  const inv = invOf(invKey), run = inv.runs[i];
-  const who = moverOf(run), Who = who.replace(/^t/, 'T');
-  const surf = r => stripTags(LAB.surfaces[r.surface].name).toLowerCase();
-  const at = r => r.ramp ? 'from ' + LAB.ramps[r.ramp].name + ' high'
-             : r.vehicle ? ''
-             : invKey === 'B' ? 'with the ' + stripTags(LAB.pushes[r.push].name).toLowerCase()
-             : 'on ' + surf(r);
-  const here = at(run), key = runKey(run);
-  const sp = t => t.replace(/\s+/g, ' ').replace(/ ([.:,])/g, '$1').trim();
-  const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
-  const same = rows.filter(r => runKey(r) === key);
-  const groups = groupsFor(invKey), gi = Math.max(0, groups.findIndex(g => g.key === key));
-  const times = window.TIMES || 'more than once';
-  /* the average distance of a setup so far; `plus` adds the push that just landed */
-  const avgOf = (g, plus) => {
-    const v = rows.filter(r => runKey(r) === g.key).map(r => r.cm).concat(plus == null ? [] : [plus]);
-    return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null;
-  };
-  /* Test 3 has no push: the car is let go from a ramp. Say what was done. */
-  const whyMore = run.ramp ? 'One trial can be a little off. That is why you let the car go ' + times + '.'
-                           : 'One push can be a little off. That is why you push ' + times + '.';
-  const said = stripTags(pred || '').replace(/\.$/, ''), p = said.toLowerCase();
-  const OK = 'That is OK. Scientists learn the most from a prediction that misses.';
-
-  /* THE PREDICTION — asked about once in each test, on the second trial of
-     the first setup that can answer it. Marcos: "That was way different than
-     what our prediction thought." */
-  function verdict() {
-    if (!p || same.length !== 1) return '';
-    const open = 'Remember your prediction? You predicted' + (invKey === 'A' || /^the (car|truck)$/.test(p) ? ' ' + p : ': ' + said);
-    if (invKey === 'A') {
-      /* the surface they picked, once that surface has two distances. If they
-         picked the first surface, the second surface is the first answer. */
-      const pi = groups.findIndex(g => surf(g) === p);
-      if (pi < 0 || gi !== (pi === 0 ? 1 : pi)) return '';
-      const best = groups.slice(0, gi + 1).map(g => ({ name: surf(g), cm: avgOf(g, g.key === key ? cm : null) }))
-        .sort((a, b) => b.cm - a.cm)[0];
-      return best.name === p
-        ? open + '. So far the cart traveled the farthest on ' + p + '. That matches your prediction so far.'
-        : open + '. But the cart traveled the farthest on ' + best.name + '. ' + OK;
-    }
-    if (gi !== 1) return '';
-    const before = avgOf(groups[0]), now = avgOf(run, cm);
-    if (before == null) return '';
-    const farther = now > before;
-    if (invKey === 'D') {
-      const first = moverOf(groups[0]), ahead = farther ? who : first, behind = farther ? first : who;
-      return p === ahead ? open + ' would travel farther. So far ' + ahead + ' traveled farther. That matches your prediction so far.'
-           : p === behind ? open + ' would travel farther. But ' + ahead + ' traveled farther. ' + OK
-           : open + '. But ' + ahead + ' traveled farther than ' + behind + '. ' + OK;
-    }
-    const cause = invKey === 'B' ? 'the bigger push' : 'the taller ramp';
-    const did = cause + ' made ' + who + ' travel ' + (farther ? 'farther' : 'a shorter way');
-    const hit = (farther ? /farther/ : /shorter/).test(p);
-    return hit ? open + '. So far ' + did + '. That matches your prediction so far.'
-               : open + '. But ' + did + '. ' + OK;
-  }
-
-  /* 1 · another trial of the same setup */
-  if (same.length) {
-    const last = same[same.length - 1].cm, diff = cm - last;
-    /* the last trial: look at all of them together, which is what the
-       average in the table is made from */
-    if (same.length >= 2) {
-      const all = same.map(r => r.cm).concat(cm), n = all.length;
-      const nW = n === window.TRIALS && window.N_WORD ? window.N_WORD : String(n);
-      const lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
-      const mean = all.reduce((a, b) => a + b, 0) / n;
-      return sp('That makes ' + nW + ' trials ' + (here || 'with ' + who) + ': ' + same.map(r => r.cm + ' cm').join(', ') + ' and ' + cm + ' cm. ' +
-        (hi - lo <= Math.max(10, mean * 0.05) ? 'All ' + nW + ' distances are close, because nothing changed.' : whyMore));
-    }
-    const v = verdict();
-    if (v) return sp(v);
-    /* three ways of saying "close", taken in turn, so the repeat pushes do
-       not all get the same sentence */
-    if (Math.abs(diff) <= Math.max(10, last * 0.05))
-      return sp([
-        'Look at that! ' + Who + ' traveled ' + cm + ' cm ' + here + '. Last time ' + who + ' traveled ' + last + ' cm. Those distances are close.',
-        'Close again! ' + Who + ' traveled ' + cm + ' cm ' + here + '. Last time ' + who + ' traveled ' + last + ' cm. Nothing changed, so the distances are close.',
-        Who + ' traveled ' + cm + ' cm ' + here + '. That is close to ' + last + ' cm from last time. Same test, about the same distance.'
-      ][gi % 3]);
-    return sp('Hey! ' + Who + ' traveled ' + cm + ' cm ' + here + '. Last time ' + who + ' traveled ' + last + ' cm. That is ' +
-      Math.abs(diff) + ' cm ' + (diff > 0 ? 'farther' : 'less') + '. ' + whyMore);
-  }
-
-  /* 2 · the first trial of a NEW setup: put the distance next to the setup
-     before, say which way the distance went, and ask why */
-  if (gi > 0) {
-    const prev = groups[gi - 1], before = avgOf(prev);
-    if (before != null) {
-      const farther = cm > before, pWho = moverOf(prev);
-      const ask = invKey === 'A' ? 'What is different about ' + surf(run) + '?'
-                : invKey === 'B' ? 'What did the bigger push do to the cart?'
-                : invKey === 'C' ? 'What did the taller ramp do to the car?'
-                :                  'What is different about ' + who + '?';
-      return sp(['Whoa!', 'Look at this!', 'Wow!'][(gi - 1) % 3] + ' ' + Who + ' traveled ' + cm + ' cm ' + here + '. ' +
-        (run.vehicle ? cap(pWho) : cap(at(prev)) + ' ' + pWho) + ' traveled about ' + before + ' cm. ' +
-        (run.vehicle ? Who + (farther ? ' traveled farther than ' : ' stopped sooner than ') + pWho
-                     : Who + (farther ? ' traveled farther ' : ' stopped sooner ') + here) + '. ' + ask);
-    }
-  }
-
-  /* 3 · the very first push of a test. The first test of the lesson is also
-     the first time the helper speaks, so the helper says who is talking. */
-  const first = invKey === 'A';
-  return sp((first ? 'Hi! I am your helper. I watch every push with you. ' : '') +
-    Who + ' traveled ' + cm + ' cm ' + here + '. That is your first distance' + (first ? '.' : ' for this test.') +
-    (p ? ' You predicted' + (invKey === 'A' || /^the (car|truck)$/.test(p) ? ' ' + p : ': ' + said) + '. Watch what the next distances say.' : ''));
-}
-
-/* WHAT AN AVERAGE IS, at their level, from THEIR numbers.
-   Marcos 10/10: "we need to explain what an average is for their level."
-   The page said "the bar is the average of your two trials" and nothing ever
-   said what that meant. For two trials the average is the distance in the
-   middle, halfway between the two — something a child can see on a line.
-   No adding and halving: most of this class cannot do that division yet.
-
-   how: 'first'  the full explanation, in two parts (the push screen, the
-                 first time the Average box fills)
-        'page'   one box (the first results page)
-        'short'  a reminder (later results pages)                          */
-function averageParts(invKey, g, how) {
-  const run = g, c = cellsFor(invKey, g);
-  if (c.avg == null || c.t.some(v => v == null)) return [];
-  const who = moverOf(run), n = c.t.length, times = window.TIMES || (n + ' times'), nWord = window.N_WORD || String(n);
-  const did = run.vehicle ? 'You pushed ' + who + ' ' + times + '.'
-            : run.ramp    ? 'You let the car go from the ramp of ' + LAB.ramps[run.ramp].name + ' ' + times + '.'
-            : invKey === 'B' ? 'You gave the cart the ' + stripTags(LAB.pushes[run.push].name).toLowerCase() + ' ' + times + '.'
-            : 'You pushed the cart on ' + stripTags(LAB.surfaces[run.surface].name).toLowerCase() + ' ' + times + '.';
-  const lo = Math.min.apply(null, c.t), hi = Math.max.apply(null, c.t);
-  const trials = c.t.map((v, k) => 'On trial ' + (k + 1) + ' ' + who + ' traveled <b>' + v + ' cm</b>.').join(' ');
-  /* True of any average of several distances: it lies between the shortest
-     and the longest. (After rounding it can land ON one of them when the
-     trials are within a centimeter; then the sentence says so instead.) */
-  const middle = lo === hi
-    ? 'All ' + nWord + ' distances are the same, so the average is the same distance: <b>' + c.avg + ' cm</b>.'
-    : (c.avg > lo && c.avg < hi)
-      ? 'The <dfn>average</dfn> is one distance that stands for all ' + nWord + ' trials. The average is in the middle: ' +
-        'longer than ' + lo + ' cm and shorter than ' + hi + ' cm. Your average is <b>' + c.avg + ' cm</b>.'
-      : 'The <dfn>average</dfn> is one distance that stands for all ' + nWord + ' trials. Your ' + nWord +
-        ' distances are very close together. Your average is <b>' + c.avg + ' cm</b>.';
-  /* the picture: each trial a dot on a line, the average marked among them */
-  const X = v => hi === lo ? 160 : 46 + (v - lo) / (hi - lo) * 228;
-  const pic = '<div class="avgline" data-noread>' +
-    '<svg viewBox="0 0 320 92" aria-hidden="true" focusable="false">' +
-    '<path d="M24 46h272" stroke="var(--sci-dark)" stroke-width="4" stroke-linecap="round"/>' +
-    c.t.map(v => '<circle cx="' + X(v).toFixed(1) + '" cy="46" r="8" fill="var(--sci)"/>').join('') +
-    '<path d="M' + X(c.avg).toFixed(1) + ' 31l11 15-11 15-11-15z" fill="var(--accent)"/>' +
-    '<text x="' + Math.max(60, Math.min(260, X(c.avg))).toFixed(1) + '" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">average ' + c.avg + ' cm</text>' +
-    (lo === hi ? '' :
-      '<text x="46" y="80" text-anchor="middle" font-size="13" fill="var(--ink)">' + lo + ' cm</text>' +
-      '<text x="274" y="80" text-anchor="middle" font-size="13" fill="var(--ink)">' + hi + ' cm</text>') +
-    '</svg></div>';
-  const reading = 'Think of reading. On Monday you read 10 pages. On Tuesday you read 20 pages. On Wednesday you read 30 pages. ' +
-    'The amount in the middle is 20 pages. So 20 pages is the average.';
-  const why = 'One trial can be a little off. The average of ' + nWord + ' trials is closer to the truth. The site finds the average for you.';
-  if (how === 'short')
-    return ['<span class="lbl">Remember the average</span><p>' + did + ' ' + trials + '</p><p>' + middle + '</p>' + pic];
-  if (how === 'page')
-    return ['<span class="lbl">What is an average?</span><p>' + did + ' ' + trials + '</p><p>' + middle + '</p>' + pic +
-            '<p>' + why + '</p>'];
-  return ['<span class="lbl">New this time: the average</span>' +
-            '<p>Look at your data table. A new distance is in the box called <b>Average</b>.</p>' +
-            '<p>' + did + ' ' + trials + '</p><p>' + middle + '</p>' + pic,
-          '<span class="lbl">The average, with an example</span><p>' + reading + '</p><p>' + why + '</p>'];
-}
-
-/* What is NEW in this push: any piece that no earlier push in the whole
-   lesson has used, and the first second-try. Worked out from where the push
-   sits in the lesson, so it needs no memory and is the same after a resume.
-   Ice is explained when ice first appears, not on all eight pushes. */
-function newInRun(invKey, i) {
-  const seen = new Set(); let seenTwice = false, avgDue = false, avgShown = false;
-  for (const k of ['A', 'B', 'C', 'D']) {
-    const runs = invOf(k).runs;
-    for (let j = 0; j < runs.length; j++) {
-      /* the average: explained on the push right after the first Average box
-         fills, when there is a real average of their own to point at */
-      const average = avgDue && !avgShown && j > 0;
-      if (k === invKey && j === i)
-        return { fresh:setupBits(runs[j]).filter(b => !seen.has(b.key)),
-                 whyTwice:runs[j].trial === 2 && !seenTwice,
-                 average:average ? runs[j - 1] : null };
-      if (average) avgShown = true;
-      bitKeys(runs[j]).forEach(x => seen.add(x));
-      if (runs[j].trial === 2) seenTwice = true;
-      if (runs[j].trial === LAB.TRIALS) avgDue = true;
-    }
-  }
-  return { fresh:[], whyTwice:false, average:null };
-}
-
-/* Put the push in front of the student: the strip, the cart, the button and
-   the table together. While something new is being explained, show that
-   first. Waits for the screen's own scroll-to-top to finish. */
-/* WHERE THE PUSH SCREEN SITS IN THE WINDOW.
-   Three things have to be on screen together: the cart, the button to press,
-   and the glowing box the distance goes into. The page moves only when one
-   of them is not, and then only as far as needed — a page that slides on
-   every push is its own distraction. A new setup starts from its strip
-   (which surface, which push, which trial); the trials after it stay put. */
-function focusRun(now) {
-  const go = () => {
-    const card = document.getElementById('run-card');
-    if (!card || card.offsetParent === null) return;
-    const fresh = document.getElementById('run-new');
-    const top = (fresh.offsetParent !== null && fresh.childElementCount) ? fresh : document.getElementById('run-strip');
-    const floor = innerHeight - guide.barHeight() - 8;          /* the lowest a thing can sit and still be seen */
-    const y0 = window.scrollY, topR = top.getBoundingClientRect();
-    const tbl = document.getElementById('data-table').getBoundingClientRect();
-    const cv = card.querySelector('canvas').getBoundingClientRect();
-    const box = card.querySelector('td.target'), boxBottom = box ? box.getBoundingClientRect().bottom : tbl.top;
-    const btn = [...card.querySelectorAll('#run-record, #run-btn')].find(b => b.offsetParent !== null);
-    const k = (/^run([A-D])$/.exec(app.phase) || [])[1], run = k && invOf(k).runs[app.runIndex[k]];
-    const newSetup = !!run && run.trial === 1 && !app.lastRun;  /* about to push the first trial of a setup */
-
-    let y = y0;
-    if (topR.top > 0 && tbl.bottom > floor) y = y0 + topR.top;                       /* arriving: the strip to the top */
-    else if (topR.top < 0 && (newSetup || cv.top < 0 || (btn && btn.getBoundingClientRect().top < 0)))
-      y = y0 + topR.top;                                                              /* a new setup, or the cart got cut off */
-    /* THE GLOWING BOX has to be on screen: it is where the distance goes.
-       With the helper speaking, the lower rows of the table slid under the
-       help bar. Move up just enough — never so far that the button being
-       pressed leaves the top of the window. */
-    /* On a narrow screen the helper sits under the table: show the helper
-       too when there is room. */
-    const helper = document.getElementById('run-helper');
-    const under = helper.offsetParent !== null && !!helper.closest('.tablezone');
-    const lowest = under ? Math.max(boxBottom, helper.getBoundingClientRect().bottom) : boxBottom;
-    const need = y0 + lowest - floor;
-    if (need > y) y = Math.min(need, btn ? y0 + btn.getBoundingClientRect().top - 8 : need);
-    if (Math.abs(y - y0) > 2) window.scrollTo({ top: y, behavior: guide.instant ? 'instant' : 'smooth' });
-  };
-  if (now === true) go(); else setTimeout(go, 500);
-}
-
-function paintRun(invKey) {
-  const inv = invOf(invKey);
-  const i = app.runIndex[invKey];
-  const total = inv.runs.length;
-  const done = i >= total;
-  const card = document.getElementById('run-card');
-
-  /* Test 3 is released, not pushed — the counter has to agree with
-     the button and the steps, or the screen contradicts itself. */
-  const unit = inv.runNoun || 'Push';
-  document.getElementById('run-progress').textContent =
-    unit + ' ' + Math.min(i + 1, total) + ' of ' + total;
-
-  const runBtn = document.getElementById('run-btn');
-  /* Test 3 releases the car from a ramp — nobody pushes it. The
-     button has to say so, because the screen told them it would. */
-  runBtn.innerHTML = inv.runVerb || '&#128072; Push the cart';
-  const recBtn = document.getElementById('run-record');
-  const doneBtn = document.getElementById('run-done');
-  const read = document.getElementById('run-readout');
-  const tnote = document.getElementById('table-note');
-  const strip = document.getElementById('run-strip');
-  const fresh = document.getElementById('run-new');
-  const helper = document.getElementById('run-helper');
-  helper.classList.add('hidden'); helper.innerHTML = '';     /* shown only when a push has just landed */
-  read.classList.remove('hidden');
-
-  /* the box that was filled a moment ago flashes once */
-  const just = (app.justFilled && app.justFilled.inv === invKey)
-    ? { key:app.justFilled.key, trial:app.justFilled.trial, cls:'just' } : null;
-  app.justFilled = null;
-
-  if (done) {
-    renderTable(invKey, [just]);
-    strip.innerHTML = ''; fresh.innerHTML = '';
-    tnote.innerHTML = '<b>Your data table is full.</b> All ' + total + ' ' +
-      (inv.runNoun ? inv.runNoun.toLowerCase() + 's' : 'pushes') + ' are in your data table. Now look at what the distances tell you.';
-    read.textContent = 'Your data table is full';
-    runBtn.classList.add('hidden'); recBtn.classList.add('hidden');
-    doneBtn.classList.remove('hidden');
-    doneBtn.onclick = () => app.next();
-    const last = app.data[invKey][app.data[invKey].length - 1];
-    if (last) drawTrack(last, last.cm, last.cm);
-    attachSpeakers(card);
-    guide.run(card, { id:'run' + invKey + 'end', leads:false });
-    renderDoSteps(app.phase);
-    focusRun();
-    return;
-  }
-
-  doneBtn.classList.add('hidden');
-  const run = inv.runs[i];
-  /* Name the thing being pushed. Test 4 pushes a car and then a truck, and
-     the button said "Push the cart" for both. */
-  if (run.vehicle) runBtn.innerHTML = '&#128072; Push the ' + stripTags(LAB.vehicles[run.vehicle].name).toLowerCase();
-  const bits = setupBits(run);
-  const nTrials = trialsFor(invKey);
-  const noun = inv.runNoun || 'Push';
-  const landed = !!(app.lastRun && app.lastRun.index === i);
-
-  /* THE STRIP — what this push uses, one glance, right above the cart. It
-     replaces two paragraphs that sat between the cart and its button. */
-  strip.innerHTML = bits.map(b =>
-      '<span class="schip">' + b.pic + '<b>' + b.name + '</b>' + (b.short ? ' &mdash; ' + b.short : '') +
-      (b.arrows ? ' <span data-noread aria-hidden="true">' + b.arrows + '</span>' : '') + '</span>').join('') +
-    (nTrials > 1 ? '<span class="schip try">' + (run.trial === 1
-        ? 'Trial 1 of ' + nTrials
-        : 'Trial ' + run.trial + ' of ' + nTrials + ' &mdash; the same again, to be sure') + '</span>' : '');
-
-  /* NEW THIS TIME — the full explanation, with its example, the first time a
-     thing appears. It has to be heard (guide.js) before the button exists,
-     then it folds away so the push screen stays the cart, the button and the
-     table. The same words stay one tap away under "Stuck? Tap here". */
-  const nw = newInRun(invKey, i);
-  fresh.innerHTML =
-    /* the first average comes FIRST: it is about the box that just filled,
-       before the page moves on to the next surface */
-    (nw.average ? averageParts(invKey, Object.assign({ key:runKey(nw.average) }, nw.average), 'first')
-      .map(h => '<div class="newcard" data-step>' + h + '</div>').join('') : '') +
-    nw.fresh.map(b =>
-      '<div class="newcard" data-step><span class="lbl">New this time</span>' +
-      '<p>' + b.pic + '<b>' + b.name + '</b> &mdash; ' + b.full + '</p></div>').join('') +
-    (nw.whyTwice ? '<div class="newcard" data-step><span class="lbl">Why ' + (window.TIMES || 'more than once') + '?</span>' +
-      '<p>' + (inv.whyRepeat || window.WHY_REPEAT || '') + '</p></div>' : '');
-
-  /* THE TABLE — the box this push fills glows, so the number has somewhere
-     visible to go. Marcos 10/9: "kids won't know where the data table is and
-     its connection to cart moving." */
-  renderTable(invKey, [just, { key:runKey(run), trial:run.trial, cls:'target' }]);
-
-  /* A push that has landed but is not recorded yet keeps the cart where it
-     stopped — redrawing at zero here used to snap it back to the start line
-     while the readout still showed the distance. */
-  const landedCm = landed ? app.lastRun.cm : 0;
-  drawTrack(run, landedCm, landedCm);
-
-  if (landed) {
-    const cm = app.lastRun.cm;
-    read.textContent = traveledText(run, cm, true);
-    /* Say what just happened, in a sentence, and say what to do next. The
-       number is on the button and the box it will land in is glowing. */
-    /* One line, so the table stays close under the button. The helper's
-       bubble beside the button says the distance and what to think about. */
-    tnote.innerHTML = 'Now press the button. <b>' + cm + ' cm</b> drops into the <b>glowing box</b> in your data table.';
-    runBtn.classList.add('hidden');
-    read.classList.add('hidden');          /* the helper says the distance now */
-    /* Wide screen: the bubble sits beside the button. Narrow screen: there is
-       no "beside", and a bubble between the button and the table pushed the
-       glowing box off the bottom — so the bubble goes under the table and
-       the button and the box stay together. */
-    const home = card.querySelector(window.matchMedia('(max-width: 700px)').matches ? '.tablezone' : '.actrow');
-    if (helper.parentNode !== home) home.appendChild(helper);
-    helper.innerHTML = art(window.HELPER_ART, 'helpart') + '<p><span class="lbl">Your helper says:</span> ' +
-      helperSays(invKey, i, cm, app.data[invKey], stripTags(app.predictions[invKey] || '')) + '</p>';
-    helper.classList.remove('hidden');
-    recBtn.innerHTML = '&#11015; Write ' + cm + ' cm in my table';
-    recBtn.classList.remove('hidden');
-    recBtn.onclick = () => {
-      /* keep every setting of the run, or ramp and vehicle rows never match
-         their group and the averages come out empty */
-      app.data[invKey].push(Object.assign({}, run, { cm:cm }));
-      app.runIndex[invKey] = i + 1;
-      app.lastRun = null;
-      app.justFilled = { inv:invKey, key:runKey(run), trial:run.trial };
-      logEvent('trial', Object.assign({ inv:invKey, cm:cm },
-        { s:run.surface, p:run.push || '', r:run.ramp || '', v:run.vehicle || '', t:run.trial }));
-      app.save();
-      recBtn.classList.add('hidden');
-      paintRun(invKey);
-    };
-  } else {
-    read.textContent = traveledText(run, 0, false);
-    tnote.innerHTML = 'The <b>glowing box</b> is where you will write how far ' + moverOf(run) + ' travels on this ' + noun.toLowerCase() + '.';
-    recBtn.classList.add('hidden');
-    runBtn.classList.remove('hidden');
-    runBtn.disabled = false;
-    runBtn.onclick = () => {
-      runBtn.disabled = true;
-      const cm = distanceCm(run, true);
-      animateRun(run, cm, () => {
-        app.lastRun = { index:i, cm:cm };
-        read.textContent = traveledText(run, cm, true);
-        runBtn.classList.add('hidden');
-        paintRun(invKey);
-      });
-    };
-  }
-
-  attachSpeakers(card);
-  /* leads:false — the push screen's title and counter are not part of a
-     "new this time" card, which comes and goes. They keep their speakers. */
-  guide.run(card, { id:'run' + invKey + i, onDone:focusRun, leads:false });
-  renderDoSteps(app.phase);
-  focusRun();
-}
-
-function animateRun(run, cm, done) {
-  const tReal = stopTime(run);
-  const dur   = 800 + 1700 * Math.min(1, tReal / MAX_STOP_TIME);   /* ice visibly rolls longer than sand */
-  const read  = document.getElementById('run-readout');
-  const t0 = performance.now();
-
-  /* A browser stops handing out animation frames while its tab is in the
-     background, which would leave the push half-finished and the button
-     stuck. finish() is idempotent and a timer calls it no matter what, so
-     a run always lands. */
-  /* A student who asked their device to reduce motion still needs the result,
-     just not the moving cart. */
-  const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  let landed = false;
-  function finish() {
-    if (landed) return;
-    landed = true;
-    clearTimeout(app._runGuard); app._runGuard = null;
-    app._runPending = null;
-    drawTrack(run, cm, cm);
-    read.textContent = traveledText(run, cm, true);
-    done();
-  }
-  app._runPending = finish;
-  app._runGuard = setTimeout(finish, dur + 600);
-
-  if (still) { finish(); return; }
-
-  (function frame(now) {
-    if (landed) return;
-    const tau = Math.min(1, (now - t0) / dur);
-    const x = cm * (2 * tau - tau * tau);                 /* x = d(2τ − τ²) under constant friction */
-    drawTrack(run, x, x);
-    read.textContent = traveledText(run, Math.round(x), false);
-    if (tau < 1) requestAnimationFrame(frame);
-    else finish();
-  })(t0);
-}
-
-/* ── DATA TABLE ─────────────────────────────────────── */
-function invOf(k) { return { A:LAB.invA, B:LAB.invB, C:LAB.invC, D:LAB.invD }[k]; }
-
-/* What makes one row of an investigation's table: the setting it varies first,
-   then the setting it holds constant. Each investigation changes exactly one
-   thing, which is the method the whole lesson is teaching. */
-const INV_COLUMNS = {
-  A: { first:'Surface', second:'Push',
-       a:r => LAB.surfaces[r.surface].name,
-       /* display only — a() is the key avgsFor() builds the averages on, and
-          every data question matches its options against that key, so no
-          markup may ever go in it. */
-       aArt:r => art(SURFACE_ART[r.surface], 'swatch'),
-       b:r => LAB.pushes[r.push].name },
-  B: { first:'Push',    second:'Surface', a:r => LAB.pushes[r.push].name,      b:r => LAB.surfaces[r.surface].name },
-  C: { first:'Ramp',    second:'Surface', a:r => LAB.ramps[r.ramp].name,       b:r => LAB.surfaces[r.surface].name },
-  D: { first:'Car or truck', second:'Push',    a:r => LAB.vehicles[r.vehicle].name, b:r => LAB.pushes[r.push].name }
-};
-const runKey = r => [r.surface, r.push || '', r.ramp || '', r.vehicle || ''].join('|');
-
-/* A SAVED LESSON MUST FIT THE LESSON AS IT IS TODAY.
-   10/10: each setup went from two pushes to three. A lesson saved before
-   that holds its pushes in the old order (ice, ice, wood, wood...), and the
-   new lesson reads the same list as ice, ice, ice, wood... — so a student
-   picking up where they left off would be sent to the wrong push, and every
-   average would be missing a trial.
-
-   The rule, for any change to the runs, now or in a later lesson: the saved
-   pushes of a test must be the FIRST pushes of that test as it is today, in
-   order. Keep the ones that are, drop the rest, and go back to the first
-   test that is no longer full. Answers, predictions and the words already
-   heard are not touched (only the "new this time" cards of a test that
-   changed are played again, because they belong to different pushes now).
-
-   Pure: takes what was saved, returns what to use. `redo` is the test the
-   student is sent back to ('' when the save already fits).                 */
 function fitSaved(s) {
-  const data = Object.assign({ A:[], B:[], C:[], D:[] }, s.data || {});
-  const heard = Object.assign({}, s.heard || {});
-  const runIndex = {};
+  s = (s && typeof s === 'object') ? s : {};
+  const obj = v => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+  const heard = Object.assign({}, obj(s.heard));
   /* `resumeAt` is where a student who was catching up was really up to */
-  let phase = s.resumeAt || s.phase || 'vocab', redo = '';
-  ['A', 'B', 'C', 'D'].forEach(k => {
-    const runs = invOf(k).runs, rows = Array.isArray(data[k]) ? data[k] : [];
-    let n = 0;
-    while (n < rows.length && n < runs.length && rows[n] && typeof rows[n] === 'object' && rows[n].cm > 0 &&
-           runKey(rows[n]) === runKey(runs[n]) && rows[n].trial === runs[n].trial) n++;
-    if (n !== rows.length) {
-      data[k] = rows.slice(0, n);
-      Object.keys(heard).forEach(id => { if (id.indexOf('run' + k) === 0) delete heard[id]; });
-    }
-    runIndex[k] = n;
-    if (!redo && n < runs.length && PHASES.indexOf(phase) > PHASES.indexOf('run' + k)) redo = k;
-  });
-  if (redo) phase = 'run' + redo;
+  let phase = s.resumeAt || s.phase || 'vocab';
+  if (PHASES.indexOf(phase) === -1) phase = 'vocab';
 
-  /* THE QUESTIONS, by the same rule. A check that was added (or moved
-     earlier) after this lesson was saved sits BEHIND the student, never
-     asked. Those questions count toward the score, so the student is sent
-     to the first such check, and from there next() walks the rest and then
-     returns the student to `resumeAt`, the place worked out above. */
-  /* ANSWERS TO QUESTIONS THE LESSON NO LONGER ASKS (10/11: the word check
-     moved from force and friction to the other three words). They are
-     taken out, and so is the point for each one that was right: the score
-     is out of the questions asked today. */
   const askedNow = Object.keys(Q_PHASE).reduce((all, p) => all.concat(bankFor(p).map(x => x.id)), []);
-  const wasMissed = id => (s.missedQuestions || []).some(m => m.id === id);
+  const oldMisses = Array.isArray(s.missedQuestions) ? s.missedQuestions.filter(m => m && typeof m === 'object') : [];
+  const wasMissed = id => oldMisses.some(m => m.id === id);
   const answers = {};
-  let score = s.score || 0;
+  let score = Number(s.score) || 0;
   [...new Set(Object.keys(Q_PHASE).map(p => Q_PHASE[p].ans))].forEach(key => {
     answers[key] = {};
-    Object.keys(s[key] || {}).forEach(id => {
-      if (askedNow.indexOf(id) !== -1) answers[key][id] = s[key][id];
+    const was = obj(s[key]);
+    Object.keys(was).forEach(id => {
+      if (askedNow.indexOf(id) !== -1) answers[key][id] = was[id];
       else if (!wasMissed(id)) score--;
     });
   });
   score = Math.max(0, score);
-  const missed = (s.missedQuestions || []).filter(m => askedNow.indexOf(m.id) !== -1);
+  const missed = oldMisses.filter(m => askedNow.indexOf(m.id) !== -1);
 
   let resumeAt = '', catchUp = '';
   const saidTo = p => answers[Q_PHASE[p].ans] || {};
   const behind = PHASES.slice(0, Math.max(0, PHASES.indexOf(phase)))
     .find(p => isQPhase(p) && bankFor(p).some(q => saidTo(p)[q.id] == null));
   if (behind) { catchUp = behind; resumeAt = phase; phase = behind; }
-  return { data, runIndex, heard, phase, redo, catchUp, resumeAt, answers, score, missed };
-}
-
-function groupsFor(invKey) {
-  const seen = [], out = [];
-  invOf(invKey).runs.forEach(r => {
-    const k = runKey(r);
-    if (!seen.includes(k)) { seen.push(k); out.push(Object.assign({ key:k }, r)); }
-  });
-  return out;
-}
-/* Test 1 runs two trials so averaging gets taught; B, C and D run one
-   each, because repeating the lesson cost minutes the period does not have. */
-function trialsFor(invKey) {
-  return invOf(invKey).runs.reduce((m, r) => Math.max(m, r.trial), 1);
-}
-function cellsFor(invKey, g) {
-  const rows = app.data[invKey].filter(r => runKey(r) === g.key);
-  const need = trialsFor(invKey);
-  /* t[0] is trial 1, t[1] is trial 2, ... ; null until that trial is recorded */
-  const t = Array.from({ length: need }, (_, k) => { const r = rows.find(x => x.trial === k + 1); return r ? r.cm : null; });
-  const got = t.filter(v => v != null);
-  const avg = got.length === need ? Math.round(got.reduce((a, v) => a + v, 0) / need) : null;
-  return { t:t, t1:t[0], t2:t.length > 1 ? t[1] : null, avg:avg };
-}
-
-/* marks: [{ key, trial, cls }] — cells to pick out. 'target' is the box the
-   next push will fill (it glows and shows a ?), 'just' is the box that was
-   filled a moment ago (it flashes). Only the push screen passes any. */
-function tableHTML(invKey, marks) {
-  const col = INV_COLUMNS[invKey];
-  const need = trialsFor(invKey);
-  /* No column for the thing that stayed the same ("Medium push" on every
-     row). With three trials it made the table too wide for the screen, and
-     a column that never changes is one more thing to read. The tags above
-     the cart and the results page both say what stayed the same. */
-  let h = '<thead><tr><th>' + col.first + '</th>' +
-    (need > 1 ? Array.from({ length: need }, (_, k) => '<th>Trial ' + (k + 1) + ' (cm)</th>').join('') + '<th>Average (cm)</th>'
-              : '<th>Distance (cm)</th>') + '</tr></thead><tbody>';
-  groupsFor(invKey).forEach(g => {
-    const c = cellsFor(invKey, g);
-    const found = t => (marks || []).find(m => m && m.key === g.key && m.trial === t);
-    const hit = t => { const m = found(t); return m ? ' ' + m.cls : ''; };
-    const rowOn = (marks || []).some(m => m && m.key === g.key && m.cls === 'target');
-    const cell = (v, t) => v == null
-      ? '<td class="num pending' + hit(t) + '">' + (/target/.test(hit(t)) ? '?' : '—') + '</td>'
-      : '<td class="num' + hit(t) + '">' + v + '</td>';
-    const avgCell = c.avg == null ? '<td class="num pending">—</td>' : '<td class="num avg"><b>' + c.avg + '</b></td>';
-    h += '<tr' + (rowOn ? ' class="rowon"' : '') + '><td>' +
-         (col.aArt ? col.aArt(g) : '') + '<b>' + col.a(g) + '</b></td>' +
-         (need > 1 ? c.t.map((v, k) => cell(v, k + 1)).join('') + avgCell
-                   : (c.avg == null ? cell(null, 1) : '<td class="num' + hit(1) + '"><b>' + c.avg + '</b></td>')) + '</tr>';
-  });
-  return h + '</tbody>';
-}
-const INV_TITLE = { A:'1 — surfaces', B:'2 — how hard the push',
-                    C:'3 — how tall the ramp', D:'4 — car against truck' };
-/* ALL FOUR TESTS ON ONE QUESTION: each test as a short list of its setups
-   and their AVERAGE distances, four lists side by side on a Chromebook.
-   The four full tables (every trial of every setup, 13 rows by 5 columns)
-   put 800px of numbers between the question and its choices, and four small
-   tables side by side wrapped in every box. A question that draws on all
-   four tests is answered from the averages; a question about ONE test still
-   gets that test's whole table. Each row is one line that can be heard. */
-const INV_SHORT = { A:'surfaces', B:'push', C:'ramp', D:'car, truck' };
-function allTablesHTML() {
-  return ['A','B','C','D'].map((k, n) => {
-    const col = INV_COLUMNS[k];
-    return '<div class="qtable"><div class="qdata-h">Test ' + (n + 1) + ' &middot; ' + INV_SHORT[k] + '</div>' +
-      groupsFor(k).map(g => {
-        const c = cellsFor(k, g);
-        return '<p class="qrow">' + (col.aArt ? col.aArt(g) : '') + '<span class="qn">' + col.a(g) + '</span>' +
-          '<b class="qv">' + (c.avg == null ? '&mdash;' : c.avg + ' cm') + '</b></p>';
-      }).join('') + '</div>';
-  }).join('');
-}
-
-function renderTable(invKey, marks) {
-  document.getElementById('data-table').innerHTML = tableHTML(invKey, marks);
-}
-
-/* ── SUMMARY used by the data-analysis questions ────── */
-/* Averages per investigation, keyed by the label the question's options use,
-   so every data question is answered from the student's own table. */
-function avgsFor(invKey) {
-  const col = INV_COLUMNS[invKey], out = {};
-  groupsFor(invKey).forEach(g => {
-    const c = cellsFor(invKey, g);
-    if (c.avg != null) out[col.a(g)] = c.avg;
-  });
-  return out;
-}
-function pick(avgs, cmp, fallback) {
-  const names = Object.keys(avgs);
-  if (!names.length) return fallback;
-  return names.reduce((b, n) => (b === null || cmp(avgs[n], avgs[b]) ? n : b), null);
-}
-function labSummary() {
-  const A = avgsFor('A'), C = avgsFor('C'), D = avgsFor('D');
-  const far = pick(A, (x, y) => x > y, 'Ice'), near = pick(A, (x, y) => x < y, 'Sand');
-  return {
-    avgsA: A,
-    farthestA: far, shortestA: near,
-    maxAvgA: A[far] || 0, minAvgA: A[near] || 0,
-    tallestC: pick(C, (x, y) => x > y, '3 books'),
-    fartherD: pick(D, (x, y) => x > y, 'The car') === 'Car' ? 'The car'
-              : (pick(D, (x, y) => x > y, 'Car') === 'Truck' ? 'The truck' : 'The car')
-  };
-}
-
-/* ── GRAPH ──────────────────────────────────────────── */
-function renderGraph(invKey) {
-  const inv = invOf(invKey);
-  app.show('lab-screen');
-  document.getElementById('predict-card').classList.add('hidden');
-  document.getElementById('run-card').classList.add('hidden');
-  document.getElementById('graph-card').classList.remove('hidden');
-
-  document.getElementById('gr-eyebrow').innerHTML = inv.label + ' results';
-  document.getElementById('gr-head').innerHTML = 'What my data looks like';
-  const LEAD = {
-    A: 'Each <dfn>bar</dfn> shows how far the cart traveled on that surface. A longer bar means the cart traveled farther. The bar is the average of your ' + N_WORD + ' trials. The push was the same every time.',
-    B: 'Each <dfn>bar</dfn> shows how far the cart traveled with that push. A longer bar means the cart traveled farther. The bar is the average of your ' + N_WORD + ' trials. The surface was wood every time.',
-    C: 'Each <dfn>bar</dfn> shows how far the car traveled from that ramp. A longer bar means the car traveled farther. The bar is the average of your ' + N_WORD + ' trials. You never pushed the car — you let the car go.',
-    D: 'Each <dfn>bar</dfn> shows how far the car or the truck traveled. A longer bar means a longer distance. The bar is the average of your ' + N_WORD + ' trials. The car and the truck got the very same push, on wood.'
-  };
-  document.getElementById('gr-lead').innerHTML = LEAD[invKey];
-  const avgBox = document.getElementById('gr-average');
-  avgBox.innerHTML = averageParts(invKey, groupsFor(invKey)[0], invKey === 'A' ? 'page' : 'short').join('');
-  avgBox.classList.toggle('hidden', !avgBox.innerHTML);
-
-  const col = INV_COLUMNS[invKey];
-  const groups = groupsFor(invKey).map(g => {
-    const c = cellsFor(invKey, g);
-    const cm = c.avg || 0;
-    /* Each bar says, in a sentence, what moved, where, and how far. A bar
-       labelled "Ice" beside "507 cm" left the child to work out the rest. */
-    const say = invKey === 'A' ? 'On ' + stripTags(LAB.surfaces[g.surface].name).toLowerCase() + ' the cart traveled <b>' + cm + ' cm</b>.'
-              : invKey === 'B' ? 'With the ' + stripTags(LAB.pushes[g.push].name).toLowerCase() + ' the cart traveled <b>' + cm + ' cm</b>.'
-              : invKey === 'C' ? 'From the ramp of ' + LAB.ramps[g.ramp].name + ' the car traveled <b>' + cm + ' cm</b>.'
-              :                  'The ' + stripTags(LAB.vehicles[g.vehicle].name).toLowerCase() + ' traveled <b>' + cm + ' cm</b>.';
-    return {
-      label: col.a(g).replace(' push', ''),
-      say: say,
-      cm: cm,
-      color: invKey === 'A' ? LAB.surfaces[g.surface].color : '#2E7D6B'
-    };
-  });
-  const max = Math.max(1, ...groups.map(g => g.cm));
-  /* The sentence sits ABOVE its bar and each row is one guided step. (The old
-     row was a three-column grid; the speaker icon became a fourth cell and
-     threw the bar to the far right and the number onto its own line.) */
-  document.getElementById('graph-rows').innerHTML = groups.map(g =>
-    '<div class="grow" data-step><p class="gsay">' + g.say + '</p>' +
-    '<span class="gt" data-noread><i style="width:' + Math.max(2, Math.round((g.cm / max) * 100)) + '%; background:' + g.color + '"></i></span>' +
-    '</div>').join('');
-
-  /* Did the prediction hold up? Never graded — just checked. */
-  const pred = app.predictions[invKey] || '';
-  const box = document.getElementById('gr-predict-check');
-  const said = '<span class="lb">Your prediction:</span> you said <b>' + (stripTags(pred) || '—') + '</b>. ';
-  const vals = groups.map(x => x.cm);
-  const rose = vals.length >= 2 && vals[vals.length - 1] > vals[0];
-
-  if (invKey === 'A') {
-    const win = labSummary().farthestA;
-    const hit = stripTags(pred).toLowerCase() === win.toLowerCase();
-    box.innerHTML = said + 'Your data says the cart traveled the farthest on <b>' + win.toLowerCase() + '</b>. ' +
-      (hit ? 'Your prediction matched your data.' :
-             'Your prediction did not match — and that is fine. Scientists learn the most from the predictions that miss.');
-  } else if (invKey === 'B') {
-    box.innerHTML = said + 'Your data shows the cart traveled <b>' + vals[0] +
-      ' cm</b> with the small push and <b>' + vals[vals.length - 1] + ' cm</b> with the big push — so a bigger push ' +
-      (rose ? 'moved the cart farther.' : 'did not move the cart farther, which is worth telling Mr. O about.');
-  } else if (invKey === 'C') {
-    box.innerHTML = said + 'Your data shows the car traveled <b>' + vals[0] + ' cm</b> from the shortest ramp and <b>' +
-      vals[vals.length - 1] + ' cm</b> from the tallest ramp — so a taller ramp ' +
-      (rose ? 'sent the car farther. Starting higher up gave the car more energy.'
-            : 'did not send the car farther, which is worth telling Mr. O about.');
-  } else {
-    const win = labSummary().fartherD;
-    const hit = stripTags(pred).toLowerCase() === win.toLowerCase();
-    box.innerHTML = said + 'Your data says <b>' + lowerFirst(win) + '</b> traveled farther with the very same push. ' +
-      (hit ? 'Your prediction matched your data.'
-           : 'Your prediction did not match — and that is worth knowing. The heavy truck has more mass, so the truck does not travel as far as the car with the same push.');
-  }
-
-
-  attachSpeakers(document.getElementById('graph-card'));
-  guide.run(document.getElementById('graph-card'), { id: 'graph' + invKey });
-
-  document.getElementById('gr-next').onclick = () => app.next();
-  /* What the button leads to, by name. After Test 2 comes the end of
-     Day 1, not Test 3 — the label still said C from before the day
-     split moved. */
-  const nQ = bankFor('check' + invKey).length, tN = { A:1, B:2, C:3, D:4 }[invKey];
-  const NEXT = { A:'Go to the end of Day 1 →', B:'Start Test 3 →',
-                 C:'Go to the end of Day 2 →', D:'Answer questions about my data →' };
-  document.getElementById('gr-next').textContent = nQ
-    ? 'Answer ' + nQ + ' question' + (nQ === 1 ? '' : 's') + ' about Test ' + tN + ' →' : NEXT[invKey];
+  return { heard, phase, catchUp, resumeAt, answers, score, missed };
 }
 
 /* ══════════════════════════════════════════════════════
-   WRITTEN RESPONSE — Claim · Evidence · Reasoning
-══════════════════════════════════════════════════════ */
-let wIdx = 0;
+   THE STOP AT THE END OF A DAY — a real stop, not a scroll-past
 
-/* Which of the four predictions the data did NOT support. The district's
-   Rolling Cars activity ends by asking the student to account for exactly
-   that, so the prompt is built from their own four predictions. */
-function missedPredictions() {
-  const d = labSummary(), out = [];
-  const say = k => stripTags(app.predictions[k] || '');
-  const grew = k => { const v = groupsFor(k).map(g => cellsFor(k, g).avg || 0);
-                      return v.length >= 2 && v[v.length - 1] > v[0]; };
-  if (app.data.A.length && say('A').toLowerCase() !== d.farthestA.toLowerCase())
-    out.push({ inv:'A', name:'Test 1 (the surfaces)', said:say('A'), got:'the cart traveled the farthest on ' + d.farthestA.toLowerCase() });
-  if (app.data.B.length && say('B') && !/farther/i.test(say('B')) && grew('B'))
-    out.push({ inv:'B', name:'Test 2 (how hard the push)', said:say('B'), got:'a bigger push sent the cart farther' });
-  if (app.data.C.length && say('C') && !/farther/i.test(say('C')) && grew('C'))
-    out.push({ inv:'C', name:'Test 3 (how tall the ramp)', said:say('C'), got:'a taller ramp sent the car farther' });
-  if (app.data.D.length && say('D').toLowerCase() !== d.fartherD.toLowerCase())
-    out.push({ inv:'D', name:'Test 4 (car against truck)', said:say('D'), got:lowerFirst(d.fartherD) + ' traveled farther' });
-  return out;
-}
+   Three short pages, each one heard: what you did today (DAY_GATES[..].did),
+   one short thing about next time (a preview, not the plan: qa.js C28), and
+   the stop itself.
 
-/* ══════════════════════════════════════════════════════
-   END OF DAY 1 — a real stop, not a scroll-past
+   The stop is one of two things:
 
-   Day 1 is the words and Test 1. Without a gate a fast student
-   runs straight into the ramp and the truck, which are Day 2's lesson and
-   have not been briefed yet. This asks them out loud, tells them what they
-   already did, and lets them stop with everything saved.
+   - THE END OF WHAT IS BUILT (isLastStop). There is no next day to go to
+     yet, so the page has no way on: no "What did Mr. O say?", no button.
+     The page says the work is saved and to close the computer. A student
+     who comes back and presses "Pick up where I left off" lands here again.
+     qa.js C31 holds this.
+
+   - A STOP WITH ANOTHER DAY AFTER IT (the template's gate, used again the
+     day DAYS_BUILT goes up). Without a gate a fast student runs straight
+     into the next day's pages, which Mr. O has not shown yet. So the page
+     asks out loud, and the answer is logged either way.
 ══════════════════════════════════════════════════════ */
 function renderDayGate(phase) {
   const G = (window.DAY_GATES || {})[phase] || {};
   const day = G.day || 1, nextDay = day + 1;
+  const last = isLastStop(phase);
   app.show('daygate-screen');
-  /* back to its opening state every time: the choices on, the rest off */
-  document.getElementById('dg-choices').classList.remove('hidden');
+  const gateRoot = document.getElementById('daygate-screen');
+  const choices = document.getElementById('dg-choices');
+  /* back to its opening state every time: the stop on, the rest off */
+  choices.classList.remove('hidden');
   document.getElementById('dg-stopped').classList.add('hidden');
   const recapHost = document.getElementById('dg-recap');
   recapHost.classList.add('hidden'); recapHost.innerHTML = '';
-  const gateRoot = document.getElementById('daygate-screen');
   const hidePages = () => gateRoot.querySelectorAll('[data-gpage],.gdots').forEach(n => n.classList.add('ghide'));
-  const count = keys => keys.reduce((n, k) => n + (app.data[k] || []).length, 0);
 
   document.getElementById('dg-eyebrow').innerHTML = 'End of Day ' + day;
-  document.getElementById('dg-head').innerHTML = G.head || 'Nice work.';
+  document.getElementById('dg-head').innerHTML = G.head || 'Nice job.';
 
-  /* what they did today, in their own numbers */
-  const surfaces = new Set((app.data.A || []).map(r => r.surface)).size;
-  document.getElementById('dg-did').innerHTML = day === 1
-    ? 'You learned <b>' + LESSON.vocab.length + ' words</b>. You did <b>' + count(['A']) + ' pushes</b> and filled ' +
-      '<b>one data table</b>, for ' + (surfaces === 1 ? 'one surface' : surfaces + ' different surfaces') +
-      '. All of your work is saved.'
-    : 'You did <b>' + count(['B', 'C']) + ' runs</b> today and filled <b>two more data tables</b>: one for the size of ' +
-      'the push, and one for the height of the ramp. All of your work is saved.';
+  /* what they did today */
+  document.getElementById('dg-did').innerHTML = G.did || '';
 
   /* what comes next time, each point a step that has to be heard */
-  const runsNext = (G.nextTests || []).reduce((n, k) => n + invOf(k).runs.length, 0);
   document.getElementById('dg-nextbox').innerHTML =
     '<span class="lbl">' + (G.nextLabel || 'Next time') + '</span><ol>' +
-    (G.next || []).map(t => '<li data-step>' + t + '</li>').join('') + '</ol>' +
-    ((G.nextTests || []).length > 1 ? '<p data-step>That is <b>' + runsNext + ' runs</b> altogether.</p>' : '');
+    (G.next || []).map(t => '<li data-step>' + t + '</li>').join('') + '</ol>';
 
-  document.getElementById('dg-ask').innerHTML =
+  if (last) {
+    /* No way on. The three lines are one step, so the stop has to be heard
+       like everything else; when the stop has been heard, the day is logged
+       as finished and one more row goes to the sheet. */
+    choices.innerHTML = '<div class="box ask" data-parts data-step id="dg-ask">' +
+      '<span class="lbl">Stop here</span>' + STOP_LINES.map(t => '<p>' + t + '</p>').join('') + '</div>';
+    attachSpeakers(gateRoot);
+    guide.run(gateRoot, { id: phase, onDone: () => {
+      logEvent('day' + day + '_stop', { end: 'last built day' });
+      app.save(); submitPartial();
+    } });
+    return;
+  }
+
+  choices.innerHTML =
+    '<div class="box ask" data-parts data-step id="dg-ask">' +
     '<span class="lbl">Stop here</span>' +
     '<p><b>Ask Mr. O if you should go on to Day ' + nextDay + '.</b></p>' +
     '<p>Put your hand up and ask. Do not start Day ' + nextDay + ' on your own. Mr. O will show the class ' +
-    'what is new first. The new work is easier to do after Mr. O shows the class.</p>';
-  document.getElementById('dg-next').innerHTML = 'Mr. O said I can start Day ' + nextDay + ' &rarr;';
-  document.getElementById('dg-stop').innerHTML = 'Mr. O said stop here for today';
+    'what is new first. The new pages are easier after Mr. O shows the class.</p></div>' +
+    '<div data-gafter><p class="qtext">What did Mr. O say?</p><div class="btnrow">' +
+    '<button class="btn" id="dg-next" type="button">Mr. O said I can start Day ' + nextDay + ' &rarr;</button>' +
+    '<button class="btn ghost" id="dg-stop" type="button">Mr. O said stop here for today</button></div></div>';
   document.getElementById('dg-stopped-day').textContent = 'Day ' + nextDay;
 
   /* The teacher's answer is logged either way, so Mr. O can see on the
      dashboard who went on and who was told to wait. */
   document.getElementById('dg-next').onclick = () => {
     logEvent('day' + nextDay + '_start', { cleared: 'teacher said yes' });
-    document.getElementById('dg-choices').classList.add('hidden');
+    choices.classList.add('hidden');
     hidePages();
-    const host = document.getElementById('dg-recap');
-    host.innerHTML = recapHTML(G.recap) +
+    recapHost.innerHTML = recapHTML(G.recap) +
       '<div class="btnrow" data-gafter><button class="btn" id="dg-go" type="button">' +
       (G.go || 'Keep going &rarr;') + '</button></div>';
-    host.classList.remove('hidden');
-    attachSpeakers(host);
-    guide.run(host, { id: (G.recap || 'day') + 'recap' });
+    recapHost.classList.remove('hidden');
+    attachSpeakers(recapHost);
+    guide.run(recapHost, { id: (G.recap || 'day') + 'recap' });
     document.getElementById('dg-go').onclick = () => app.next();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   document.getElementById('dg-stop').onclick = () => {
     logEvent('day' + day + '_stop'); app.save(); submitPartial();
-    document.getElementById('dg-choices').classList.add('hidden');
+    choices.classList.add('hidden');
     hidePages();
     document.getElementById('dg-stopped').classList.remove('hidden');
     speech.stop();
@@ -2650,99 +1622,16 @@ function renderDayGate(phase) {
   guide.run(gateRoot, { id: phase });
 }
 
-function renderWrite() {
-  /* pick up at the first prompt that is still short */
-  wIdx = WRITTEN_Q.findIndex(w => (app.written[w.id] || '').trim().length < w.min);
-  if (wIdx < 0) { app.next(); return; }
-
-  const w = WRITTEN_Q[wIdx];
-  app.show('write-screen');
-  document.getElementById('w-head').textContent = WRITTEN_Q.length > 1
-    ? 'Explanation ' + (wIdx + 1) + ' of ' + WRITTEN_Q.length
-    : 'Explain like a scientist';
-  const wt = document.getElementById('w-text');
-  wt.innerHTML = wrapWords(w.q);
-  document.getElementById('w-hints').innerHTML = w.hints.map(h => '<li>' + h + '</li>').join('');
-  document.getElementById('w-data').innerHTML = allTablesHTML();
-
-  const box = document.getElementById('w-box');
-  const cnt = document.getElementById('w-counter');
-  const nx  = document.getElementById('w-next');
-  box.value = app.written[w.id] || '';
-
-  /* Tapping a starter INSERTS its words where the cursor is and leaves the
-     student writing forward. It never replaces what they have, never asks them
-     to edit inside a sentence somebody else wrote, and leaves nothing on screen
-     that looks like an unfinished form. Backspace undoes it like any typing. */
-  function insertAtCursor(text) {
-    const start = box.selectionStart == null ? box.value.length : box.selectionStart;
-    const end   = box.selectionEnd   == null ? box.value.length : box.selectionEnd;
-    const before = box.value.slice(0, start);
-    const after  = box.value.slice(end);
-    /* space before, unless we are at the very start or already after one */
-    const lead  = (before === '' || /[\s(]$/.test(before)) ? '' : ' ';
-    const added = lead + text;
-    box.value = before + added + after;
-    const caret = start + added.length;
-    box.focus();
-    box.setSelectionRange(caret, caret);
-    box.dispatchEvent(new Event('input'));
-  }
-
-  const starterRow = document.getElementById('w-starters');
-  starterRow.innerHTML = '';
-  (w.starters || []).forEach(t => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'chipbtn'; b.setAttribute('data-noread', '');
-    b.textContent = t;
-    b.onclick = () => { insertAtCursor(t); logEvent('starter', { id:w.id, t:t }); };
-    starterRow.appendChild(b);
-  });
-  document.getElementById('w-starterwrap').classList.toggle('hidden', !(w.starters || []).length);
-
-  const bankRow = document.getElementById('w-wordbank');
-  bankRow.innerHTML = '';
-  (w.wordbank || []).forEach(t => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'chipbtn word'; b.setAttribute('data-noread', '');
-    b.textContent = t;
-    b.onclick = () => { insertAtCursor(t); logEvent('word', { id:w.id, t:t }); };
-    bankRow.appendChild(b);
-  });
-  document.getElementById('w-bankwrap').classList.toggle('hidden', !(w.wordbank || []).length);
-
-  const upd = () => {
-    const v = box.value;
-    const n = v.trim().length;
-    const need = Math.max(0, w.min - n);
-    cnt.textContent = need > 0
-      ? n + ' letters so far — write about ' + need + ' more to turn this in.'
-      : n + ' letters. That is enough to turn in.';
-    cnt.className = 'counter' + (need > 0 ? '' : ' ok');
-    nx.disabled = need > 0;
-    app.written[w.id] = v;
-  };
-  box.oninput = () => { upd(); if (box.value.length % 40 === 0) app.save(); };
-  upd();
-
-  attachSpeakers(document.getElementById('write-screen'));
-
-  nx.textContent = (wIdx + 1 >= WRITTEN_Q.length) ? 'Turn in my explanation →' : 'Next explanation →';
-  nx.onclick = () => {
-    app.written[w.id] = box.value.trim();
-    logEvent('written', { id:w.id, len:app.written[w.id].length });
-    app.save(); submitPartial(); submitWritten();
-    if (wIdx + 1 >= WRITTEN_Q.length) app.go('exit'); else renderWrite();
-  };
-}
-
 /* ══════════════════════════════════════════════════════
-   FINISH
+   FINISH — the end screen
+
+   Not reached yet: it comes back with the last questions (EXIT_Q, see
+   PHASES). The template's end screen also showed the data tables and the
+   explanation a student built; this lesson has neither.
 ══════════════════════════════════════════════════════ */
 function finish() {
   app.stopTimer();
   app.finishedAt = new Date().toISOString();
-  if (app.labEnd == null) app.labEnd = app.timerSeconds;
   logEvent('finish', { score:app.score, total:app.totalItems() });
   speech.stop();
   app.show('end-screen');
@@ -2751,39 +1640,14 @@ function finish() {
   const pct = total ? Math.round((app.score / total) * 100) : 0;
   const clock = n => Math.floor(n / 60) + ':' + String(n % 60).padStart(2, '0');
 
-  document.getElementById('end-lead').innerHTML =
-    'You ran <b>' + (app.data.A.length + app.data.B.length) + ' pushes</b>, filled two data tables, ' +
-    'and used the distances you measured to explain what stops a moving object. Mr. O can see all of your work.';
+  /* what the student did, in the lesson's own words (LESSON.endLead) */
+  document.getElementById('end-lead').innerHTML = window.LESSON.endLead || '';
 
   document.getElementById('end-scores').innerHTML = [
     ['' + app.score + '/' + total, 'Questions right'],
     [pct + '%', 'Score'],
-    [clock(app.timerSeconds), 'Time on task'],
-    [clock(app.labSeconds()), 'On the four tests']
+    [clock(app.timerSeconds), 'Time on task']
   ].map(x => '<div class="sb"><div class="n tnum">' + x[0] + '</div><div class="l">' + x[1] + '</div></div>').join('');
-
-  /* The three picks become one explanation, in the order a scientist writes
-     one. They did not type it, but it is theirs — every part came from their
-     own table — and seeing it whole is the point of having built it. */
-  const cerFor = k => {
-    const q = CLAIMS_Q.find(x => x.cer === k);
-    return q ? (app.claimsAns[q.id] || '') : '';
-  };
-  const claim = cerFor('claim'), ev = cerFor('evidence'), why = cerFor('reasoning');
-  const cerBox = document.getElementById('end-cer');
-  if (claim && ev && why) {
-    cerBox.innerHTML =
-      '<hr class="hr"><h3 style="font-size:21px">The explanation you built</h3>' +
-      '<div class="box cer" data-parts>' +
-      '<p><span class="cerlbl">Claim</span>The cart stopped soonest on ' +
-        stripTags(claim).toLowerCase() + '.</p>' +
-      '<p><span class="cerlbl">Evidence</span>' + stripTags(ev) + '.</p>' +
-      '<p><span class="cerlbl">Reasoning</span>' + stripTags(why) + '.</p>' +
-      '</div>';
-    cerBox.classList.remove('hidden');
-  } else {
-    cerBox.innerHTML = ''; cerBox.classList.add('hidden');
-  }
 
   const miss = app.missedQuestions;
   document.getElementById('end-miss').innerHTML = miss.length
@@ -2792,17 +1656,7 @@ function finish() {
         ' <i>(you picked: ' + x.yourAnswer + '; answer: ' + x.correct + ')</i></li>').join('') + '</ul>'
     : '<hr class="hr"><p class="lead">You got every question right. Nothing to go back over.</p>';
 
-  document.getElementById('end-answer-back').innerHTML =
-    '<hr class="hr"><h3 style="font-size:21px">My finished data</h3>' +
-    '<div class="tablewrap">' + allTablesHTML() + '</div>' +
-    (WRITTEN_Q.length
-      ? '<h3 style="font-size:21px; margin-top:16px">My explanations</h3>' +
-        WRITTEN_Q.map(w => '<p class="lead"><b>' + stripTags(w.q) + '</b><br>' +
-          (app.written[w.id] ? app.written[w.id].replace(/</g, '&lt;') : '(blank)') + '</p>').join('')
-      : '');
-
   submitFinal();
-  submitWritten();
   if (!window.PREVIEW) try {
     const all = JSON.parse(localStorage.getItem(SCORES_KEY) || '[]');
     all.push({ name:app.studentName, score:app.score, total:total, percent:pct,
@@ -2812,7 +1666,6 @@ function finish() {
   app.save();
 
   attachSpeakers(document.getElementById('end-screen'));
-
 
   document.getElementById('end-print').onclick = () => window.print();
   document.getElementById('end-restart').onclick = () =>
@@ -2850,7 +1703,6 @@ document.getElementById('theme-btn').onclick = () => {
     : window.matchMedia('(prefers-color-scheme: dark)').matches;
   document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
   try { localStorage.setItem('sci_theme', dark ? 'light' : 'dark'); } catch (e) {}
-  if (app.phase === 'runA' || app.phase === 'runB') paintRun(app.phase === 'runA' ? 'A' : 'B');
 };
 try {
   const t = localStorage.getItem('sci_theme');
@@ -2873,9 +1725,6 @@ document.addEventListener('visibilitychange', () => {
     const b = document.getElementById('tab-warning-banner');
     if (b) b.classList.remove('hidden');
     app.startTimer();
-    /* A push that was mid-animation when the student left still lands. */
-    if (app._runPending) { const f = app._runPending; app._runPending = null; f(); }
-    else { const m = /^run([ABCD])$/.exec(app.phase); if (m) paintRun(m[1]); }   /* all four, not just A and B */
   }
 });
 window.addEventListener('beforeunload', () => {

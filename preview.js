@@ -13,64 +13,52 @@
    Guided screens (guide.js) show every step already unlocked here, so you
    can read straight through without listening to each one.
 
-   Sample numbers fill every data table (the lesson plan's expected averages),
-   so graphs, data questions and the built explanation all show real values.
-   On a push screen that investigation's table is emptied, so you see what a
-   student sees when they arrive there.
-
-   NOTHING IS SAVED OR SENT. window.PREVIEW stops app.save(), post(),
-   submitWritten() and the local score list — so previewing on a student's
-   Chromebook cannot overwrite their work, and no rows reach the sheet.
-   Exit reloads the page clean.
+   NOTHING IS SAVED OR SENT. window.PREVIEW stops app.save(), post() and the
+   local score list — so previewing on a student's Chromebook cannot
+   overwrite their work, and no rows reach the sheet. Exit reloads the page
+   clean.
 
    Open it three ways: the Teacher button on the name-picker page, the small
    "Teacher preview" link at the bottom of the cover, or ?teacher in the URL.
 ═══════════════════════════════════════════════════════ */
 (function () {
-  /* The lesson plan's expected averages, in cm. */
-  const SAMPLE = {
-    A: { by: 'surface', v: { ice: 494, wood: 206, carpet: 99, sand: 55 } },
-    B: { by: 'push',    v: { small: 109, medium: 206, big: 333 } },
-    C: { by: 'ramp',    v: { low: 83, mid: 167, high: 250 } },
-    D: { by: 'vehicle', v: { car: 206, truck: 82 } }
+  /* What each stop is called in the jump list. The opening pages are named
+     here; everything inside the lesson takes its name from the data (the
+     title of a check, the title of a page-set, the day of a stop), so a
+     page-set or a check added to the data is listed without this file
+     being touched. */
+  const OPENING_NAMES = { cover: 'Cover', why: 'The big question', care: 'Why should you care',
+    summary: 'What we just talked about', plan: 'Here is the plan', goals: 'By the end you can', start: 'Pick your name' };
+  const nameOf = p => {
+    if (OPENING_NAMES[p]) return OPENING_NAMES[p];
+    if (p === 'tool') return (window.TOOL || {}).title || 'Meet the tool';
+    if (p === 'vocab') return 'The words';
+    if (p === 'vq') return 'Word check';
+    if ((window.CHECKS || {})[p]) return window.CHECKS[p].title + ' \u00b7 questions';
+    if (isLearn(p)) return window.LEARN[p].title;
+    if (isGate(p)) return 'End of Day ' + window.DAY_GATES[p].day + (isLastStop(p) ? ' \u00b7 stop here' : ' \u00b7 ask Mr. O');
+    return ({ exit: 'Exit ticket', end: 'Finished' })[p] || p;
   };
-
-  const NAMES = {
-    cover: 'Cover', why: 'The big question', care: 'Why should you care', cart: 'Meet your cart', cartq: 'Cart check', summary: 'What we just talked about', sumq: 'What we talked about · questions', plan: 'Here is the plan', planq: 'Plan check',
-    goals: 'By the end you can', start: 'Pick your name', vocab: 'Six words', vq: 'Word check',
-    predictA: 'Test 1 · predict', runA: 'Test 1 · push (surfaces)', graphA: 'Test 1 · graph', checkA: 'Test 1 · questions',
-    predictB: 'Test 2 · predict', runB: 'Test 2 · push (push size)', graphB: 'Test 2 · graph', checkB: 'Test 2 · questions',
-    daygate:  'End of Day 1 · ask Mr. O', daygate2: 'End of Day 2 · ask Mr. O',
-    predictC: 'Test 3 · predict', runC: 'Test 3 · let go (ramp)', graphC: 'Test 3 · graph', checkC: 'Test 3 · questions',
-    predictD: 'Test 4 · predict', runD: 'Test 4 · push (car vs truck)', graphD: 'Test 4 · graph', checkD: 'Test 4 · questions',
-    analysis: 'Look back at your tests', claims: 'Build the explanation', write: 'Written answer',
-    exit: 'Exit ticket', end: 'Finished'
-  };
-  const GROUP = p =>
-    OPENING.indexOf(p) !== -1 ? 'Before the lesson'
-    : PHASES.indexOf(p) <= PHASES.indexOf('daygate')  ? 'Day 1'
-    : PHASES.indexOf(p) <= PHASES.indexOf('daygate2') ? 'Day 2'
-    : 'Day 3';
+  const GROUP = p => OPENING.indexOf(p) !== -1 ? 'Before the lesson' : 'Day ' + (DAY_OF[p] || 1);
 
   /* Every screen, and every question inside a question screen, as one list. */
   function buildStops() {
     const out = [];
     PHASES.forEach(p => {
-      if (p === 'write' && !(window.WRITTEN_Q || []).length) return;   /* skipped in this lesson */
       if (isQPhase(p)) {                       /* every question screen, the checks included */
         const qs = bankFor(p);
         qs.forEach((q, i) => out.push({ phase: p, q: i,
-          label: NAMES[p] + ' · ' + (i + 1) + ' of ' + qs.length }));
+          label: nameOf(p) + ' · ' + (i + 1) + ' of ' + qs.length }));
       } else {
-        /* A guided screen with several pages (one word per page, the three
-           predict pages) is one stop PER PAGE, so the preview shows exactly
+        /* A guided screen with several pages (one word per page, the pages of
+           a teaching page-set) is one stop PER PAGE, so the preview shows exactly
            what a student sees. The count comes from the screen's own markup. */
         const n = window.guide ? guide.pagesFor(p) : 0;
         if (n > 1) {
           for (let i = 0; i < n; i++) out.push({ phase: p, gp: i,
-            label: (NAMES[p] || p) + ' \u00b7 page ' + (i + 1) + ' of ' + n });
+            label: nameOf(p) + ' \u00b7 page ' + (i + 1) + ' of ' + n });
         } else {
-          out.push({ phase: p, label: NAMES[p] || p });
+          out.push({ phase: p, label: nameOf(p) });
         }
       }
     });
@@ -79,54 +67,22 @@
 
   let STOPS = [], at = 0;
 
-  function sampleRows(k) {
-    const inv = invOf(k), S = SAMPLE[k];
-    return inv.runs.map(r => Object.assign({}, r, {
-      /* first trial a little long, last a little short, any between exact:
-         the average comes out as the plan's number */
-      cm: S.v[r[S.by]] + (r.trial === 1 ? 3 : r.trial === LAB.TRIALS ? -3 : 0)
-    }));
-  }
-  function fillAll() {
-    ['A', 'B', 'C', 'D'].forEach(k => {
-      app.data[k] = sampleRows(k);
-      app.runIndex[k] = app.data[k].length;
-      const inv = invOf(k);
-      app.predictions[k] = inv.predictOpts[0];
-    });
-    app.lastRun = null;
-  }
-
-  function prepare(stop) {
+  function prepare() {
     app.studentName = 'Mr. O (Teacher)';
     const chip = document.getElementById('who-chip');
     if (chip) chip.textContent = 'Teacher preview';
-    fillAll();
-    app.checkAns = {}; app.vocabAns = {}; app.analysisAns = {}; app.claimsAns = {}; app.exitAns = {};
+    app.checkAns = {}; app.vocabAns = {}; app.exitAns = {};
     app.missedQuestions = []; app.resumeAt = '';
-    const m = /^run([ABCD])$/.exec(stop.phase);
-    if (m) { app.data[m[1]] = []; app.runIndex[m[1]] = 0; }
-    if (stop.phase === 'end') {
-      /* show the explanation a student would have built */
-      const d = labSummary();
-      CLAIMS_Q.filter(q => q.cer).forEach(q => { app.claimsAns[q.id] = q.resolve(d); });
-    }
   }
 
   function show(i) {
     at = Math.max(0, Math.min(STOPS.length - 1, i));
     const stop = STOPS[at];
     try { speech.stop(); } catch (e) {}
-    prepare(stop);
+    prepare();
     const p = stop.phase;
     if (p === 'cover')        { app.phase = 'cover'; app.show('cover-screen'); drawRail(); }
-    else if (p === 'why')     { showWhy(); }
-    else if (p === 'care')    { showCare(); }
-    else if (p === 'summary') { showSummary(); }
-    else if (p === 'cart')    { showCart(); }
-    else if (p === 'plan')    { showPlan(); }
-    else if (p === 'goals')   { showGoals(); }
-    else if (p === 'start')   { app.phase = 'start'; app.show('start-screen'); drawRail(); }
+    else if (OPENERS[p])      { OPENERS[p](); }      /* the other opening pages */
     else {
       app.go(p);
       if (stop.q != null) { app.qIndex = stop.q; app.qLocked = false; renderQ(); }

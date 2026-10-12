@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Starting and Stopping</title>
-<meta name="description" content="Grade 4 Science Lesson 1.1 — an interactive force and friction lab.">
+<title>Energy and Motion</title>
+<meta name="description" content="Grade 4 Science Lesson 1.2 — where a moving thing gets energy.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232E7D6B'/%3E%3Ccircle cx='11' cy='21' r='3' fill='%23fff'/%3E%3Ccircle cx='22' cy='21' r='3' fill='%23fff'/%3E%3Crect x='7' y='11' width='18' height='7' rx='2' fill='%23fff'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=data5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232E7D6B'/%3E%3Cpath d='M18 4L8 18h6l-2 10 12-16h-7z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=em1">
 </head>
 <body>
 <div class="wrap">
@@ -17,8 +17,8 @@
   <div class="topbar noprint" data-noread>
     <div class="brandmark">&#128300;</div>
     <div class="brandtext">
-      <span class="k">Grade 4 Science &middot; Quarter 1 &middot; Lesson 1.1</span>
-      <h1 class="t">Starting and Stopping</h1>
+      <span class="k">Grade 4 Science &middot; Quarter 1 &middot; Lesson 1.2</span>
+      <h1 class="t">Energy and Motion</h1>
     </div>
     <div class="topmeta">
       <span class="chip" id="who-chip">&nbsp;</span>
@@ -28,15 +28,16 @@
   </div>
 
   <div id="tab-warning-banner" class="hidden noprint">
-    &#9888;&#65039; You left this page and came back. Your teacher can see that. Stay on the lab until you finish.
+    &#9888;&#65039; You left this page and came back. Your teacher can see that. Stay on this page until you finish.
   </div>
 
   <div class="rail noprint" id="rail" data-noread></div>
 
-  <!-- The WHY, on every working screen. It was said once on the start screen
-       and then vanished; by push six nobody could tell you what they were
-       trying to find out. Marcos 10/9: "frequently remind them WHY we are
-       doing these experiments. That cannot get lost." -->
+  <!-- The WHY, on every working screen. In Lesson 1.1 the big question was
+       said once on the start screen and then vanished; a few screens later
+       nobody could say what they were trying to find out. Marcos 10/9:
+       "frequently remind them WHY we are doing these experiments. That
+       cannot get lost." -->
   <div id="whybar" class="hidden">
     <span class="wb-lbl">We are trying to find out</span>
     <p class="wb-q" id="wb-q"></p>
@@ -48,8 +49,10 @@
   <section id="cover-screen" class="card cover">
     <div id="cover-art" data-noread></div>
     <span class="cv-eyebrow">Grade 4 Science &middot; Unit 1</span>
-    <h1 class="cv-title">Starting and Stopping</h1>
-    <p class="cv-sub">What makes things go, and what makes them stop?</p>
+    <h1 class="cv-title">Energy and Motion</h1>
+    <!-- No word here that a later page has to explain first: not "energy",
+         not the name of the ride in the picture (qa.js C11 and C18). -->
+    <p class="cv-sub">What makes a thing go fast?</p>
     <div class="btnrow">
       <button class="btn big" id="cover-go" type="button">Let&rsquo;s begin &rarr;</button>
     </div>
@@ -70,21 +73,20 @@
       <p id="cv-driving"></p>
     </div>
 
-    <!-- Every word in the big question and in "you will be the scientist" is
-         explained here, one step at a time. Marcos 10/10: "we can never
-         assume understanding." -->
+    <!-- Every word in the big question is explained here, one step at a
+         time. Marcos 10/10: "we can never assume understanding." The word
+         "scientist" is explained here too, because the word pages say what
+         "scientists call" stored energy and moving energy. -->
     <div class="cv-you" data-step>
       <p>An <dfn>object</dfn> is a thing. A ball is an object. A car is an object. A book is an object.</p>
     </div>
     <div class="cv-you" data-step>
-      <p><b>You will be the scientist.</b> A <dfn>scientist</dfn> is a person who asks a question,
-      then tests to find the answer.</p>
+      <p><dfn>Energy</dfn> is what makes things move or change. A ball that rolls has energy.
+      A kid who runs has energy.</p>
     </div>
     <div class="cv-you" data-step>
-      <p>You will run tests. A <dfn>test</dfn> is a way to try something and see what happens.
-      In each test you will measure how far a thing travels before the thing stops. How far a
-      thing travels is called the <dfn>distance</dfn>. The distances you measure will tell you
-      the answer.</p>
+      <p><b>You will think like a scientist.</b> A <dfn>scientist</dfn> is a person who asks a question,
+      then looks for the answer. On these three days, you look for the answer to the big question.</p>
     </div>
 
     <div class="btnrow" data-gafter>
@@ -98,7 +100,7 @@
   <section id="care-screen" class="card hidden">
     <div class="cv-care">
       <span class="lbl">Why should you care?</span>
-      <p class="cv-care-lead" data-step>Stopping is everywhere in your life. Sometimes stopping is what keeps you safe.</p>
+      <p class="cv-care-lead" data-step>You use energy every day. Here are three things you know.</p>
       <div class="care-grid" id="cv-care"></div>
     </div>
     <div class="btnrow" data-gafter>
@@ -107,8 +109,8 @@
   </section>
 
   <!-- ══════════════ 1 · SUMMARY ══════════════
-       What the teacher just taught, before anyone types a name. It reads
-       itself out loud the moment it appears. -->
+       What the teacher just showed, before anyone picks a name. Filled from
+       RECAP in data/lesson.js. Nothing on it speaks until a student taps. -->
   <section id="summary-screen" class="card hidden">
     <div class="eyebrow">Before you start &middot; 1 of 4</div>
     <h2>What we just talked about</h2>
@@ -118,20 +120,24 @@
     </div>
   </section>
 
-  <!-- ══════════════ 1a · MEET YOUR CART ══════════════
-       The cart is introduced here and nowhere earlier. -->
-  <section id="cart-screen" class="card hidden">
+  <!-- ══════════════ 1a · MEET THE TOOL ══════════════
+       The thing this lesson thinks with (a roller coaster here; a cart in
+       Lesson 1.1). The title and the pages come from TOOL and TOOL_PAGES in
+       data/lesson.js. No page before What we just talked about may name the
+       tool (qa.js C11). -->
+  <section id="tool-screen" class="card hidden">
     <div class="eyebrow">Before you start &middot; 2 of 4</div>
-    <h2>Meet your cart</h2>
-    <div id="cart-pages"></div>
+    <h2 id="tool-head"></h2>
+    <div id="tool-pages"></div>
     <div class="btnrow" data-gafter>
-      <button class="btn" id="cart-next" type="button">Next &mdash; show me the plan &rarr;</button>
+      <button class="btn" id="tool-next" type="button">Next &mdash; show me the plan &rarr;</button>
     </div>
   </section>
 
   <!-- ══════════════ 1b · THE PLAN ══════════════
-       Its own page, so the summary is not a wall: which test happens which
-       day, each with a picture, then the three things they do every time. -->
+       Its own page, so the summary is not a wall: what happens today, each
+       part with a picture, one short step about the later days, then the
+       three things a student does on every page. -->
   <section id="plan-screen" class="card hidden">
     <div class="eyebrow">Before you start &middot; 3 of 4</div>
     <h2>Here is the plan</h2>
@@ -143,19 +149,19 @@
 
   <!-- ══════════════ 1c · BY THE END YOU CAN ══════════════
        Marcos 10/10, about the name page: "are the students forced to read
-       this page?" They were not. The four "I can" lines sat above the name
+       this page?" They were not. The "I can" lines sat above the name
        picker with a small speaker each, and the Start button woke up the
        moment a name was chosen — so the one place the lesson says what a
        student will be able to do was the one place nobody had to hear.
-       Now the four lines are a guided page of their own (guide.js): one
-       line open at a time, a picture beside each, and the button below does
-       not exist until all four were heard. A student coming back on Day 2 or
+       Now the lines are a guided page of their own (guide.js): one line
+       open at a time, a picture beside each, and the button below does
+       not exist until every line was heard. A student coming back on Day 2 or
        Day 3 goes from the cover straight to the name page and does not sit
        through this again. -->
   <section id="goals-screen" class="card hidden">
     <div class="eyebrow">Before you start &middot; 4 of 4</div>
     <h2>By the end of these three days you can say:</h2>
-    <div id="goals-list" class="cart-list"></div>
+    <div id="goals-list" class="page-list"></div>
     <div class="btnrow" data-gafter>
       <button class="btn" id="goals-next" type="button">I am ready &mdash; let me start &rarr;</button>
     </div>
@@ -164,16 +170,15 @@
   <!-- ══════════════ 1 · START ══════════════ -->
   <section id="start-screen" class="card hidden">
     <!-- The unit title and standard codes are for the teacher (they are in the
-         footer). A student met the word "Motion" here before it was taught. -->
-    <div class="eyebrow">Grade 4 Science &middot; Lesson 1.1</div>
-    <h2>Starting and Stopping</h2>
-    <!-- THIS PAGE ASKS FOR ONE THING: a name. It used to carry a paragraph,
-         the driving question, the four "I can" lines and a note about three
-         days — 143 words nobody had to hear. Each of those is on a locked
-         page before this one now (the question and the scientist on page
-         two, the tests and the three days on the plan, the "I can" lines on
-         their own page), so nothing was lost by taking them off here.
-         qa.js C26 keeps the page this small. -->
+         footer). -->
+    <div class="eyebrow">Grade 4 Science &middot; Lesson 1.2</div>
+    <h2>Energy and Motion</h2>
+    <!-- THIS PAGE ASKS FOR ONE THING: a name. In Lesson 1.1 it used to carry
+         a paragraph, the driving question, the "I can" lines and a note about
+         three days — 143 words nobody had to hear. Each of those is on a
+         locked page before this one (the question and the scientist on page
+         two, the three days on the plan, the "I can" lines on their own
+         page). qa.js C26 keeps the page this small. -->
     <label class="fld">
       <span class="lb">Pick your name</span>
       <select id="name-select"><option value="">&mdash; choose your name &mdash;</option></select>
@@ -194,14 +199,29 @@
     </div>
   </section>
 
-  <!-- ══════════════ 2 · READ ALOUD ══════════════ -->
-  <!-- ══════════════ 3 · VOCABULARY ══════════════ -->
+  <!-- ══════════════ 3 · VOCABULARY ══════════════
+       The label and the title are filled in by renderVocab (script.js), from
+       the day and from how many words the lesson has. -->
   <section id="vocab-screen" class="card hidden">
-    <div class="eyebrow">Step 1 &middot; Words you need, one at a time</div>
-    <h2>Six words for today</h2>
+    <div class="eyebrow" id="vocab-eyebrow"></div>
+    <h2 id="vocab-head"></h2>
     <div id="vocab-cards"></div>
     <div class="btnrow" data-gafter>
-      <button class="btn" id="vocab-next" type="button">Check that I know them &rarr;</button>
+      <button class="btn" id="vocab-next" type="button">Answer the questions &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ══════════════ 3b · A TEACHING PAGE-SET INSIDE THE LESSON ══════════════
+       One screen for every entry of LEARN in data/lesson.js ("high" on
+       Day 1). Built like Meet the tool: one idea to a page, a picture at the
+       top, each point a step that has to be heard (guide.js) before the
+       button to the questions exists. -->
+  <section id="learn-screen" class="card hidden">
+    <div class="eyebrow" id="learn-eyebrow"></div>
+    <h2 id="learn-head"></h2>
+    <div id="learn-pages"></div>
+    <div class="btnrow" data-gafter>
+      <button class="btn" id="learn-next" type="button">Next &rarr;</button>
     </div>
   </section>
 
@@ -212,118 +232,21 @@
       <span class="qcount" id="q-phase"></span>
     </div>
     <p class="qtext" id="q-text" tabindex="-1"></p>
-    <div id="q-data" class="hidden"></div>
     <div class="opts" id="q-opts"></div>
     <div id="q-fb" aria-live="polite" role="status"></div>
     <div class="btnrow"><button class="btn hidden" id="q-next" type="button">Next &rarr;</button></div>
     <div class="bar"><i id="q-bar" style="width:0%"></i></div>
   </section>
 
-  <!-- ══════════════ 5 · THE LAB ══════════════ -->
-  <section id="lab-screen" class="hidden">
+  <!-- ══════════════ 5 · THE STOP AT THE END OF A DAY ══════════════
+       One screen, used at the end of every day that has a stop. Everything
+       in it is filled from DAY_GATES in data/lesson.js by renderDayGate.
 
-    <div class="card" id="predict-card">
-      <div class="eyebrow" id="pr-eyebrow"></div>
-      <h2 id="pr-head"></h2>
-
-      <!-- Three short pages instead of one long one (Marcos 10/9: "Split
-           them"). Every [data-step] has to be heard before the next opens. -->
-      <!-- page 1 · what this test is -->
-      <div data-gpage>
-        <p class="plain" id="pr-plain" data-step></p>
-        <p class="lead" id="pr-question" data-step></p>
-        <p class="lead" id="pr-measure" data-step></p>
-        <div class="varbox">
-          <div class="same" data-step><span class="lb" id="pr-same-lb"></span><span class="v" id="pr-same-v"></span></div>
-          <div class="chg" data-step><span class="lb" id="pr-chg-lb"></span><span class="v" id="pr-chg-v"></span></div>
-        </div>
-      </div>
-
-      <!-- page 2 · what you will do -->
-      <div data-gpage>
-        <div class="box todo" id="pr-todo" data-parts>
-          <span class="lbl">What you will do &mdash; <span id="pr-docount"></span></span>
-          <p id="pr-dowhy" data-step></p>
-          <ol id="pr-dosteps"></ol>
-        </div>
-      </div>
-
-      <!-- page 3 · your prediction -->
-      <div data-gpage>
-        <p class="counter" data-step>A <dfn>prediction</dfn> is your best guess before the test. A prediction is not graded right or wrong. Scientists write a prediction down <i>before</i> the test. After the test, scientists check the prediction.</p>
-        <div data-gafter>
-          <p class="qtext" id="pr-predict"></p>
-          <div class="opts" id="pr-opts"></div>
-          <div class="btnrow">
-            <button class="btn" id="pr-next" type="button" disabled>Lock in my prediction &rarr;</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card hidden" id="run-card">
-      <div class="invhead">
-        <div style="flex:1 1 240px">
-          <div class="eyebrow" id="run-eyebrow"></div>
-          <h2 id="run-head" style="font-size:28px"></h2>
-        </div>
-        <span class="chip" id="run-progress"></span>
-      </div>
-
-      <!-- Anything NEW in this push (a surface, a push size, a ramp, the
-           truck) is explained here first and has to be heard (guide.js)
-           before the button appears. Then it folds away. -->
-      <div id="run-new"></div>
-
-      <!-- The push, kept together: what this push uses, the cart, and the
-           button right under the cart. Marcos 10/9: "separating the cart and
-           the button doesn't make sense." -->
-      <div class="setupstrip" id="run-strip"></div>
-      <div class="stage"><canvas id="track" width="900" height="132" role="img"
-        aria-label="Track with the cart at the start."></canvas></div>
-      <div class="actrow" data-gafter>
-        <button class="btn big" id="run-btn" type="button">&#128072; Push the cart</button>
-        <button class="btn big hidden" id="run-record" type="button">Write in my table</button>
-        <span class="readout" id="run-readout" aria-live="polite">The cart has traveled 0 cm</span>
-        <!-- The helper reacts to the push that just landed, with the student's
-             own distances. Marcos 10/10: "commentary from an experiment
-             assistant... Gets the kids thinking." -->
-        <div class="helper hidden" id="run-helper" aria-live="polite"></div>
-      </div>
-
-      <!-- The table sits right under the push, and the box this push fills
-           glows. Marcos 10/9: "kids won't know where the data table is and
-           its connection to cart moving." -->
-      <div class="tablezone">
-        <h3 id="table-head">My data table</h3>
-        <p class="tnote" id="table-note" aria-live="polite"></p>
-        <div class="tablewrap"><table class="data" id="data-table"></table></div>
-      </div>
-
-      <div class="btnrow"><button class="btn hidden" id="run-done" type="button">My table is full &rarr;</button></div>
-    </div>
-
-    <div class="card hidden" id="graph-card">
-      <div class="eyebrow" id="gr-eyebrow"></div>
-      <h2 id="gr-head"></h2>
-      <!-- A guided page (guide.js), like the others. Marcos 10/10: "this too
-           should be a forced review and spoken." What the bars are, then one
-           bar at a time, then what the bars say about the prediction. -->
-      <p class="lead" id="gr-lead" data-step></p>
-      <!-- what an average is, with this student's own two distances -->
-      <div class="box todo avgbox" id="gr-average" data-step></div>
-      <div class="graph" id="graph-rows"></div>
-      <div id="gr-predict-check" class="note" data-step></div>
-      <div class="btnrow" data-gafter>
-        <button class="btn" id="gr-next" type="button">Keep going &rarr;</button>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ══════════════ 5b · THE STOP AT THE END OF A DAY ══════════════
-       One screen, used at the end of Day 1 and again at the end of Day 2.
-       Everything in it is filled from DAY_GATES in data/lesson.js. -->
+       Page 3 is built in one of two ways (script.js):
+       - the stop at the end of the LAST BUILT DAY (DAYS_BUILT) has no way
+         on: the work is saved, close the computer. No choice, no button.
+       - a stop with another day built after it asks "What did Mr. O say?"
+         and has the two buttons, as in Lesson 1.1. -->
   <section id="daygate-screen" class="card hidden">
     <div class="eyebrow" id="dg-eyebrow"></div>
     <h2 id="dg-head"></h2>
@@ -337,74 +260,32 @@
       <div class="box todo" data-parts id="dg-nextbox"></div>
     </div>
 
-    <!-- page 3 · stop and ask -->
+    <!-- page 3 · stop here -->
     <div data-gpage>
-    <div id="dg-choices">
-      <div class="box ask" data-parts data-step id="dg-ask"></div>
-      <div data-gafter>
-        <p class="qtext">What did Mr. O say?</p>
-        <div class="btnrow">
-          <button class="btn" id="dg-next" type="button"></button>
-          <button class="btn ghost" id="dg-stop" type="button"></button>
-        </div>
-      </div>
-    </div>
+      <div id="dg-choices"></div>
     </div>
     <div id="dg-recap" class="hidden"></div>
     <div id="dg-stopped" class="hidden">
       <div class="box todo" data-parts>
         <span class="lbl">Saved</span>
-        <p>Your work is saved. You can close this page now.</p>
+        <p>Everything you did is saved. You can close the computer now.</p>
         <p>When you open the lesson again on <b>this same computer</b>, press
-        <b>Pick up where I left off</b> and you will start <b id="dg-stopped-day">the next day</b>.</p>
+        <b>Pick up where I left off</b>. Then you start <b id="dg-stopped-day">the next day</b>.</p>
       </div>
     </div>
   </section>
 
-  <!-- ══════════════ 6 · WRITTEN ══════════════ -->
-  <section id="write-screen" class="card hidden">
-    <div class="eyebrow">Step 4 &middot; Explain like a scientist</div>
-    <h2 id="w-head">Claim, Evidence, Reasoning</h2>
-    <p class="qtext" id="w-text"></p>
-    <h3 style="font-size:20px; margin-top:16px">Put all three in your answer</h3>
-    <ul class="hintlist" id="w-hints"></ul>
-    <div class="box todo" data-parts style="margin-top:12px">
-      <span class="lbl">How long &mdash; <span style="color:var(--accent)">about 3 sentences</span></span>
-      <p>Write your explanation in your own words. The buttons under the box put words straight into your writing
-      &mdash; tap one and keep going from there. The <b>Turn in</b> button turns green when your
-      answer is long enough. Nothing is lost if you stop and come back.</p>
-    </div>
-    <div id="w-starterwrap" class="chips">
-      <span class="chips-lbl">Tap to put these words in your box</span>
-      <div class="chiprow" id="w-starters"></div>
-    </div>
-    <div id="w-bankwrap" class="chips">
-      <span class="chips-lbl">Hard words &mdash; tap to spell them for you</span>
-      <div class="chiprow" id="w-wordbank"></div>
-    </div>
-    <label class="fld" style="margin-top:12px">
-      <span class="lb">Your explanation</span>
-      <textarea id="w-box" placeholder="Start with your claim&hellip;"></textarea>
-    </label>
-    <p class="counter" id="w-counter"></p>
-    <div class="tablewrap" style="margin-top:12px">
-      <details open><summary style="cursor:pointer; color:var(--sci); font-weight:600">&#128202; My data table &mdash; your evidence numbers are in here</summary>
-      <div id="w-data"></div></details>
-    </div>
-    <div class="btnrow"><button class="btn" id="w-next" type="button" disabled>Turn in my explanation &rarr;</button></div>
-  </section>
-
-  <!-- ══════════════ 7 · END ══════════════ -->
+  <!-- ══════════════ 7 · END ══════════════
+       Not reached yet: the lesson ends here once the last day and its last
+       questions (EXIT_Q) are written. -->
   <section id="end-screen" class="card hidden">
     <div class="eyebrow">Lesson complete</div>
-    <h2 id="end-head">Nice work, scientist</h2>
+    <h2 id="end-head">Nice job. You finished the lesson.</h2>
     <p class="lead" id="end-lead"></p>
     <div class="scoreboard" id="end-scores"></div>
-    <div id="end-answer-back"></div>
-    <div id="end-cer" class="hidden"></div>
     <div id="end-miss"></div>
     <div class="btnrow">
-      <button class="btn ghost small" id="end-print" type="button">&#128424; Print my lab sheet</button>
+      <button class="btn ghost small" id="end-print" type="button">&#128424; Print this page</button>
       <button class="btn ghost small" id="end-restart" type="button">Start over (teacher PIN)</button>
     </div>
   </section>
@@ -423,27 +304,27 @@
   </div>
 
   <p class="foot noprint">
-    Grade 4 Science &middot; Unit 1 &ldquo;Motion: Car Crashes&rdquo; &middot; Lesson 1.1 Starting and Stopping<br>
+    Grade 4 Science &middot; Unit 1 &ldquo;Motion: Car Crashes&rdquo; &middot; Lesson 1.2 Energy and Motion<br>
     Objectives, driving question and vocabulary from the Bridgeport Public Schools
-    K&ndash;6 Science Curriculum Unit Plan (SY 2025&ndash;2026). NGSS 4-PS3-1 &amp; 4-PS3-3.
+    K&ndash;6 Science Curriculum Unit Plan (SY 2025&ndash;2026). NGSS 4-PS3-1.
   </p>
 </div>
 
-<script src="data/art.js?v=data5"></script>
-<script src="data/lesson.js?v=data5"></script>
-<script src="data/questions.js?v=data5"></script>
-<script src="guide.js?v=data5"></script>
-<script src="script.js?v=data5"></script>
-<script src="preview.js?v=data5"></script>
+<script src="data/art.js?v=em1"></script>
+<script src="data/lesson.js?v=em1"></script>
+<script src="data/questions.js?v=em1"></script>
+<script src="guide.js?v=em1"></script>
+<script src="script.js?v=em1"></script>
+<script src="preview.js?v=em1"></script>
 <!-- The pre-push check. Runs only when the address has ?qa in it. -->
-<script>if (/[?&]qa\b/.test(location.search)) { var q = document.createElement('script'); q.src = 'qa.js?v=data5'; document.body.appendChild(q); }</script>
+<script>if (/[?&]qa\b/.test(location.search)) { var q = document.createElement('script'); q.src = 'qa.js?v=em1'; document.body.appendChild(q); }</script>
 
 <!-- ══════════════ WORD HELP — on every working screen ══════════════
      Marcos 10/9: "add reminders of those definitions. Don't expect them to
      remember after one time being told." The vocabulary screen happens once,
-     in minute three of Day 1. Everything after it assumed the words had
-     stuck. This sits at the bottom of every working screen so a word is
-     always one tap away, with its example. -->
+     early on Day 1. Everything after it would assume the words had stuck.
+     This sits at the bottom of every working screen so a word is always one
+     tap away, with its example. -->
 <div id="wordhelp" class="hidden">
   <button id="wh-toggle" type="button" data-noread aria-expanded="false">
     <span class="wh-ic" aria-hidden="true">&#128161;</span>

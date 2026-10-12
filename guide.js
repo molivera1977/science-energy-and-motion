@@ -54,8 +54,9 @@
     opts = opts || {};
     const id = opts.id || root.id || 'guide';
 
-    /* A card is rendered more than once (the four predict screens share one),
-       so take off whatever the last run left behind. */
+    /* A screen is rendered more than once (every page-set in LEARN shares
+       one screen, and so does every stop at the end of a day), so take off
+       whatever the last run left behind. */
     root.querySelectorAll('.gbar,.gnav,.gdots').forEach(n => n.remove());
     root.querySelectorAll('.gstep').forEach(n => n.classList.remove('gstep', 'g-live', 'g-done', 'g-locked', 'g-play'));
     root.querySelectorAll('.ghide').forEach(n => n.classList.remove('ghide'));
@@ -300,11 +301,12 @@
      the teacher preview can list every page without a hand-kept number. */
   function pagesFor(phase) {
     const count = sel => document.querySelectorAll(sel + ' [data-gpage]').length;
-    if (/^predict[ABCD]$/.test(phase)) return count('#predict-card');
-    if (/^daygate/.test(phase)) return count('#daygate-screen');
+    if (isGate(phase)) return count('#daygate-screen');
     /* one page for the words already taught, then a page for each new word */
     if (phase === 'vocab') return (LESSON.vocab.some(v => v.met) ? 1 : 0) + LESSON.vocab.filter(v => !v.met).length;
-    if (phase === 'cart') return (window.CART_PAGES || []).length;
+    /* a teaching page-set: Meet the tool, and every page-set in LEARN */
+    if (phase === 'tool') return (window.TOOL_PAGES || []).length;
+    if (isLearn(phase)) return ((window.LEARN[phase] || {}).pages || []).length;
     if (phase === 'plan') return (planHTML().match(/data-gpage/g) || []).length;
     return 0;
   }
