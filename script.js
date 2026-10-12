@@ -731,9 +731,13 @@ for (let d = 1; d <= BUILT_DAYS; d++) {
     p.phases.forEach(x => { PHASES.push(x); DAY_OF[x] = d; });
   });
 }
-/* The last questions and the end screen are not written yet. The day EXIT_Q
-   exists in data/questions.js, both come back after the last built day. */
-if ((window.EXIT_Q || []).length) {
+/* The last questions and the end screen come back when EXIT_Q exists in
+   data/questions.js AND every day the data knows about is built. Until then
+   the lesson ends at the stop of the last built day: EXIT_Q written ahead of
+   time (with DAYS_BUILT still lower) must not put an exit ticket after Day 1. */
+const LAST_DAY = Math.max(BUILT_DAYS, ...LEARN_KEYS.map(k => window.LEARN[k].day || 1),
+                          ...GATE_KEYS.map(g => window.DAY_GATES[g].day || 1));
+if ((window.EXIT_Q || []).length && BUILT_DAYS >= LAST_DAY) {
   RAIL.push({ key:'exit', n:'Day ' + BUILT_DAYS, l:'Exit', phases:['exit', 'end'] });
   PHASES.push('exit', 'end'); DAY_OF.exit = DAY_OF.end = BUILT_DAYS;
 }
@@ -1320,7 +1324,7 @@ function renderVocab() {
    yet; the day they are, they are asked on 'exit' (see PHASES). */
 const Q_PHASE = {};
 if ((window.VOCAB_Q || []).length) Q_PHASE.vq   = { bank: () => window.VOCAB_Q, ans: 'vocabAns' };
-if ((window.EXIT_Q || []).length)  Q_PHASE.exit = { bank: () => window.EXIT_Q,  ans: 'exitAns' };
+if (PHASES.indexOf('exit') !== -1)  Q_PHASE.exit = { bank: () => window.EXIT_Q,  ans: 'exitAns' };
 /* only the checks that are in the lesson: a check written for a day that is
    not built yet is not asked and does not count toward the score */
 Object.keys(window.CHECKS || {}).filter(p => PHASES.indexOf(p) !== -1).forEach(p => {

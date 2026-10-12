@@ -34,7 +34,10 @@ if ((window.VOCAB_Q || []).length) order.push('vq');
 for (let d = 1; d <= built; d++)
   Object.keys(window.LEARN || {}).filter(k => (window.LEARN[k].day || 1) === d)
     .forEach(k => { if (checkAfter(k)) order.push(checkAfter(k)); });
-if ((window.EXIT_Q || []).length) order.push('exit');
+/* the last questions are asked only once every day the data knows about is built (script.js, PHASES) */
+const lastDay = Math.max(built, ...Object.keys(window.LEARN || {}).map(k => window.LEARN[k].day || 1),
+                         ...Object.keys(window.DAY_GATES || {}).map(g => window.DAY_GATES[g].day || 1));
+if ((window.EXIT_Q || []).length && built >= lastDay) order.push('exit');
 
 const bankOf = p => p === 'vq' ? window.VOCAB_Q : p === 'exit' ? window.EXIT_Q : (window[window.CHECKS[p].bank] || []);
 const titleOf = p => p === 'vq' ? 'Word check' : p === 'exit' ? 'Exit ticket' : window.CHECKS[p].title;
