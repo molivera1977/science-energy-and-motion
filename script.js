@@ -17,16 +17,16 @@
 ═══════════════════════════════════════════════════════════════ */
 
 /* ── CONFIG ─────────────────────────────────────────── */
-const STORAGE_KEY  = 'sci_startstop_session_v1';
-const SCORES_KEY   = 'sci_startstop_scores_v1';
-const SESSION_ID_KEY = 'sci_startstop_session_id_v1';
+const STORAGE_KEY  = 'sci_energymotion_session_v1';
+const SCORES_KEY   = 'sci_energymotion_scores_v1';
+const SESSION_ID_KEY = 'sci_energymotion_session_id_v1';
 const TEACHER_PIN  = '9377';
-const GAME_KEY     = 'startstop-lesson';
-const WRITTEN_KEY  = 'startstop_written';
+const GAME_KEY     = 'energymotion-lesson';
+const WRITTEN_KEY  = 'energymotion_written';
 
 const SESSION_ID = (() => {
   let id = localStorage.getItem(SESSION_ID_KEY);
-  if (!id) { id = 'SS-' + Math.random().toString(36).slice(2, 9).toUpperCase(); localStorage.setItem(SESSION_ID_KEY, id); }
+  if (!id) { id = 'EM-' + Math.random().toString(36).slice(2, 9).toUpperCase(); localStorage.setItem(SESSION_ID_KEY, id); }
   return id;
 })();
 
