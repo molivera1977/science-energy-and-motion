@@ -636,6 +636,10 @@
     const tabs = tabSwitchCount, chip = document.getElementById('who-chip').textContent;
     const realGo = app.go, realTimer = app.startTimer;
     const h = { went: '', realGo: p => realGo.call(app, p) };
+    /* the clock is stopped as well as held: the preview starts it at the
+       words, and a tick landing between "pick the lesson up" and the look at
+       what came back made a saved 900 seconds read 901 */
+    app.stopTimer();
     app.go = p => { h.went = p; }; app.startTimer = () => {};
     h.release = () => {
       app.go = realGo; app.startTimer = realTimer;
