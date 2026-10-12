@@ -50,7 +50,8 @@
      C19 student text says what was measured, not "your number"
      C20 a label is read with the line under it, on every screen
      C21 after every Listen the next thing to press is on screen, clear of
-         the pinned help bar
+         the pinned help bar; and when a guided page opens, its Listen
+         button comes on screen
      C22 PARKED (no test): after every push the helper speaks and the button
          and the glowing box are on screen
      C23 no screen is wider than the window (no sideways scroll)
@@ -210,6 +211,17 @@
       [...sec.querySelectorAll('.glead')].filter(l => l._gstep === step && shown(l))
         .reduce((n, l) => n + wordsIn(speech.textOf(l)), 0);
 
+    /* C21, when a page opens: the Listen button of the open step comes on
+       screen by itself (the page moves up to it a moment after opening).
+       Until 10/12 this was looked at only AFTER a Listen; the first Listen
+       of a page was not, and on the last page of the stop that button is
+       the only thing there is to press. */
+    const listenOnScreen = async what => {
+      const btn = () => { const live = steps().filter(e => e.classList.contains('g-live')).find(shown); return live && live.querySelector('.gbtn'); };
+      for (let t = 0; t < 12 && btn() && !inView(btn()); t++) await wait(100);
+      if (btn() && !inView(btn())) offScreen.push(name + ' ' + what + ': the Listen button is not on screen');
+    };
+    await listenOnScreen('when the screen opens');
     if (after && shown(after)) gateBad.push(name + ': Next is reachable before anything was heard');
     const open = steps().filter(shown);
     if (!open[0] || !open[0].classList.contains('g-live')) gateBad.push(name + ': the first step is not open');
@@ -241,7 +253,7 @@
         continue;
       }
       const nx = [...sec.querySelectorAll('.gnext')].find(shown);
-      if (nx) { nx.click(); await wait(60); continue; }
+      if (nx) { nx.click(); await wait(60); await listenOnScreen('when its next page opens'); continue; }
       break;
     }
     if (done() !== steps().length) gateBad.push(name + ': ' + done() + ' of ' + steps().length + ' steps heard at the end');

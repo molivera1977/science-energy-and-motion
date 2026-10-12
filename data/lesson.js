@@ -173,6 +173,11 @@ window.TOOL_PAGES = [
    coaster: one idea to a page, a picture at the top, each point a step that
    has to be heard. The questions that follow are in CHECKS (questions.js).
 
+   Every key here is a phase of the lesson (script.js, PHASES): its pages,
+   then the check that names it in CHECKS[...].after. `day` on a page-set says
+   which day the page-set belongs to (Day 1 when left out), and `rail` is
+   the short name on the strip along the top.
+
    `high` is the district's Activity 5: the higher thing has more potential
    energy, and potential energy turns into kinetic energy on the way down.
    The district's picture is four acrobats; a slide and a shelf are things
