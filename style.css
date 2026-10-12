@@ -1,0 +1,1104 @@
+/* ═══════════════════════════════════════════════════════
+   STARTING AND STOPPING — Grade 4 Science Lab
+   Teal brand matches the Grade 4 curriculum Science page.
+═══════════════════════════════════════════════════════ */
+:root{
+  --sci:#2E7D6B; --sci-dark:#1F5A4C; --sci-soft:#E4F2EE; --sci-line:#A8D5C9;
+  --ink:#16211F; --ink-soft:#4A5C58; --ink-faint:#5A6E68;
+  --bg:#F5F8F7; --surface:#FFFFFF; --surface-2:#EDF3F1; --line:#D6E3DF;
+  --good:#1E7D45; --good-soft:#E3F4E9;
+  --bad:#B3261E;  --bad-soft:#FBE9E7;
+  --warn:#8A5A00; --warn-soft:#FFF4DC;
+  --accent:#D2601A;
+  /* read-aloud highlighter — a real marker colour, not a pale tint */
+  --hl:#FFD44D; --hl-ink:#16211F; --hl-soft:#FFEFB5; --hl-line:#D9A400;
+  --shadow:0 1px 2px rgba(22,33,31,.06), 0 6px 18px rgba(22,33,31,.07);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --sci:#6FC0AC; --sci-dark:#8FD3C2; --sci-soft:#17302B; --sci-line:#2F5C51;
+    --ink:#E8F1EE; --ink-soft:#A9BDB8; --ink-faint:#8A9D98;
+    --bg:#101816; --surface:#17211F; --surface-2:#1D2927; --line:#2B3936;
+    --good:#67D28F; --good-soft:#15301F;
+    --bad:#F2998F;  --bad-soft:#331815;
+    --warn:#E0B55E; --warn-soft:#2E2412;
+    --accent:#F0924E;
+    --hl:#FFD44D; --hl-ink:#16211F; --hl-soft:#4A3D12; --hl-line:#C99A1E;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --sci:#6FC0AC; --sci-dark:#8FD3C2; --sci-soft:#17302B; --sci-line:#2F5C51;
+  --ink:#E8F1EE; --ink-soft:#A9BDB8; --ink-faint:#8A9D98;
+  --bg:#101816; --surface:#17211F; --surface-2:#1D2927; --line:#2B3936;
+  --good:#67D28F; --good-soft:#15301F;
+  --bad:#F2998F;  --bad-soft:#331815;
+  --warn:#E0B55E; --warn-soft:#2E2412;
+  --accent:#F0924E;
+  --hl:#FFD44D; --hl-ink:#16211F; --hl-soft:#4A3D12; --hl-line:#C99A1E;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:21px; line-height:1.6; -webkit-text-size-adjust:100%;
+}
+.hidden{display:none !important}
+h1,h2,h3{font-family:Fraunces,Georgia,"Times New Roman",serif; margin:0; text-wrap:balance; line-height:1.2}
+button{font:inherit; cursor:pointer}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ── SHELL ─────────────────────────────────────────── */
+.wrap{max-width:1000px; margin:0 auto; padding:16px 16px 72px}
+.topbar{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:var(--surface); border:1px solid var(--line); border-radius:14px;
+  padding:10px 14px; margin-bottom:16px; box-shadow:var(--shadow);
+}
+.brandmark{
+  width:38px; height:38px; flex:none; border-radius:11px; background:var(--sci);
+  display:grid; place-items:center; font-size:25px; color:#fff;
+}
+.brandtext{min-width:0; flex:1 1 180px}
+.brandtext .k{
+  font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-faint); display:block;
+}
+.brandtext .t{font-family:Fraunces,Georgia,serif; font-size:21px; font-weight:600}
+.topmeta{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.chip{
+  font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.06em;
+  background:var(--sci-soft); color:var(--sci-dark); border:1px solid var(--sci-line);
+  border-radius:999px; padding:4px 10px; white-space:nowrap;
+}
+.chip.ghost{background:transparent; color:var(--ink-faint); border-color:var(--line)}
+#timer-box{
+  font-family:"IBM Plex Mono",monospace; font-size:16px; font-variant-numeric:tabular-nums;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:999px;
+  padding:5px 12px; color:var(--ink-soft);
+}
+.iconbtn{
+  background:var(--surface); border:1px solid var(--line); color:var(--ink-soft);
+  border-radius:10px; width:38px; height:34px; display:grid; place-items:center; font-size:19px;
+}
+.iconbtn:hover{border-color:var(--sci); color:var(--sci)}
+
+/* ── PROGRESS RAIL ─────────────────────────────────── */
+.rail{display:flex; gap:4px; margin-bottom:18px; flex-wrap:wrap}
+.rail .step{
+  flex:1 1 90px; min-width:76px; border-radius:8px; padding:7px 9px;
+  background:var(--surface); border:1px solid var(--line);
+}
+.rail .step .n{
+  font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-faint); display:block;
+}
+.rail .step .l{font-size:16px; font-weight:600; color:var(--ink-soft); line-height:1.3}
+.rail .step.on{background:var(--sci); border-color:var(--sci)}
+.rail .step.on .n{color:rgba(255,255,255,.75)}
+.rail .step.on .l{color:#fff}
+.rail .step.done{background:var(--sci-soft); border-color:var(--sci-line)}
+.rail .step.done .l{color:var(--sci-dark)}
+
+/* ── CARDS ─────────────────────────────────────────── */
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:16px;
+  padding:22px; box-shadow:var(--shadow); margin-bottom:16px;
+}
+.card.flat{box-shadow:none}
+.card h2{font-size:32px; color:var(--sci-dark); margin-bottom:6px}
+.card h3{font-size:24px; margin-bottom:8px}
+.lead{color:var(--ink-soft); margin:.4rem 0 0; max-width:66ch}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--sci); margin-bottom:6px;
+}
+.hr{height:1px; background:var(--line); border:0; margin:18px 0}
+
+.btn{
+  background:var(--sci); color:#fff; border:1px solid var(--sci);
+  border-radius:12px; padding:13px 22px; font-size:21px; font-weight:600;
+}
+.btn:hover{background:var(--sci-dark); border-color:var(--sci-dark)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn.ghost{background:transparent; color:var(--sci); }
+.btn.ghost:hover{background:var(--sci-soft)}
+.btn.small{padding:8px 14px; font-size:18px; border-radius:10px}
+.btn.wide{width:100%}
+.btnrow{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+
+/* ── START ─────────────────────────────────────────── */
+select, input[type=text], textarea{
+  font:inherit; color:var(--ink); background:var(--surface);
+  border:1px solid var(--line); border-radius:11px; padding:12px 13px; width:100%;
+}
+textarea{min-height:150px; line-height:1.65; resize:vertical}
+label.fld{display:block; margin-bottom:14px}
+label.fld .lb{
+  font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-faint); display:block; margin-bottom:5px;
+}
+.objlist{margin:.3rem 0 0; padding-left:1.15rem; color:var(--ink-soft); font-size:19px}
+.objlist li{margin-bottom:5px}
+.dq{
+  background:var(--sci-soft); border:1px solid var(--sci-line); border-left:4px solid var(--sci);
+  border-radius:0 12px 12px 0; padding:14px 16px; margin:14px 0;
+}
+.dq .lb{
+  font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--sci-dark); display:block; margin-bottom:4px;
+}
+.dq p{margin:0; font-family:Fraunces,Georgia,serif; font-size:24px; color:var(--ink)}
+.note{
+  background:var(--warn-soft); border:1px solid var(--warn); border-radius:12px;
+  padding:12px 14px; font-size:18px; color:var(--ink);
+}
+.note .lb{font-weight:700; color:var(--warn)}
+
+/* ── VOCAB CARDS ───────────────────────────────────── */
+.vgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin-top:12px}
+.vcard{border:1px solid var(--line); border-radius:12px; padding:12px 13px; background:var(--surface-2)}
+.vcard .w{font-family:Fraunces,Georgia,serif; font-size:22px; font-weight:600; color:var(--sci-dark)}
+.vcard .es{font-size:16px; color:var(--ink-faint); font-style:italic; margin-bottom:5px}
+.vcard .d{font-size:18px; color:var(--ink-soft); line-height:1.5}
+
+/* ── QUESTIONS ─────────────────────────────────────── */
+.qhead{display:flex; justify-content:space-between; gap:12px; align-items:baseline; margin-bottom:10px}
+.qcount{font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint)}
+.qtext{font-size:26px; line-height:1.45; margin:0 0 4px; font-weight:500}
+/* The spoken word lights up wherever read-aloud is running — the intro that
+   speaks itself, a question, a written prompt. This was scoped to .qtext, so
+   the intro screen wrapped its words and then highlighted none of them. */
+.wrd.spk{background:var(--hl); color:var(--hl-ink); border-radius:3px;
+  box-shadow:0 0 0 3px var(--hl);}
+.opts{display:grid; gap:9px; margin-top:14px}
+.opt{
+  text-align:left; background:var(--surface); color:var(--ink);
+  border:2px solid var(--line); border-radius:12px; padding:13px 15px;
+  font-size:21px; display:flex; gap:11px; align-items:flex-start; line-height:1.45;
+}
+.opt .ltr{
+  flex:none; width:32px; height:32px; border-radius:8px; background:var(--surface-2);
+  color:var(--ink-soft); display:grid; place-items:center; font-size:17px; font-weight:700;
+  font-family:"IBM Plex Mono",monospace;
+}
+.opt:hover:not(:disabled){border-color:var(--sci)}
+.opt.sel{border-color:var(--sci); background:var(--sci-soft)}
+.opt.sel .ltr{background:var(--sci); color:#fff}
+.opt.right{border-color:var(--good); background:var(--good-soft)}
+.opt.right .ltr{background:var(--good); color:#fff}
+.opt.wrong{border-color:var(--bad); background:var(--bad-soft)}
+.opt.wrong .ltr{background:var(--bad); color:#fff}
+.opt:disabled{cursor:default}
+.fb{border-radius:12px; padding:12px 15px; margin-top:13px; font-size:19px}
+.fb.ok{background:var(--good-soft); border:1px solid var(--good); color:var(--ink)}
+.fb.no{background:var(--bad-soft); border:1px solid var(--bad); color:var(--ink)}
+.fb b{display:block; margin-bottom:2px}
+.bar{height:7px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:14px}
+.bar i{display:block; height:100%; background:var(--sci); border-radius:99px; transition:width .3s}
+
+/* ── THE LAB ───────────────────────────────────────── */
+.invhead{display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:4px}
+.varbox{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0}
+.varbox div{border:1px solid var(--line); border-radius:11px; padding:10px 12px; background:var(--surface-2)}
+.varbox .lb{
+  font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-faint); display:block; margin-bottom:3px;
+}
+.varbox .v{font-weight:600; font-size:20px}
+.varbox .same{border-left:4px solid var(--sci-line)}
+.varbox .chg{border-left:4px solid var(--accent)}
+
+.stage{
+  border:1px solid var(--line); border-radius:14px; background:var(--surface-2);
+  padding:12px; overflow-x:auto; margin-bottom:12px;
+}
+#track{display:block; width:100%; height:auto; min-width:560px; border-radius:10px}
+.runbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between}
+.runnow{font-size:19px; color:var(--ink-soft)}
+.runnow b{color:var(--ink)}
+.readout{
+  font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;
+  font-size:19px; background:var(--surface); border:1px solid var(--line);
+  border-radius:10px; padding:7px 12px; color:var(--sci-dark); font-weight:600;
+}
+
+table.data{width:100%; border-collapse:collapse; font-size:19px; margin-top:12px}
+table.data th, table.data td{border:1px solid var(--line); padding:7px 10px; text-align:left}
+table.data th{
+  background:var(--surface-2); font-family:"IBM Plex Mono",monospace; font-size:16px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); font-weight:600;
+}
+table.data td.num{text-align:right; font-variant-numeric:tabular-nums; font-family:"IBM Plex Mono",monospace}
+table.data tr.avg td{background:var(--sci-soft); font-weight:700; color:var(--sci-dark)}
+table.data td.pending{color:var(--ink-faint)}
+.tablewrap{overflow-x:auto}
+
+.graph{display:grid; gap:7px; margin-top:12px}
+.grow{display:block; padding:10px 12px; border-radius:12px}
+.grow .gsay{margin:0 0 7px; font-size:21px; line-height:1.4; color:var(--ink)}
+.grow .gl{font-size:18px; font-weight:600}
+.grow .gt{display:block; height:30px; background:var(--surface-2); border-radius:6px; overflow:hidden}
+.grow .gt i{display:block; height:100%; border-radius:6px; transition:width .6s}
+.grow .gv{
+  font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;
+  font-size:18px; text-align:right; color:var(--ink-soft);
+}
+
+.hintlist{margin:.4rem 0 0; padding-left:1.15rem; font-size:19px; color:var(--ink-soft)}
+.hintlist li{margin-bottom:4px}
+.counter{font-size:18px; line-height:1.5; color:var(--ink-soft); margin-top:7px}
+.counter.ok{color:var(--good)}
+
+/* ── END ───────────────────────────────────────────── */
+.scoreboard{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin:16px 0}
+.sb{border:1px solid var(--line); border-radius:13px; padding:14px; background:var(--surface-2); text-align:center}
+.sb .n{font-family:Fraunces,Georgia,serif; font-size:38px; font-weight:600; color:var(--sci-dark); font-variant-numeric:tabular-nums}
+.sb .l{font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint)}
+.misslist{margin:.4rem 0 0; padding-left:1.15rem; font-size:18px; color:var(--ink-soft)}
+.misslist li{margin-bottom:5px}
+
+#tab-warning-banner{
+  background:var(--bad-soft); border:1px solid var(--bad); color:var(--ink);
+  border-radius:12px; padding:11px 14px; font-size:18px; margin-bottom:14px;
+}
+.modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.55); display:grid; place-items:center;
+  padding:20px; z-index:50;
+}
+.modal .box{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px; max-width:400px; width:100%; box-shadow:var(--shadow)}
+.foot{text-align:center; color:var(--ink-faint); font-size:16px; margin-top:22px; line-height:1.7}
+
+@media (max-width:640px){
+  body{font-size:20px}
+  .wrap{padding:12px 12px 60px}
+  .card{padding:16px; border-radius:14px}
+  .card h2{font-size:28px}
+  .qtext{font-size:24px}
+  .varbox{grid-template-columns:1fr}
+  /* The header and progress row are signposts, not reading. On a phone they
+     stay compact so the lesson text below can be big. */
+  .brandtext .k{font-size:13px; letter-spacing:.08em}
+  .rail .step{flex:1 1 72px; min-width:0; padding:6px 7px}
+  .rail .step .n{font-size:12px; letter-spacing:.06em}
+  .rail .step .l{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important; transition-duration:.01ms !important}
+}
+@media print{
+  .noprint, .rail, .topbar{display:none !important}
+  body{background:#fff; color:#000}
+}
+
+/* ── SECOND TRY ────────────────────────────────────── */
+.fb.try{background:var(--warn-soft); border:1px solid var(--warn); color:var(--ink)}
+.opt:disabled.wrong{opacity:.65}
+
+/* ── DATA TABLE ALONGSIDE THE QUESTION ─────────────── */
+.qdata{border:1px solid var(--line); border-radius:12px; background:var(--surface-2);
+  padding:.7rem .8rem; margin:14px 0 2px;}
+.qdata-h{font-family:"IBM Plex Mono",monospace; font-size:16px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-faint); margin-bottom:.45rem;}
+.qdata table.data{margin-top:0; font-size:18px; background:var(--surface);}
+.qdata table.data th{font-size:16px;}
+
+/* the page title doubles as the document h1 */
+.brandtext h1.t{font-size:21px; font-weight:600; line-height:1.25;}
+
+/* ── READ-ALOUD HIGHLIGHT ───────────────────────────────
+   Prose highlights word by word (.wrd.spk, above). A screen that is a layout
+   rather than a paragraph highlights the PART being read instead: the
+   vocabulary card, the answer choice, the bar on the chart. */
+.vcard.spk, .opt.spk, .grow.spk, .varbox div.spk{
+  background:var(--hl-soft);
+  border-color:var(--hl-line);
+  box-shadow:0 0 0 3px var(--hl-line);
+  border-radius:12px;
+}
+#pr-question.spk, #pr-predict.spk, #gr-lead.spk, #gr-predict-check.spk,
+#run-now.spk, #table-note.spk{
+  background:var(--hl-soft); border-radius:8px;
+  box-shadow:0 0 0 5px var(--hl-soft);
+}
+@media (prefers-reduced-motion:reduce){ .vcard.spk, .opt.spk, .grow.spk{transition:none} }
+.objlist li.spk, #st-lead.spk, #st-ican-head.spk, #end-lead.spk,
+.sb.spk, .misslist li.spk, #end-miss h3.spk, #end-miss p.spk{
+  background:var(--hl-soft); border-radius:8px;
+  box-shadow:0 0 0 5px var(--hl-soft);
+}
+.dq.spk{box-shadow:0 0 0 4px var(--hl-line)}
+
+/* ── PER-BLOCK SPEAKER ──────────────────────────────────
+   A student can hear one question, one card, one hint, without sitting through
+   the whole page. A span rather than a button, because answer choices are
+   buttons and buttons cannot nest. */
+.mini-spk{
+  display:inline-block; margin-left:0; cursor:pointer;
+  font-size:.92em; line-height:1; opacity:.72;
+  vertical-align:baseline; user-select:none;
+}
+.mini-spk:hover, .mini-spk:focus-visible{opacity:1; transform:scale(1.18)}
+.mini-spk:focus-visible{outline:3px solid var(--hl-line); outline-offset:2px; border-radius:4px}
+/* Speakers sit BEFORE the text now, so the old push-to-the-right rule is gone.
+   An option's letter badge comes first, then the speaker, then the words. */
+.mini-spk{ margin-right:.42rem; }
+.opt .mini-spk{ margin-left:.3rem; margin-right:.42rem; }
+.vcard .mini-spk{ margin-right:.4rem; }
+@media (prefers-reduced-motion:reduce){ .mini-spk:hover{transform:none} }
+
+
+/* ── WHAT YOU WILL DO ───────────────────────────────────
+   Stated on the predict screen before a single push. The count, the
+   reason for the count, and the exact buttons. Each <li> is its own
+   read-aloud block, so a student can replay one step without
+   re-hearing the whole list. */
+.box.todo{
+  border:1px solid var(--sci-line); border-left:5px solid var(--sci);
+  border-radius:0 13px 13px 0; background:var(--sci-soft);
+  padding:14px 17px; margin:16px 0;
+}
+.box.todo .lbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:16px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--sci-dark); font-weight:600; margin-bottom:7px;
+}
+.box.todo #pr-docount{ color:var(--accent); }
+.box.todo > p{ margin:0 0 9px; font-size:19px; color:var(--ink-soft); }
+.box.todo ol{ margin:0; padding-left:1.25rem; }
+.box.todo li{
+  font-size:20px; color:var(--ink); padding:4px 0; line-height:1.5;
+}
+.box.todo li::marker{ color:var(--sci); font-weight:700; }
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .box.todo{ background:var(--surface-2); }
+}
+:root[data-theme="dark"] .box.todo{ background:var(--surface-2); }
+
+
+/* ── TAPPABLE STARTERS AND WORD BANK ────────────────────
+   Replaces the fill-in-the-blank frame. A tap drops the words into the
+   student's own box and leaves them writing forward — there is never a
+   half-finished template on screen, which is what made blanks fail. */
+.chips{ margin:12px 0 0; }
+.chips.hidden{ display:none; }
+.chips-lbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:16px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-faint); font-weight:600; margin-bottom:6px;
+}
+.chiprow{ display:flex; flex-wrap:wrap; gap:7px; }
+.chipbtn{
+  font:inherit; font-size:19px; cursor:pointer;
+  background:var(--sci-soft); color:var(--sci-dark);
+  border:1px solid var(--sci-line); border-radius:999px;
+  padding:7px 14px; line-height:1.3; text-align:left;
+  transition:background .12s ease, transform .08s ease;
+}
+.chipbtn:hover{ background:var(--surface); border-color:var(--sci); }
+.chipbtn:active{ transform:translateY(1px); }
+.chipbtn.word{
+  background:var(--surface-2); color:var(--ink);
+  border-color:var(--line); font-weight:600;
+}
+.chipbtn.word:hover{ border-color:var(--accent); color:var(--accent); }
+@media (prefers-reduced-motion:reduce){ .chipbtn{ transition:none } }
+
+/* ── decorative art ─────────────────────────────────────
+   Inline SVG, sized by its slot, never read aloud. */
+.art{ display:inline-block; line-height:0; }
+.art svg{ display:block; width:100%; height:100%; }
+.art.wordart{ width:60px; height:60px; margin-bottom:4px; }
+.art.invart{ width:44px; height:44px; vertical-align:-10px; margin-right:9px; }
+.art.swatch{ width:32px; height:24px; vertical-align:-5px; margin-right:7px;
+  border-radius:4px; overflow:hidden; box-shadow:0 0 0 1px rgba(22,33,31,.12) inset; }
+
+
+/* ── THE EXPLANATION THEY BUILT ─────────────────────────
+   Three picks, stitched back together and shown whole. Each line is its
+   own read-aloud block so they can hear the parts separately. */
+.box.cer{
+  border:1px solid var(--sci-line); border-left:5px solid var(--accent);
+  border-radius:0 13px 13px 0; background:var(--sci-soft); padding:4px 17px 10px;
+}
+.box.cer p{ margin:10px 0 0; font-size:20px; color:var(--ink); line-height:1.55; }
+.cerlbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:16px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--accent); font-weight:600; margin-bottom:2px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .box.cer{ background:var(--surface-2); }
+}
+:root[data-theme="dark"] .box.cer{ background:var(--surface-2); }
+
+
+/* The plain-English reading of an investigation heading. "Same push,
+   different surfaces" is the controlled-variable idea in four words, and
+   four words is what a struggling reader skims past. */
+.plain{
+  margin:.35rem 0 .7rem; font-size:20px; line-height:1.5;
+  color:var(--ink-soft); font-style:italic;
+  border-left:3px solid var(--sci-line); padding-left:.7rem;
+}
+
+
+/* Real things these kids have touched, under every definition. A word with
+   no example is a word they will nod at and not keep. */
+.vcard .ex{
+  margin-top:8px; padding-top:7px; border-top:1px dashed var(--line);
+  font-size:18px; line-height:1.45; color:var(--ink-soft);
+}
+.exlbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:16px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--accent); font-weight:600; margin-bottom:2px;
+}
+
+
+/* ── WORD HELP ──────────────────────────────────────────
+   Sticks to the bottom of every working screen. Closed it is one line;
+   open it is the six lesson words plus the method words, each a tap. */
+#wordhelp{
+  /* No side margins: the bar is a child of <body>, already full width. The
+     old -16px made the page 16px wider than the window (a sideways scroll). */
+  position:sticky; bottom:0; z-index:40; margin:18px 0 0;
+  background:var(--surface); border-top:2px solid var(--sci-line);
+  box-shadow:0 -4px 18px rgba(22,33,31,.09);
+}
+#wordhelp.hidden{ display:none; }
+#wh-toggle{
+  display:flex; align-items:center; gap:9px; width:100%;
+  font:inherit; font-size:19px; font-weight:600; cursor:pointer;
+  background:none; border:0; color:var(--sci-dark); padding:13px 18px; text-align:left;
+}
+#wh-toggle:hover{ background:var(--sci-soft); }
+.wh-ic{ font-size:24px; line-height:1; }
+.wh-chev{ margin-left:auto; font-size:16px; color:var(--ink-faint);
+  transition:transform .18s ease; }
+#wordhelp.open .wh-chev{ transform:rotate(180deg); }
+#wh-panel{ padding:0 18px 16px; }
+#wh-panel.hidden{ display:none; }
+#wh-words .chipbtn.on{ background:var(--sci); color:#fff; border-color:var(--sci); }
+#wh-answer{
+  margin-top:11px; padding:13px 15px; border-radius:12px;
+  background:var(--sci-soft); border:1px solid var(--sci-line);
+  font-size:20px; line-height:1.5; color:var(--ink);
+}
+#wh-answer.hidden{ display:none; }
+.wh-ex{ display:block; margin-top:8px; padding-top:7px;
+  border-top:1px dashed var(--sci-line); font-size:18px; color:var(--ink-soft); }
+@media (prefers-reduced-motion:reduce){ .wh-chev{ transition:none } }
+
+
+/* ── ASK THE TEACHER ────────────────────────────────────
+   The Day 1 / Day 2 boundary is Mr. O's call, not the student's. Amber,
+   because it is the one box on the site that says stop. */
+.box.ask{
+  border:1px solid var(--warn); border-left:5px solid var(--warn);
+  border-radius:0 13px 13px 0; background:var(--warn-soft);
+  padding:14px 17px; margin:16px 0;
+}
+.box.ask .lbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:16px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--warn); font-weight:700; margin-bottom:6px;
+}
+.box.ask p{ margin:0 0 7px; font-size:20px; line-height:1.5; color:var(--ink); }
+.box.ask p:last-child{ margin-bottom:0; }
+
+/* ── WHAT MR. O JUST SHOWED YOU ─────────────────────────
+   The bridge from the teacher-led minutes into the lab. */
+.recap{ margin:18px 0 4px; }
+.recap > .lbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:16px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--sci-dark); font-weight:700; margin-bottom:6px;
+}
+.recap .rl{ font-size:21px; color:var(--ink-soft); margin:0 0 11px; }
+.rcard{
+  display:flex; gap:12px; align-items:flex-start;
+  background:var(--sci-soft); border:1px solid var(--sci-line);
+  border-radius:13px; padding:12px 15px; margin-bottom:9px;
+}
+.rnum{
+  flex:none; width:34px; height:34px; border-radius:50%;
+  background:var(--sci); color:#fff; font-weight:700; font-size:19px;
+  display:grid; place-items:center;
+}
+.rbody .rt{ font-size:21px; line-height:1.45; color:var(--ink); }
+.rbody .rd{ font-size:18px; line-height:1.45; color:var(--ink-soft); margin-top:4px; }
+.recap .rnow{
+  background:var(--surface); border:1px solid var(--line);
+  border-left:5px solid var(--accent); border-radius:0 13px 13px 0;
+  padding:12px 15px; font-size:21px; line-height:1.5; margin-top:11px;
+}
+
+
+/* Examples carry more than definitions do for this class, so they stop
+   looking like a footnote: own panel, same size as the definition, warm
+   label. (Marcos 10/9: "Examples are everything for 4th graders much more
+   than definitions.") */
+.vcard .ex{
+  margin-top:9px; padding:9px 11px; border-top:0;
+  background:var(--warn-soft); border:1px solid rgba(224,180,104,.55);
+  border-radius:10px;
+  font-size:19px; line-height:1.5; color:var(--ink);
+}
+.exlbl{ color:var(--warn); }
+#wh-answer .wh-def{ margin:0; font-size:20px; line-height:1.5; }
+#wh-answer .wh-ex{
+  background:var(--warn-soft); border:1px solid rgba(224,180,104,.55);
+  border-radius:10px; padding:9px 11px; margin:9px 0 0;
+  border-top:0; font-size:19px; color:var(--ink);
+}
+#wh-words .chipbtn.thing{
+  background:var(--warn-soft); border-color:rgba(224,180,104,.7); color:var(--warn);
+}
+#wh-words .chipbtn.thing.on{ background:var(--warn); color:#fff; border-color:var(--warn); }
+
+
+/* ── TWO TABS: what to do, and what a word means ────────
+   Nothing on this site assumes a student got it the first time. The steps
+   for the screen they are on, and every word, are both one tap away on
+   every working screen. (Marcos 10/9: "we cannot assume they understand
+   anything the first time.") */
+.wh-tabs{ display:flex; gap:7px; margin-bottom:11px; flex-wrap:wrap; }
+.wh-tab{
+  font:inherit; font-size:18px; font-weight:600; cursor:pointer;
+  background:var(--surface-2); color:var(--ink-soft);
+  border:1px solid var(--line); border-radius:999px; padding:7px 14px;
+}
+.wh-tab.on{ background:var(--sci); color:#fff; border-color:var(--sci); }
+.wh-tab:hover:not(.on){ border-color:var(--sci); color:var(--sci-dark); }
+#wh-do.hidden, #wh-wordpane.hidden{ display:none; }
+.wh-steps{ margin:0; padding-left:1.3rem; }
+.wh-steps li{
+  font-size:20px; line-height:1.5; color:var(--ink); padding:5px 0;
+}
+.wh-steps li::marker{ color:var(--sci); font-weight:700; }
+
+
+/* ── THE WHY, ALWAYS ON SCREEN ──────────────────────────
+   The driving question used to appear once and vanish. It now rides every
+   working screen, so a student six pushes in can still say what they are
+   trying to find out. */
+#whybar{
+  background:var(--sci-soft); border:1px solid var(--sci-line);
+  border-left:5px solid var(--sci); border-radius:0 13px 13px 0;
+  padding:10px 15px; margin:0 0 14px;
+}
+#whybar.hidden{ display:none; }
+.wb-lbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:16px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--sci-dark); font-weight:700; margin-bottom:3px;
+}
+.wb-q{
+  margin:0; font-family:Fraunces,Georgia,serif; font-size:22px;
+  font-weight:600; line-height:1.35; color:var(--ink);
+}
+
+
+/* A picture with every word in the helper, and with every part of a setup.
+   Words and visuals, not one or the other. */
+.art.whart{ width:52px; height:52px; float:left; margin:0 11px 4px 0; }
+#wh-answer{ overflow:hidden; }
+#run-setupwhat p{ margin:0 0 7px; font-size:19px; line-height:1.5; }
+#run-setupwhat p:last-child{ margin-bottom:0; }
+#run-setupwhat .art.swatch{ width:30px; height:22px; margin-right:8px; vertical-align:-3px; }
+
+
+/* ── COVER ──────────────────────────────────────────────
+   The first screen, at the end of a school day. One picture of the whole
+   lesson, the question it answers, one button. Nothing to decide. */
+.card.cover{ padding:0 0 26px; overflow:hidden; text-align:center; }
+#cover-art{ line-height:0; background:var(--sci-soft); }
+/* Capped so the title and Let's begin fit on a Chromebook screen (about
+   1366 x 650 inside the browser) without scrolling. */
+#cover-art svg{ display:block; width:100%; height:auto; max-height:34vh; }
+.cv-eyebrow{
+  display:block; margin-top:20px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:16px;
+  letter-spacing:.17em; text-transform:uppercase; color:var(--ink-faint); font-weight:600;
+}
+.cv-title{
+  font-family:Fraunces,Georgia,serif; font-weight:600;
+  font-size:clamp(38px,8.75vw,58px); line-height:1.06; margin:.25rem 0 0;
+  color:var(--sci-dark); letter-spacing:-.015em; text-wrap:balance;
+}
+.cv-sub{
+  margin:.5rem auto 0; max-width:30ch; font-size:22px; color:var(--ink-soft);
+}
+.cv-q{
+  margin:20px 18px 0; padding:15px 18px; text-align:left;
+  background:var(--sci-soft); border:1px solid var(--sci-line);
+  border-left:5px solid var(--accent); border-radius:0 14px 14px 0;
+}
+.cv-q .lbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:16px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent);
+  font-weight:700; margin-bottom:4px;
+}
+.cv-q p{
+  margin:0; font-family:Fraunces,Georgia,serif; font-weight:600;
+  font-size:25px; line-height:1.3; color:var(--ink);
+}
+.cv-you{ margin:14px 18px 0; text-align:left; }
+.cv-you p{ margin:0; font-size:21px; line-height:1.55; color:var(--ink-soft); }
+.card.cover .btnrow{ justify-content:center; margin:22px 18px 0; }
+.btn.big{ font-size:24px; padding:15px 32px; }
+
+
+/* ── THE PLAN ───────────────────────────────────────────
+   Replaces an eight-sentence grey paragraph. Two days side by side, a
+   picture per test, three numbered things they do every time, one calm
+   line at the bottom. Nothing longer than two short sentences in a block. */
+#ra-text{ font-size:inherit !important; line-height:inherit !important; }
+.plan-h{
+  display:block; margin:6px 0 9px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:16px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--sci-dark); font-weight:700;
+}
+.plan-days{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+@media (max-width:760px){ .plan-days{ grid-template-columns:1fr; } }
+.plan-day{
+  background:var(--surface); border:1px solid var(--sci-line);
+  border-top:5px solid var(--sci); border-radius:13px; padding:11px 13px 6px;
+}
+.plan-day + .plan-day{ border-top-color:var(--ink-faint); border-style:dashed; border-top-style:solid; }
+.pday{
+  margin:0 0 8px; font-family:Fraunces,Georgia,serif; font-weight:600;
+  font-size:24px; color:var(--sci-dark);
+}
+.plan-day + .plan-day .pday{ color:var(--ink-soft); }
+.ptile{
+  display:flex; gap:11px; align-items:flex-start;
+  padding:9px 0; border-top:1px solid var(--line-soft, var(--line));
+}
+.plan-day .ptile:first-of-type{ border-top:0; }
+.art.ptart{ flex:none; width:58px; height:58px; }
+.ptile .pt{ display:block; font-size:20px; color:var(--ink); line-height:1.3; }
+.ptile .pd{ display:block; font-size:19px; color:var(--ink-soft); line-height:1.45; margin-top:2px; }
+
+.plan-every{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+@media (max-width:760px){ .plan-every{ grid-template-columns:1fr; } }
+.ptile.step3{
+  position:relative; flex-direction:column; align-items:center; text-align:center;
+  background:var(--sci-soft); border:1px solid var(--sci-line); border-radius:13px;
+  padding:16px 12px 13px;
+}
+.ptile.step3 .art.ptart{ width:64px; height:64px; }
+.pnum{
+  position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+  width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff;
+  font-weight:700; font-size:16px; display:grid; place-items:center;
+}
+@media (max-width:620px){
+  .ptile.step3{ flex-direction:row; text-align:left; align-items:center; padding:14px 13px 11px 20px; }
+  .ptile.step3.gstep{ flex-wrap:wrap; }
+  .ptile.step3.gstep > .gbar{ flex:1 1 100%; text-align:left; }
+  .pnum{ left:-8px; top:50%; transform:translateY(-50%); }
+}
+.plan-calm{
+  margin:16px 0 0; padding:12px 15px; border-radius:12px;
+  background:var(--warn-soft); border:1px solid rgba(224,180,104,.55);
+  font-size:20px; line-height:1.5; color:var(--ink); text-align:center;
+}
+
+
+/* ── WHY SHOULD YOU CARE ───────────────────────────────
+   Three real-life reasons on the cover, each tied to the test where they
+   will prove it. Same tile shape as the plan page so the two feel related. */
+.cv-care{ margin:18px 18px 0; text-align:left; }
+.cv-care > .lbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:16px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:700;
+}
+.cv-care-lead{ margin:4px 0 10px; font-size:21px; line-height:1.45; color:var(--ink); font-weight:600; }
+.care-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+@media (max-width:760px){ .care-grid{ grid-template-columns:1fr; } }
+.ptile.ctile{
+  flex-direction:column; align-items:flex-start; gap:8px;
+  background:var(--surface); border:1px solid var(--line); border-top:4px solid var(--accent);
+  border-radius:12px; padding:12px 13px;
+}
+.ptile.ctile .art.ptart{ width:64px; height:64px; }
+.ctest{
+  display:inline-block; margin-top:8px; padding:3px 9px; border-radius:999px;
+  background:var(--sci-soft); border:1px solid var(--sci-line);
+  font-size:16px; font-weight:700; color:var(--sci-dark);
+}
+
+
+/* ── TEACHER PREVIEW BAR ────────────────────────────────
+   Only exists after the PIN. Pinned to the top so Back / Next never
+   scroll away while scanning a long screen. */
+#tpbar{
+  position:fixed; top:0; left:0; right:0; z-index:999;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+  padding:8px 12px; background:#1F2A28; color:#fff;
+  box-shadow:0 3px 14px rgba(0,0,0,.25); font-size:14px;
+}
+#tpbar .tp-tag{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:700;
+  letter-spacing:.13em; text-transform:uppercase; background:#E0A94A; color:#1F2A28;
+  padding:3px 8px; border-radius:6px;
+}
+#tpbar .tp-note{ color:#B9C9C4; font-size:13px; margin-right:auto; }
+#tpbar button, #tpbar select{
+  font:inherit; font-size:14px; border-radius:8px; border:1px solid #4A5C58;
+  background:#2B3936; color:#fff; padding:6px 11px; cursor:pointer;
+}
+#tpbar button:disabled{ opacity:.35; cursor:default; }
+#tpbar #tp-next{ background:#2E7D6B; border-color:#2E7D6B; font-weight:700; }
+#tpbar select{ max-width:260px; }
+#tp-pos{ color:#B9C9C4; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; }
+body.tp-on{ padding-top:58px; }
+@media (max-width:620px){ body.tp-on{ padding-top:96px; } #tpbar select{ max-width:100%; flex:1 1 100%; order:9; } }
+
+.cv-teacher{ margin:16px 0 0; text-align:center; font-size:16px; }
+.cv-teacher a{ color:var(--ink-faint); }
+
+
+/* Page two reuses the cover's blocks, but sits in a normal padded card, so
+   the side margins the cover needed (it has no padding) come off here. */
+#why-screen .cv-q, #why-screen .cv-you, #why-screen .cv-care{ margin-left:0; margin-right:0; }
+#why-screen .cv-q{ margin-top:0; }
+/* The cover is now just the picture, the title and one button — give it room. */
+.card.cover{ padding-bottom:30px; }
+.card.cover .cv-sub{ margin-bottom:6px; }
+
+#care-screen .cv-care{ margin:0; }
+
+
+/* Coming back to an unfinished lesson: a second, quieter way in from the cover. */
+.cv-resume{ margin:14px 18px 0; text-align:center; }
+.cv-resume.hidden{ display:none; }
+.cv-resume p{ margin:0 0 6px; font-size:19px; color:var(--ink-soft); }
+
+
+/* ── READ-ALOUD HIGHLIGHT: ANY BLOCK, BY DEFAULT ────────
+   The rules above paint .spk only on a hand-written list of block types,
+   and every new kind of block added on 10/9 — why-care cards, plan tiles,
+   recap cards, step lists, word-helper answers — was missing from it. The
+   reader marked them and nothing showed. Marcos: "I dont see highlighting
+   when it is reading aloud."
+
+   This rule lights up WHATEVER block is being read, so a new block type can
+   never be silently dark again. It sits last and uses !important so a tile's
+   own background cannot hide it. Word-level highlighting (.wrd.spk) keeps its
+   own stronger marker. */
+.spk:not(.wrd){
+  background:var(--hl-soft) !important;
+  box-shadow:0 0 0 3px var(--hl-line) !important;
+  border-radius:10px;
+  transition:background .12s ease, box-shadow .12s ease;
+}
+@media (prefers-reduced-motion:reduce){ .spk:not(.wrd){ transition:none; } }
+
+
+/* ── THE OPENING PAGES FILL THE SCREEN ──────────────────
+   Marcos 10/9 on the big-question page: "It looks dumb squished up top."
+   Short pages now take the full height of the screen: the content sits in
+   the middle and Next sits at the bottom, so a page with one idea looks
+   deliberate rather than half-empty. Tall pages are unaffected — there is
+   no spare height to share out. (:not(.hidden) so the id rule can never
+   override the class that hides a screen.) */
+#why-screen:not(.hidden), #care-screen:not(.hidden),
+#summary-screen:not(.hidden), #plan-screen:not(.hidden){
+  display:flex; flex-direction:column;
+  min-height:calc(100vh - 150px);
+}
+#why-screen > :first-child, #care-screen > :first-child,
+#summary-screen > :first-child, #plan-screen > :first-child{ margin-top:auto; }
+#why-screen > .btnrow, #care-screen > .btnrow,
+#summary-screen > .btnrow, #plan-screen > .btnrow{ margin-top:auto; padding-top:22px; }
+
+/* The big-question page has one idea, so it gets room to be big. */
+#why-screen .cv-q{ padding:24px 28px; }
+#why-screen .cv-q p{ font-size:clamp(30px,4.12vw,45px); line-height:1.22; }
+#why-screen .cv-q .lbl{ font-size:16px; margin-bottom:10px; }
+#why-screen .cv-you{ margin-top:22px; }
+#why-screen .cv-you p{ font-size:clamp(22px,2.5vw,28px); line-height:1.5; }
+#why-screen .btn{ font-size:22px; padding:14px 30px; }
+
+
+/* Meet your cart: the scene, then four pictured cards in a 2×2 grid. */
+#cart-screen:not(.hidden){ display:flex; flex-direction:column; min-height:calc(100vh - 150px); }
+#cart-screen > .btnrow{ margin-top:auto; padding-top:22px; }
+.cscene{ line-height:0; border-radius:14px; overflow:hidden; margin:10px 0 14px; background:var(--sci-soft); }
+.cscene svg{ display:block; width:100%; height:auto; max-height:26vh; }
+.cart-h{ margin:6px 0 2px; font-size:26px; color:var(--sci-dark); }
+/* the points of a page, one under the other: the order is the reading order */
+.cart-list{ display:flex; flex-direction:column; gap:14px; padding-top:4px; }
+.ptile.crow{
+  align-items:center; gap:16px; border-top:0;
+  background:var(--sci-soft); border:1px solid var(--sci-line); border-radius:13px; padding:14px 16px;
+}
+.ptile.crow .art.ptart{ width:64px; height:64px; }
+.ptile.crow .pt{ font-size:22px; }
+.ptile.crow .pd{ font-size:20px; margin-top:4px; }
+.ptile.crow.gstep{ flex-wrap:wrap; }
+.ptile.crow.gstep > .gbar{ flex:1 1 100%; }
+.ptile.crow.gstep > div:not(.gbar){ flex:1 1 0; min-width:0; }
+.cart-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:760px){ .cart-grid{ grid-template-columns:1fr; } }
+
+
+/* ══════════════════════════════════════════════════════
+   GUIDED READING (guide.js) — one open step, the rest locked
+
+   Marcos 10/9: "There are so many things to look at but not guaranteed flow
+   that the kids should follow." Three looks, and only one of them has
+   anything to press:
+     locked  blank, dashed, a padlock. Nothing to read yet.
+     live    orange ring and one big Listen button.
+     done    green check, a small "Hear it again".
+══════════════════════════════════════════════════════ */
+.ghide{ display:none !important; }
+/* A button row keeps its space while it waits, so the page does not jump
+   when Next appears. Hidden this way it cannot be clicked or tabbed to. */
+.btnrow.ghide, .gnav .btn.ghide{ display:flex !important; visibility:hidden; }
+
+.gstep{ position:relative; }
+.gstep, .gnav, [data-gafter]{ scroll-margin:16px 0 84px; }
+/* A step laid out as a ROW (number + text, picture + text) drops its button
+   onto a line of its own. A step laid out as a COLUMN must not wrap: there
+   the button would start a second column beside the tile. */
+.rcard.gstep, .plan-day .ptile.gstep{ flex-wrap:wrap; }
+.rcard.gstep > .gbar, .plan-day .ptile.gstep > .gbar{ flex:1 1 100%; }
+/* ...and the words stay BESIDE the picture or number. Without this a long
+   sentence was too wide for the line and dropped underneath it. */
+.plan-day .ptile.gstep > div:not(.gbar), .rcard.gstep > .rbody{ flex:1 1 0; min-width:0; }
+/* inside a step the Listen button IS the speaker: one thing to press */
+.gstep .mini-spk{ display:none; }
+/* a heading above a step is read by that step's Listen button, with it */
+.glead > .mini-spk, .glead .mini-spk{ display:none; }
+/* a label is read by the speaker of the line right under it (joinLabels) */
+.slead > .mini-spk, .slead .mini-spk{ display:none; }
+
+.gstep.g-locked{
+  color:transparent !important; background:var(--surface-2) !important;
+  border-color:transparent !important; box-shadow:none !important;
+  outline:2px dashed var(--line); outline-offset:-2px; border-radius:12px;
+  max-height:76px; min-height:60px; overflow:hidden; list-style:none;
+}
+.gstep.g-locked > *{ visibility:hidden; }
+.gstep.g-locked::after{
+  content:'\1F512'; position:absolute; inset:0; display:grid; place-items:center;
+  font-size:24px; color:var(--ink-faint); opacity:.6; visibility:visible;
+  font-style:normal; letter-spacing:0;
+}
+/* tiles in a row share the row's height, so a locked tile there stays tall */
+.care-grid .gstep.g-locked, .plan-every .gstep.g-locked,
+.cart-grid .gstep.g-locked, .varbox .gstep.g-locked{ max-height:none; }
+
+.gstep.g-live{ outline:3px solid #C2530F; outline-offset:3px; border-radius:12px; }
+.gstep.g-done::after{
+  content:'\2713'; position:absolute; top:-11px; right:-9px;
+  width:30px; height:30px; border-radius:50%; background:var(--good); color:#fff;
+  font:700 18px/30px "Public Sans",system-ui,sans-serif; text-align:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.25); font-style:normal; letter-spacing:0;
+}
+:root[data-theme="dark"] .gstep.g-done::after{ color:#0F1F16; }
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .gstep.g-done::after{ color:#0F1F16; } }
+
+.gbar{ flex:0 0 auto; width:100%; align-self:stretch; margin-top:12px; text-align:left; line-height:1.3; }
+.g-locked .gbar{ display:none; }
+.gbtn{
+  font:inherit; font-size:22px; font-weight:700; letter-spacing:0; text-transform:none;
+  font-style:normal; min-height:54px; padding:12px 22px; border:0; border-radius:13px;
+  background:#C2530F; color:#fff; cursor:pointer; width:100%; max-width:420px;
+  box-shadow:0 3px 0 #8A3A08;
+}
+.g-live:not(.g-play) .gbtn:not(.wait){ animation:gpulse 1.6s ease-in-out infinite; }
+@keyframes gpulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
+.gbtn:focus-visible{ outline:3px solid var(--hl-line); outline-offset:3px; }
+.g-play .gbtn{ background:#5A6E68; box-shadow:none; cursor:default; }
+.gbtn.wait{ background:#5A6E68; box-shadow:none; cursor:default; }
+.g-done .gbtn{
+  width:auto; min-height:0; padding:7px 13px; font-size:18px; font-weight:600;
+  background:transparent; color:var(--sci-dark); border:1px solid var(--sci-line);
+  box-shadow:none; animation:none;
+}
+.g-done.g-play .gbtn{ background:var(--sci-soft); }
+/* centred tiles keep their button centred too */
+.ptile.step3 .gbar{ text-align:center; }
+
+.gdots{ display:flex; gap:9px; justify-content:center; margin:8px 0 16px; }
+.gdots i{ width:13px; height:13px; border-radius:50%; background:var(--line); }
+.gdots i.done{ background:var(--sci); }
+.gdots i.on{ background:#C2530F; transform:scale(1.3); }
+
+/* steps that had no box of their own get a little room for the ring */
+p.gstep, li.gstep, .cv-you.gstep{ padding:10px 12px; border-radius:12px; }
+li.gstep{ margin:10px 0; }
+.box.todo ol:has(> li.gstep){ padding-left:0; list-style-position:inside; }
+.plan-day .ptile.gstep{ padding:12px; border-top:0; margin-top:10px; border-radius:12px; }
+.rcard.gstep, .recap .rnow.gstep{ margin-bottom:14px; }
+.cv-care-lead.gstep{ margin-bottom:16px; }
+.care-grid, .cart-grid, .plan-every{ padding-top:4px; row-gap:16px; }
+
+/* ── ONE WORD PER PAGE ─────────────────────────────────
+   Picture on the left, the word and what it means on the right, so the whole
+   card sits on a Chromebook screen without scrolling. Stacks on a phone. */
+.vpage .vcard .vn{
+  grid-column:2; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:16px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:600;
+}
+.vpage .vcard{
+  display:grid; grid-template-columns:auto 1fr; column-gap:22px; align-items:center;
+  text-align:left; padding:18px 22px 16px; border-radius:16px;
+}
+.vpage .vcard .art.wordart{ grid-column:1; grid-row:1 / span 4; width:128px; height:128px; margin:0; }
+.vpage .vcard .w, .vpage .vcard .es, .vpage .vcard .d{ grid-column:2; }
+.vpage .vcard .w{ font-size:46px; line-height:1.1; }
+.vpage .vcard .es{ font-size:17px; margin:2px 0 6px; }
+.vpage .vcard .d{ font-size:25px; line-height:1.4; color:var(--ink); }
+.vpage .vcard .gbar{ grid-column:1 / -1; }
+@media (max-width:560px){
+  .vpage .vcard{ grid-template-columns:1fr; text-align:center; }
+  .vpage .vcard .art.wordart{ grid-row:auto; margin:0 auto 6px; }
+  .vpage .vcard .w, .vpage .vcard .es, .vpage .vcard .d, .vpage .vcard .vn{ grid-column:1; }
+  .vpage .vcard .w{ font-size:38px; }
+  .vpage .vcard .gbar{ text-align:center; }
+}
+.vex{
+  margin-top:18px; padding:14px 17px; border-radius:13px;
+  background:var(--warn-soft); border:1px solid rgba(224,180,104,.55);
+  font-size:21px; line-height:1.55; color:var(--ink);
+}
+
+
+/* ══════════════════════════════════════════════════════
+   THE PUSH SCREEN — strip, cart, button, table, together
+
+   Marcos 10/9: "seems very busy and separating the cart and the button
+   doesn't make sense" and "kids won't know where the data table is and its
+   connection to cart moving." Two paragraphs used to sit between the cart
+   and its button, and the table was a scroll away under a rule.
+══════════════════════════════════════════════════════ */
+#run-new:empty{ display:none; }
+/* once heard, the "new this time" card folds away (guide.js sets the class) */
+#run-card.g-alldone #run-new{ display:none; }
+.newcard{
+  background:var(--warn-soft); border:1px solid rgba(224,180,104,.6);
+  border-left:5px solid #C2530F; border-radius:0 13px 13px 0;
+  padding:12px 16px 14px; margin:10px 0 16px;
+}
+.newcard .lbl{
+  display:block; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:16px;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--warn); font-weight:700; margin-bottom:4px;
+}
+.newcard p{ margin:0; font-size:21px; line-height:1.5; color:var(--ink); }
+.newcard .art.swatch{ width:38px; height:28px; vertical-align:-6px; margin-right:9px; }
+
+.setupstrip{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 8px; }
+.setupstrip:empty{ display:none; }
+.schip{
+  display:inline-flex; align-items:center; flex-wrap:wrap; gap:3px;
+  font-size:19px; line-height:1.3; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:6px 15px;
+}
+.schip b{ margin-right:2px; }
+.schip.try{ background:var(--sci-soft); border-color:var(--sci-line); color:var(--sci-dark); font-weight:600; }
+
+/* the button sits right under the cart, big, with the distance beside it */
+.actrow{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin:12px 0 2px; }
+.actrow .readout{ font-size:22px; }
+.actrow .btn.big{ padding:12px 28px; }
+
+.tablezone{ margin-top:8px; padding-top:8px; border-top:1px solid var(--line); }
+.tablezone table.data th, .tablezone table.data td{ padding:5px 10px; }
+#run-strip, #run-new{ scroll-margin-top:10px; }
+.tablezone h3{ margin:0 0 2px; }
+.tnote{ margin:0 0 4px; font-size:19px; line-height:1.45; color:var(--ink-soft); }
+.tnote b{ color:var(--ink); }
+.tablezone table.data{ margin-top:8px; }
+
+/* what an average is: two dots and the middle, sized to read, not to fill */
+.avgline{ line-height:0; margin:8px 0 4px; }
+.avgline svg{ display:block; width:100%; max-width:440px; height:auto; }
+.avgline svg text{ font-family:"Public Sans",system-ui,sans-serif; }
+.avgbox p, .newcard p + p{ margin-top:8px; }
+.box.todo.avgbox > p{ font-size:21px; color:var(--ink); }
+
+/* THE HELPER: a speech bubble beside the button, on the same row. The
+   button stays where the push button was (top of the row) however tall the
+   bubble grows; the "Your helper says:" label runs into the sentence so the
+   bubble costs no extra line. */
+.actrow{ align-items:flex-start; }
+.actrow .readout{ align-self:center; }
+.helper{
+  flex:1 1 320px; min-width:0; display:flex; gap:10px; align-items:flex-start;
+  background:var(--warn-soft); border:1px solid rgba(224,180,104,.6); border-radius:4px 14px 14px 14px;
+  padding:8px 12px;
+}
+.helper .art.helpart{ flex:none; width:42px; height:42px; }
+.helper .lbl{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:16px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--warn); font-weight:700;
+}
+.helper p{ margin:0; font-size:19px; line-height:1.4; color:var(--ink); }
+.tablezone .helper{ margin-top:10px; }      /* narrow screens: under the table */
+
+/* The four tests on one question: each test a short list (setup, average),
+   four lists side by side on a Chromebook, two by two on a tablet, one under
+   the other on a phone, so the answer choices stay close under the question. */
+.qtables{ display:grid; grid-template-columns:1fr; gap:10px 12px; }
+.qtables .qtable{ min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:8px 10px; }
+.qtables .qdata-h{ margin:0 0 2px; letter-spacing:.04em; }
+.qrow{ display:flex; align-items:center; gap:6px; margin:0; padding:5px 0; font-size:18px; line-height:1.3; color:var(--ink); }
+.qrow + .qrow{ border-top:1px solid var(--line); }
+.qrow .qn{ flex:1 1 auto; min-width:0; }
+.qrow .qv{ flex:none; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; color:var(--sci-dark); }
+.qrow .art.swatch{ flex:none; margin-right:0; }
+@media (min-width:600px){ .qtables{ grid-template-columns:1fr 1fr; } }
+/* the push list has the longest names ("Medium push"), the car and truck list the shortest */
+@media (min-width:1000px){ .qtables{ grid-template-columns:1fr 1.3fr 1fr .85fr; } }
+
+/* THE WORDS ALREADY TAUGHT: one reminder page, a row for each word (picture,
+   one sentence, the Spanish), heard with one Listen. */
+.vmet{ border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:var(--surface-2); }
+.vmet .exlbl{ display:block; margin-bottom:4px; }
+.vmrow{ display:flex; gap:16px; align-items:center; padding:10px 0; }
+.vmrow + .vmrow{ border-top:1px solid var(--line); }
+.vmrow .art.wordart{ flex:none; width:72px; height:72px; margin:0; }
+.vmrow .d{ margin:0; font-size:23px; line-height:1.4; color:var(--ink); }
+.vmrow .es{ font-size:16px; color:var(--ink-faint); font-style:italic; margin-top:2px; }
+
+/* a step taller than the window carries its Listen button at the top */
+.gstep.g-tall > .gbar{ margin:0 0 10px; }
+
+/* three trials and an average across the page: keep each box on one line */
+.tablezone table.data th, .tablezone table.data td{ white-space:nowrap; }
+table.data td.avg{ background:var(--sci-soft); }
+
+/* <dfn> marks the place a word is explained (qa.js C18 looks for it). To a
+   student the word being taught is simply bold. */
+dfn{ font-style:normal; font-weight:700; }
+
+/* the box this push will fill */
+table.data tr.rowon > td:first-child{ box-shadow:inset 5px 0 0 var(--hl-line); }
+table.data td.target{
+  background:var(--hl-soft); color:var(--hl-ink, var(--ink)); font-weight:700; text-align:center;
+  box-shadow:inset 0 0 0 3px var(--hl-line);
+  animation:tglow 1.3s ease-in-out infinite;
+}
+@keyframes tglow{
+  0%,100%{ box-shadow:inset 0 0 0 3px var(--hl-line); }
+  50%{ box-shadow:inset 0 0 0 3px var(--hl-line), inset 0 0 0 7px rgba(217,164,0,.28); }
+}
+/* the box that was just filled */
+table.data td.just{ animation:tjust 1.8s ease-out 1; }
+@keyframes tjust{
+  0%{ background:var(--good); color:#fff; }
+  60%{ background:var(--good-soft); }
+  100%{ background:transparent; }
+}
