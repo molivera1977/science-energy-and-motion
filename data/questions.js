@@ -54,7 +54,7 @@ window.SUM_Q = [
   { id:'E03',
     why: "Your body uses energy to run and play. The lights, the clock and the pencil sharpener use energy too.",
     q:'On the energy walk we found things that use energy. Which one uses energy?',
-    opts:['The lights in our room','The color of the wall','The number on the door','The shadow of a desk'], a:0 }
+    opts:['The lights in our room','The color of the wall','The sign on the door','The shadow of a desk'], a:0 }
 ];
 
 /* Meet the roller coaster: stored energy at the top, moving energy on the way
@@ -98,7 +98,7 @@ window.VOCAB_Q = [
   { id:'E10', word:'work',
     why: "A force moved an object. That is work. Doing work takes energy.",
     q:'Mr. O pushes a chair. The chair moves across the floor. What did Mr. O do to the chair?',
-    opts:['Friction','Gravity','Work','Nothing'], a:2 }
+    opts:['Potential energy','Gravity','Work','Nothing'], a:2 }
 ];
 
 /* High and low (LEARN.high in lesson.js) — the district's Activity 5: which
@@ -112,7 +112,7 @@ window.HIGH_Q = [
   { id:'E12',
     why: "Gravity is the force that pulls objects down toward Earth. Gravity pulls the ball down, and the potential energy of the ball changes into kinetic energy.",
     q:'A ball rolls off a high shelf and falls. What pulls the ball down?',
-    opts:['Friction','Gravity','A push from the shelf','Nothing pulls the ball'], a:1 },
+    opts:['Speed','Gravity','The shelf','Nothing pulls the ball'], a:1 },
   { id:'E13',
     why: "The kid on the tall slide starts with more potential energy. More potential energy changes into more kinetic energy. More kinetic energy means more speed.",
     q:'Two kids go down two slides. One slide is tall. One slide is short. Which kid has more <b>speed</b> at the bottom?',

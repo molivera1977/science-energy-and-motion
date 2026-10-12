@@ -44,10 +44,11 @@ window.DAYS_BUILT = 1;
 window.RECAP = {
   day1: {
     lead: 'Mr. O just showed you three things. Here are the three things again, so ' +
-          'you can look back while you work.',
+          'you can look back while you learn.',
     items: [
       { t: 'A roller coaster goes slowly up a tall hill. Then the roller coaster goes down very fast.',
-        d: 'Remember the video. A <dfn>roller coaster</dfn> is a ride at a park. A little train of cars rolls on a track with tall hills.' },
+        d: 'Remember the video. A <dfn>roller coaster</dfn> is a ride at a park. A little train of cars rolls on a <dfn>track</dfn> with tall <dfn>hills</dfn>. ' +
+           'A track is the path the cars roll on. A hill is a high part of the track.' },
       { t: 'Things in our room use energy.',
         d: 'Remember the energy walk. The lights use energy. The clock uses energy. The pencil sharpener uses energy. Your body uses energy too.' },
       { t: '<dfn>Energy</dfn> is what makes things move or change.',
@@ -264,7 +265,7 @@ window.LESSON = {
       ex: 'The food you ate at lunch, which lets you run at recess. The battery in a toy. The gas in a car. Take any of those away and the thing stops working.' },
     { word: 'force',   es: 'fuerza',   def: 'a push or a pull on an object',
       met: true, from: 'Lesson 1.1', short: 'A <dfn>force</dfn> is a push or a pull on an object.',
-      ex: 'Pushing a shopping cart at the store. Pulling the classroom door open. Kicking a ball.' },
+      ex: 'Pushing a swing at the park. Pulling the classroom door open. Kicking a ball.' },
     { word: 'gravity', es: 'gravedad', def: 'the force that pulls objects down toward Earth',
       met: true, from: 'Lesson 1.1', short: '<dfn>Gravity</dfn> is the force that pulls objects down toward Earth.',
       ex: 'A dropped pencil hits the floor. Rain falls down and never up. A ball comes back down after you throw the ball.' },
