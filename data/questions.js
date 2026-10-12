@@ -26,7 +26,22 @@ window.SKILLS = {
   E10: 'Work',
   E11: 'Higher means more potential energy',
   E12: 'Gravity changes potential to kinetic energy',
-  E13: 'Energy and speed'
+  E13: 'Energy and speed',
+
+  /* Day 2 */
+  E14: 'Energy changes form',       E15: 'Energy is never lost',
+  E16: 'Energy moves between objects',
+  E17: 'Kinds of stored energy',    E18: 'Energy changes form',
+  E19: 'Kinds of stored energy',
+
+  /* Day 3 */
+  E20: 'Energy changes form',       E21: 'Kinds of stored energy',
+  E22: 'Potential energy',          E23: 'Kinetic energy',
+  E24: 'Potential energy',
+  E25: 'Energy and speed',          E26: 'More energy goes higher',
+  E27: 'Energy and speed',          E28: 'Stored energy changes to moving energy',
+  E29: 'Energy moves between objects', E30: 'Energy is never lost',
+  E31: 'Energy changes form'
 };
 
 /* ── UNDERSTANDING CHECKS ──────────────────────────────
@@ -119,9 +134,132 @@ window.HIGH_Q = [
     opts:['The kid on the tall slide','The kid on the short slide','Both kids have the same speed','Neither kid moves'], a:0 }
 ];
 
+/* ── DAY 2 ─────────────────────────────────────────────
+   NOT ASKED until DAYS_BUILT (lesson.js) reaches 2: a check runs only when
+   the page-set it comes after is in the lesson.
+
+   Never lost: the hands, the ball on the floor, and energy passing from one
+   object to another. E15 and E16 carry the wrong idea the district's quarter
+   assessment uses as a wrong choice: that the energy disappears. */
+window.NEVER_Q = [
+  { id:'E14',
+    why: "Rubbing changes kinetic energy into thermal energy. Thermal energy is heat. That is why your hands feel warm.",
+    q:'You rub your hands together fast. Your hands get warm. What happened to the <b>kinetic energy</b> of your hands?',
+    opts:['The kinetic energy changed into thermal energy','The kinetic energy went away forever','The kinetic energy turned into a ball','Nothing happened to the kinetic energy'], a:0 },
+  { id:'E15',
+    why: "Energy is never lost. When the ball hit the floor, the energy of the ball changed into sound and heat.",
+    q:'A ball falls and stops on the floor. Where did the energy of the ball go?',
+    opts:['The energy is gone forever','The energy changed into sound and heat','The energy went back up to the shelf','The ball never had energy'], a:1 },
+  { id:'E16',
+    why: "Energy moved from the rolling ball to the still ball. Energy is never made. Energy only changes or moves.",
+    q:'A rolling ball hits a still ball. The still ball starts to roll. Why?',
+    opts:['The still ball made new energy','The floor gave energy to the still ball','The rolling ball gave energy to the still ball','The energy disappeared'], a:2 }
+];
+
+/* Kinds of energy: chemical energy, one change of form, and stored energy
+   that has nothing to do with height. */
+window.FORMS_Q = [
+  { id:'E17',
+    why: "A battery has chemical energy stored inside. Food has chemical energy stored inside too.",
+    q:'Which one has <b>chemical energy</b> stored inside?',
+    opts:['A shadow','A color','A battery','A sound'], a:2 },
+  { id:'E18',
+    why: "In a flashlight, the chemical energy of the battery changes into light. Light is a kind of energy.",
+    q:'You turn on a flashlight. The chemical energy in the battery changes into what?',
+    opts:['A hill','Light','A rubber band','Nothing'], a:1 },
+  { id:'E19',
+    why: "The rubber band is still, but the rubber band is ready to snap. Energy that is stored and ready to use is potential energy.",
+    q:'You pull a rubber band back and hold the rubber band still. What kind of energy does the rubber band have?',
+    opts:['Potential energy','Kinetic energy','Thermal energy','No energy at all'], a:0 }
+];
+
+/* ── DAY 3 ─────────────────────────────────────────────
+   NOT ASKED until DAYS_BUILT reaches 3.
+
+   Fuel: Discovery's two questions on the engine reading (Activity 12). */
+window.FUEL_Q = [
+  { id:'E20',
+    why: "The engine burns the gas. The chemical energy in the gas changes into kinetic energy, and the car moves.",
+    q:'What does the engine of a car do with the chemical energy in gas?',
+    opts:['The engine changes the chemical energy into kinetic energy','The engine makes the chemical energy disappear','The engine turns the chemical energy into a hill','The engine does nothing with the chemical energy'], a:0 },
+  { id:'E21',
+    why: "Food is the fuel of your body. Gas is the fuel of a car. Food and gas both have chemical energy stored inside.",
+    q:'How is the food you eat like the gas in a car?',
+    opts:['Food and gas are both made of metal','Food and gas are both fuel, with chemical energy stored inside','Food and gas are both a kind of hill','Food and gas have no energy'], a:1 }
+];
+
+/* Sort: three of the six situations in Discovery's Activity 13, each decided
+   with the two questions. */
+window.SORT_Q = [
+  { id:'E22',
+    why: "The car is still, but the car is high up and ready to roll. That is potential energy.",
+    q:'A car is parked at the top of a hill. The car is not moving. What kind of energy does the car have?',
+    opts:['Kinetic energy','Potential energy','Sound','No energy at all'], a:1 },
+  { id:'E23',
+    why: "The car is moving. An object that is moving has kinetic energy.",
+    q:'A car rolls down a long hill. What kind of energy does the moving car have?',
+    opts:['Kinetic energy','No energy at all','Only light','Only sound'], a:0 },
+  { id:'E24',
+    why: "The energy in the battery is stored and ready to use. Stored energy is potential energy. The stored energy inside a battery is chemical energy.",
+    q:'A battery sits on a shelf in a store. Nobody is using the battery. What kind of energy does the battery have?',
+    opts:['Kinetic energy','Light','Potential energy','No energy at all'], a:2 }
+];
+
+/* How much energy: speed, and the district's own swing question. */
+window.MEASURE_Q = [
+  { id:'E25',
+    why: "A faster object has more kinetic energy. More speed means more kinetic energy.",
+    q:'Two balls roll across the floor. One ball is fast. One ball is slow. Which ball has more <b>kinetic energy</b>?',
+    opts:['The slow ball','The fast ball','Both balls have the same kinetic energy','Neither ball has kinetic energy'], a:1 },
+  { id:'E26',
+    why: "A harder push gives the swing more energy. More energy sends the swing higher.",
+    q:'You push one swing gently. You push another swing very hard. What happens?',
+    opts:['The swing pushed hard has more energy and goes higher','Both swings go the same height','The swing pushed gently goes higher','Both swings stop right away'], a:0 }
+];
+
+/* ── EXIT TICKET ───────────────────────────────────────
+   The last questions of the lesson (Discovery's Activity 18, the review).
+   E27 is the district's Exit Ticket for Lesson 1.2, "Describe the ways you
+   can measure the energy of something moving fast?", as a pick: this class
+   builds answers by picking, not by typing. E31 is the big question.
+
+   The engine adds the exit ticket and the end screen only when every day
+   written in LEARN is built (DAYS_BUILT in lesson.js), so this list waits
+   until Day 3 is in. Day 3 has no stop of its own: the lesson ends at the
+   end screen. */
+window.EXIT_Q = [
+  { id:'E27',
+    why: "Speed tells you about energy. A faster object has more kinetic energy.",
+    q:'Which one is a way to tell how much energy a moving object has?',
+    opts:['Look at the color of the object','Look at how fast the object goes','Look at the name of the object','Look at the day of the week'], a:1 },
+  { id:'E28',
+    why: "At the top of the hill the car has potential energy. Going down, the potential energy changes into kinetic energy.",
+    q:'A roller coaster car sits still at the top of a hill. Then the car rolls down. What happens to the energy of the car?',
+    opts:['Potential energy changes into kinetic energy','Kinetic energy changes into potential energy','The energy disappears','Nothing changes'], a:0 },
+  { id:'E29',
+    why: "Energy is never lost. The energy moved from the first toy car to the second toy car.",
+    q:'Two toy cars bump. One toy car stops. The other toy car starts to roll. What happened to the energy?',
+    opts:['The energy disappeared','The toy cars made new energy','The energy moved from one toy car to the other toy car','The energy turned into a color'], a:2 },
+  { id:'E30',
+    why: "Conservation of energy is the rule that energy is never made and never lost. Energy only changes from one kind to another kind, or moves to another object.",
+    q:'What does <b>conservation of energy</b> mean?',
+    opts:['Energy runs out after one day','Energy is never made and never lost. Energy only changes or moves','Only cars have energy','All energy is heat'], a:1 },
+  { id:'E31',
+    why: "Stored energy can change into kinetic energy. Energy can also move from one object to another object. That is how a moving object gets energy.",
+    q:'How do moving objects get energy?',
+    opts:['From the color of the object','From nowhere. A moving object makes new energy','From the name of the object','From stored energy that changes into kinetic energy, or from another object that gives energy'], a:3 }
+];
+
 window.CHECKS = {
   sumq:  { title:'What we talked about', about:'what we talked about', after:'summary', bank:'SUM_Q' },
   toolq: { title:'Roller coaster check', about:'the roller coaster',   after:'tool',    bank:'TOOL_Q' },
   planq: { title:'Plan check',           about:'the plan',             after:'plan',    bank:'PLAN_Q' },
-  highq: { title:'High and low',         about:'high and low',         after:'high',    bank:'HIGH_Q' }
+  highq: { title:'High and low',         about:'high and low',         after:'high',    bank:'HIGH_Q' },
+  /* Day 2 */
+  neverq:   { title:'Never lost',        about:'where energy goes',     after:'never',   bank:'NEVER_Q' },
+  formsq:   { title:'Kinds of energy',   about:'the kinds of energy',   after:'forms',   bank:'FORMS_Q' },
+  /* Day 3 */
+  fuelq:    { title:'Fuel',              about:'fuel',                  after:'fuel',    bank:'FUEL_Q' },
+  sortq:    { title:'Sort',              about:'the two questions',     after:'sort',    bank:'SORT_Q' },
+  measureq: { title:'How much energy',   about:'how much energy',       after:'measure', bank:'MEASURE_Q' }
 };

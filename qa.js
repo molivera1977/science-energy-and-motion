@@ -1207,10 +1207,17 @@
      "a push or a pull", "nothing pushes the cars". One more is allowed here
      and was reported when the rule was written: "The push is a force", the
      sentence that follows "Mr. O pushes a chair across the floor" in the
-     example for the word work — the same push of the same chair. */
+     example for the word work — the same push of the same chair.
+
+     ALSO ALLOWED, added with Days 2 and 3 (10/12): the push of a SWING. A
+     swing pushed gently and a swing pushed hard is this lesson's own example
+     of "more energy goes higher", and is a question on the district's
+     quarter assessment for this unit. Nothing else may be pushed. */
   {
     const LEFT_OK = [/\bpush(?:es|ed)? (?:a|the) chair\b/gi, /\ba push or a pull\b/gi, /\bnothing pushes the cars\b/gi,
-                     /\bThe push is a force\b/g];
+                     /\bThe push is a force\b/g,
+                     /\bpush(?:es|ed)? (?:a|the|one|another) swing\b/gi, /\bswing pushed\b/gi,
+                     /\bhard(?:er)? push gives the swing\b/gi];
     const LEFT = { cart: /\bcarts?\b/i, push: /\bpush(?:es|ed)?\b/i, surface: /\bsurfaces?\b/i, ramp: /\bramps?\b/i,
       truck: /\btrucks?\b/i, friction: /\bfriction\b/i, 'Test 1 to 4': /\bTests? [1-4]\b/i, 'data table': /\bdata tables?\b/i,
       centimeter: /\bcentimeters?\b|\b\d+ ?cm\b/i, 'Starting and Stopping': /starting and stopping/i, 'Lesson 1.1': /\bLesson 1\.1\b/i };
@@ -1304,6 +1311,9 @@
     'stored energy':'stored energy', 'moving energy':'moving energy', 'potential energy':'potential energy',
     'kinetic energy':'kinetic energy', work:'work', gravity:'gravity', force:'forces?', speed:'speeds?',
     scientist:'scientists?', motion:'motion',
+    /* Days 2 and 3 */
+    heat:'heat', 'thermal energy':'thermal energy', 'chemical energy':'chemical energy',
+    'conservation of energy':'conservation of energy', battery:'batter(?:y|ies)', fuel:'fuels?', engine:'engines?',
     mass:'mass', average:'averages?', trial:'trials?', prediction:'predict\\w*', 'data table':'data table',
     data:'data', surface:'surfaces?', friction:'friction', distance:'distances?', centimeter:'centimeters?|cm',
     claim:'claims?', evidence:'evidence', reasoning:'reasoning', explanation:'explanations?', ramp:'ramps?', cart:'carts?',

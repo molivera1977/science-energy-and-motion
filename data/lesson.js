@@ -55,6 +55,34 @@ window.RECAP = {
         d: 'Remember the chair. Mr. O pushed the chair across the floor. Mr. O used energy to move the chair.' }
     ],
     now: 'Next, you find out <b>where a moving thing gets energy</b>.'
+  },
+  /* Day 2 is the district's days 3-4 (Activities 7-11). Its teacher-led part:
+     everyone rubs their hands together (how Discovery opens Activity 8) and
+     the short video on the law of conservation of energy. */
+  day2: {
+    lead: 'Mr. O just showed you two things. Here are the two things again.',
+    items: [
+      { t: 'You rubbed your hands together fast. Your hands got warm.',
+        d: 'Your hands were moving. Moving hands have kinetic energy. The warm you felt is <dfn>heat</dfn>. Heat is a kind of energy too.' },
+      { t: 'Energy does not go away. Energy changes.',
+        d: 'Remember the video. The video showed energy changing from one kind into another kind.' }
+    ],
+    now: 'Today you find out <b>where energy goes</b> when a moving thing stops.'
+  },
+  /* Day 3 is the district's days 5-8 (Activities 12, 13, 17, 18 and the exit
+     ticket). Its teacher-led part: gas and food as fuel (Activity 12), and
+     two balls rolled into a block, one slowly and one fast, which is the
+     demonstration of speed and energy the district's adjusted Scope and
+     Sequence asks for and the idea its quarter assessment tests. */
+  day3: {
+    lead: 'Mr. O just showed you two things. Here are the two things again.',
+    items: [
+      { t: 'A car needs gas. You need food.',
+        d: 'Gas and food are both <dfn>fuel</dfn>. Fuel is a thing with chemical energy stored inside. A car and your body both change that chemical energy into kinetic energy.' },
+      { t: 'A faster ball has more energy.',
+        d: 'Remember the two balls and the block. Mr. O rolled one ball slowly and one ball fast. The fast ball moved the block farther.' }
+    ],
+    now: 'Today you sort objects by the kind of energy each object has.'
   }
 };
 
@@ -76,6 +104,15 @@ window.THING_WORDS = {
   'stored energy':
           { def: 'energy that is saved up and ready to use. The science name is potential energy',
             ex: 'A roller coaster car at the top of a hill. A ball on a high shelf. You, at the top of the slide.' },
+  heat:   { def: 'the energy that makes a thing warm. The science name is thermal energy',
+            ex: 'Rub your hands fast and your hands get warm. A stove gets hot. The sun warms your face.' },
+  battery:
+          { def: 'a small part that has energy stored inside. A battery makes a flashlight or a toy work',
+            ex: 'The batteries in a flashlight. The battery in a phone. The batteries in a toy car.' },
+  fuel:   { def: 'a thing with chemical energy stored inside. Fuel gets used to make something go',
+            ex: 'Gas is the fuel of a car. Food is the fuel of your body. Wood is the fuel of a campfire.' },
+  engine: { def: 'the part of a car that makes the car go',
+            ex: 'The engine is under the hood of a car. The engine burns gas. A bus and a boat have an engine too.' },
   'moving energy':
           { def: 'the energy of a thing that is moving. The science name is kinetic energy',
             ex: 'A roller coaster car rolling down a hill. A ball that falls. You, going down the slide.' }
@@ -204,6 +241,132 @@ window.LEARN = {
           { art: 'floor', t: 'On the floor, the ball stops',
             d: 'The ball is low down and still. Where did the energy of the ball go? You find out on Day 2.' } ] }
     ]
+  },
+
+  /* ── DAY 2 — the district's days 3-4 ──────────────────────────────────
+     `never` is Activities 7 and 8: when energy changes form, none disappears
+     and none is made. It opens with the hands, because the class just did
+     that; then it answers the question Day 1 left open about the ball; then
+     energy passing from one object to another, which is where Discovery's
+     concept is headed ("the way energy changes form as it is transferred in
+     various ways and between objects") and what the district's quarter
+     assessment asks about, with "the energy disappears" as a wrong choice. */
+  never: {
+    day: 2, title: 'Energy is never lost', rail: 'Never lost',
+    pages: [
+      { head: 'Kinetic energy can change into heat', scene: 'hands',
+        tiles: [
+          { art: 'hands', t: 'You rub your hands fast',
+            d: 'Your hands are moving. So your hands have kinetic energy.' },
+          { art: 'warm', t: 'Your hands get warm',
+            d: 'The kinetic energy of your hands changes into heat. The science name for heat energy is <dfn>thermal energy</dfn>.' },
+          { art: 'same', t: 'No energy went away',
+            d: 'The energy did not go away. The energy changed from kinetic energy into thermal energy.' } ] },
+      { head: 'Where the energy of the ball went', scene: 'thud',
+        tiles: [
+          { art: 'fall', t: 'Remember the ball that fell off the shelf',
+            d: 'The ball fell fast. The ball had a lot of kinetic energy. Then the ball hit the floor and stopped.' },
+          { art: 'thud', t: 'You hear the ball hit the floor',
+            d: 'Sound is a kind of energy. Some of the energy of the ball changed into sound. Some of the energy changed into heat. The floor got a tiny bit warm.' },
+          { art: 'rule', t: 'Energy is never made and never lost',
+            d: 'Energy only changes, or moves to another object. Scientists call this rule <dfn>conservation of energy</dfn>.' } ] },
+      { head: 'Energy can move from one object to another object', scene: 'bump',
+        tiles: [
+          { art: 'roll', t: 'A rolling ball hits a still ball',
+            d: 'The rolling ball has kinetic energy. The still ball is not moving.' },
+          { art: 'bump', t: 'Now the second ball rolls',
+            d: 'The first ball gave energy to the second ball. The energy moved from one ball to the other ball.' },
+          { art: 'same', t: 'The energy did not go away',
+            d: 'The first ball slows down. The second ball speeds up. The energy is still there. The energy is in the second ball now.' } ] }
+    ]
+  },
+
+  /* `forms` is Activities 9 to 11, cut down hard. Discovery lists eleven
+     forms of energy; the district's quarter assessment asks for none of them
+     by name. So: the three kinds of STORED energy a child can picture, and
+     two examples of one kind changing into another. The examples (a
+     flashlight, and food at recess) each end on the Day's rule. */
+  forms: {
+    day: 2, title: 'Energy comes in different kinds', rail: 'Kinds',
+    pages: [
+      { head: 'Three kinds of stored energy', scene: 'stored',
+        tiles: [
+          { art: 'top', t: 'Stored energy from being high up',
+            d: 'A roller coaster car at the top of a hill. A ball on a high shelf. Gravity can pull each one down.' },
+          { art: 'battery', t: 'Stored energy inside food and inside a battery',
+            d: 'Food has energy stored inside. A <dfn>battery</dfn> is a small part that makes a flashlight work. A battery has energy stored inside too. The science name for that stored energy is <dfn>chemical energy</dfn>.' },
+          { art: 'band', t: 'Stored energy in a rubber band',
+            d: 'Pull a rubber band back and hold the rubber band still. The rubber band is ready to snap. Let go, and the rubber band flies.' } ] },
+      { head: 'Energy changes from one kind to another kind', scene: 'flashlight',
+        tiles: [
+          { art: 'flashlight', t: 'A flashlight',
+            d: 'The battery has chemical energy. Turn the flashlight on. The chemical energy changes into light. Light is a kind of energy.' },
+          { art: 'run', t: 'You, at recess',
+            d: 'Your lunch has chemical energy. When you run, your body changes the chemical energy into kinetic energy. Your body gets warm too. The warm is thermal energy.' },
+          { art: 'rule', t: 'The rule is the same every time',
+            d: 'The energy is never lost. The energy only changes from one kind to another kind.' } ] }
+    ]
+  },
+
+  /* ── DAY 3 — the district's days 5-8 ──────────────────────────────────
+     `fuel` is Activity 12 (the engine reading and its two questions: what
+     the engine changes the energy of gasoline into, and how that compares
+     with food in your body). */
+  fuel: {
+    day: 3, title: 'Fuel: stored energy that makes things go', rail: 'Fuel',
+    pages: [
+      { head: 'Gas is the fuel of a car', scene: 'engine',
+        tiles: [
+          { art: 'gas', t: 'Gas has chemical energy',
+            d: '<dfn>Fuel</dfn> is a thing with chemical energy stored inside. Gas is the fuel of a car.' },
+          { art: 'engine', t: 'The engine changes the energy',
+            d: 'An <dfn>engine</dfn> is the part of a car that makes the car go. The engine burns the gas. The chemical energy changes into kinetic energy. The car moves.' },
+          { art: 'hot', t: 'The engine gets hot too',
+            d: 'Some of the chemical energy changes into thermal energy. No energy is lost.' } ] },
+      { head: 'Food is the fuel of your body', scene: 'lunch',
+        tiles: [
+          { art: 'lunch', t: 'Food has chemical energy',
+            d: 'Food is the fuel of your body.' },
+          { art: 'run', t: 'Your body changes the energy',
+            d: 'When you run, your body changes chemical energy into kinetic energy. Your body gets warm too.' } ] }
+    ]
+  },
+
+  /* `sort` is Activity 13 (sort situations into potential or kinetic, using
+     the two questions Discovery suggests as a decision tree) with the "or
+     both" the district's adjusted Unit Plan adds, shown by Activity 17's
+     skater in the air. */
+  sort: {
+    day: 3, title: 'Stored energy or moving energy? You decide', rail: 'Sort',
+    pages: [
+      { head: 'Ask the two questions', scene: 'two',
+        tiles: [
+          { art: 'down', t: 'Question 1: Is the object moving?',
+            d: 'An object that is moving has kinetic energy.' },
+          { art: 'top', t: 'Question 2: Is the object still, but ready to move?',
+            d: 'An object that is still, but ready to move, has potential energy.' },
+          { art: 'air', t: 'Some objects have both kinds',
+            d: 'A skater jumps high into the air. The skater is moving, so the skater has kinetic energy. The skater is high up, so the skater has potential energy too.' } ] }
+    ]
+  },
+
+  /* `measure` gets students ready for the district's Exit Ticket for this
+     lesson: "Describe the ways you can measure the energy of something
+     moving fast?" Three ways a child can see: the speed, how high, and what
+     the object does to another object. The swing is the district's own
+     quarter-assessment item. */
+  measure: {
+    day: 3, title: 'How much energy does a moving object have?', rail: 'How much',
+    pages: [
+      { head: 'Three ways to tell', scene: 'block',
+        tiles: [
+          { art: 'fast', t: 'Look at the speed',
+            d: 'A faster object has more kinetic energy. A slower object has less kinetic energy.' },
+          { art: 'swing', t: 'Look at how high the object goes',
+            d: 'Push a swing gently. Then push the swing hard. The hard push gives the swing more energy. So the swing goes higher.' },
+          { art: 'block', t: 'Look at what the object does to another object',
+            d: 'Roll a ball into a block. A fast ball moves the block far. A slow ball moves the block only a little.' } ] }
+    ]
   }
 };
 
@@ -224,6 +387,16 @@ window.DAY_GATES = {
       'You find out <b>where energy goes</b> when a moving thing stops. Mr. O will show you first.'
     ],
     recap: 'day2', go: 'Start Day 2 &rarr;'
+  },
+  daygate2: {
+    day: 2, head: 'Nice work. You finished Day 2.',
+    did: 'Today you found out that energy is never lost. Energy changes from one kind to another kind. ' +
+         'Energy can move from one object to another object.',
+    nextLabel: 'Next time is the last day',
+    next: [
+      'You <b>sort objects</b> by the kind of energy each object has. Then you answer the last questions. Mr. O will show you first.'
+    ],
+    recap: 'day3', go: 'Start Day 3 &rarr;'
   }
 };
 
