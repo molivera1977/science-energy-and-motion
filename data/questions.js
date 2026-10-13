@@ -41,7 +41,14 @@ window.SKILLS = {
   E25: 'Energy and speed',          E26: 'More energy goes higher',
   E27: 'Energy and speed',          E28: 'Stored energy changes to moving energy',
   E29: 'Energy moves between objects', E30: 'Energy is never lost',
-  E31: 'Energy changes form'
+  E31: 'Energy changes form',
+
+  /* added when the days were evened out */
+  E32: 'Energy moves between objects', E33: 'Energy moves between objects',
+  E34: 'Potential energy',          E35: 'Potential and kinetic energy together',
+  E36: 'Energy and speed',
+  E37: 'Energy moves between objects', E38: 'Energy and speed',
+  E39: 'Ask a question you can test'
 };
 
 /* ── UNDERSTANDING CHECKS ──────────────────────────────
@@ -173,6 +180,19 @@ window.FORMS_Q = [
     opts:['Potential energy','Kinetic energy','Thermal energy','No energy at all'], a:0 }
 ];
 
+/* Heat (Day 2): the district's progress measure for this lesson, the order
+   in which heat moves to cook noodles. */
+window.HEAT_Q = [
+  { id:'E32',
+    why: "The heat starts at the stove. The heat moves from the stove to the pan, then to the water, then to the noodles.",
+    q:'You cook noodles in a pan of water on the stove. Which one gets hot <b>first</b>?',
+    opts:['The noodles','The water','The pan','The top of the stove'], a:3 },
+  { id:'E33',
+    why: "Thermal energy moves from one object to the next object: the stove, the pan, the water, the noodles.",
+    q:'How does the heat get from the stove to the noodles?',
+    opts:['The heat jumps over the pan and the water','The heat moves from the stove to the pan, then to the water, then to the noodles','The noodles make the heat','The heat comes from the spoon'], a:1 }
+];
+
 /* ── DAY 3 ─────────────────────────────────────────────
    NOT ASKED until DAYS_BUILT reaches 3.
 
@@ -203,6 +223,41 @@ window.SORT_Q = [
     why: "The energy in the battery is stored and ready to use. Stored energy is potential energy. The stored energy inside a battery is chemical energy.",
     q:'A battery sits on a shelf in a store. Nobody is using the battery. What kind of energy does the battery have?',
     opts:['Kinetic energy','Light','Potential energy','No energy at all'], a:2 }
+];
+
+/* Both: Discovery's Activity 17 (winter sports). Still and high up; moving
+   and high up; and when a skater has the most kinetic energy. */
+window.BOTH_Q = [
+  { id:'E34',
+    why: "The sled is still, so the sled has no kinetic energy yet. The sled is high up, so the sled has potential energy.",
+    q:'A sled sits still at the top of a snowy hill. Which one is true?',
+    opts:['The sled has potential energy and no kinetic energy yet','The sled has only kinetic energy','The sled has no energy at all','The sled has only sound'], a:0 },
+  { id:'E35',
+    why: "The skater is moving and the skater is high up. An object that moves has kinetic energy. An object that is high up has potential energy.",
+    q:'A skater is in the middle of a high jump. What kinds of energy does the skater have?',
+    opts:['Only potential energy','Only kinetic energy','Both potential energy and kinetic energy','No energy at all'], a:2 },
+  { id:'E36',
+    why: "Kinetic energy is the energy of moving. The faster the skater moves, the more kinetic energy the skater has.",
+    q:'When does a skater have the <b>most kinetic energy</b>?',
+    opts:['When the skater stands still','When the skater moves the fastest','When the skater sits down','When the skater ties a skate'], a:1 }
+];
+
+/* Bump: what the district's quarter assessment asks most. Energy passes from
+   one object to another object; more speed, more energy passed along; and
+   which question about a bump could be tested. */
+window.BUMP_Q = [
+  { id:'E37',
+    why: "The toy car had kinetic energy. In the bump, the toy car gave energy to the block, so the block moved.",
+    q:'A toy car rolls into a block. The block moves. What does this show?',
+    opts:['The block made new energy','The toy car gave energy to the block','The energy went away','The block was moving before the bump'], a:1 },
+  { id:'E38',
+    why: "A faster toy car has more kinetic energy. More kinetic energy moves the block farther.",
+    q:'You want the block to move <b>farther</b>. What should the toy car do?',
+    opts:['Roll faster into the block','Roll slower into the block','Stop before the block','Roll away from the block'], a:0 },
+  { id:'E39',
+    why: "A good science question is a question you can test. You can roll one ball into another ball and watch what happens.",
+    q:'You want to learn about energy when objects bump. Which question could you test?',
+    opts:['What color is the ball?','How long is the room?','What happens to a still ball when a rolling ball hits the still ball?','What is the name of the table?'], a:2 }
 ];
 
 /* How much energy: speed, and the district's own swing question. */
@@ -258,8 +313,11 @@ window.CHECKS = {
   /* Day 2 */
   neverq:   { title:'Never lost',        about:'where energy goes',     after:'never',   bank:'NEVER_Q' },
   formsq:   { title:'Kinds of energy',   about:'the kinds of energy',   after:'forms',   bank:'FORMS_Q' },
+  heatq:    { title:'Heat',              about:'how heat moves',        after:'heat',    bank:'HEAT_Q' },
   /* Day 3 */
   fuelq:    { title:'Fuel',              about:'fuel',                  after:'fuel',    bank:'FUEL_Q' },
   sortq:    { title:'Sort',              about:'the two questions',     after:'sort',    bank:'SORT_Q' },
-  measureq: { title:'How much energy',   about:'how much energy',       after:'measure', bank:'MEASURE_Q' }
+  bothq:    { title:'Both kinds',        about:'both kinds of energy',  after:'both',    bank:'BOTH_Q' },
+  measureq: { title:'How much energy',   about:'how much energy',       after:'measure', bank:'MEASURE_Q' },
+  bumpq:    { title:'Bump',              about:'what happens in a bump', after:'bump',   bank:'BUMP_Q' }
 };

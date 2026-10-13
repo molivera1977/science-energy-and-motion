@@ -133,12 +133,10 @@ window.INTRO_PLAN = {
   days: [
     { label: 'Day 1 &mdash; today', tests: [
       { art: 'words', t: 'Three new words',
-        d: 'Learn the science names for stored energy and moving energy.' },
-      { art: 'high', t: 'Which thing has more stored energy?',
-        d: 'Look at a thing that is high up and a thing that is low down.' } ] }
+        d: 'Learn the science names for stored energy and moving energy.' } ] }
   ],
   later: { art: 'later', label: 'On the next two days',
-    text: '<b>Day 2</b>: energy can change, and energy is never lost. ' +
+    text: '<b>Day 2</b>: high and low, and where energy goes. Energy is never lost. ' +
           '<b>Day 3</b>: you sort things by the kind of energy each thing has. Then you answer the last questions.' },
   everyHead: 'On every page',
   every: [
@@ -154,7 +152,7 @@ window.INTRO_PLAN = {
    day they will learn about that thing.
 ═══════════════════════════════════════════════════════ */
 window.CARE = [
-  { art: 'slide', test: 'You will learn about this today',
+  { art: 'slide', test: 'You will learn about this on Day 2',
     t: 'The slide at the park',
     d: 'You climb up high. Then you go down fast. Why do you go so fast at the bottom of the slide?' },
   { art: 'hands', test: 'You will learn about this on Day 2',
@@ -221,8 +219,11 @@ window.TOOL_PAGES = [
    every child in the room has seen.
 ═══════════════════════════════════════════════════════ */
 window.LEARN = {
+  /* MOVED TO DAY 2 (10/12, Marcos: "I also want the days to be somewhat
+     even. The first day must always carry more but the 2nd and 3rd day
+     should not be super short"). Day 1 keeps the opening and the words. */
   high: {
-    title: 'More stored energy, less stored energy', rail: 'High and low',
+    day: 2, title: 'More stored energy, less stored energy', rail: 'High and low',
     pages: [
       { head: 'Higher up means more potential energy', scene: 'slides',
         tiles: [
@@ -239,7 +240,7 @@ window.LEARN = {
           { art: 'fall', t: 'The ball rolls off the shelf',
             d: 'Gravity pulls the ball down. The ball falls fast. Now the ball has kinetic energy.' },
           { art: 'floor', t: 'On the floor, the ball stops',
-            d: 'The ball is low down and still. Where did the energy of the ball go? You find out on Day 2.' } ] }
+            d: 'The ball is low down and still. Where did the energy of the ball go? You find out next.' } ] }
     ]
   },
 
@@ -308,6 +309,24 @@ window.LEARN = {
     ]
   },
 
+  /* `heat` is the district's own progress measure for this lesson (this
+     year's pacing calendar: Student Edition pages 58-59, Discovery's
+     Activity 4): put four pictures in order to show how heat moves to cook
+     noodles. Here the order is taught first, then asked. */
+  heat: {
+    day: 2, title: 'Heat moves from one object to the next object', rail: 'Heat',
+    pages: [
+      { head: 'Cooking noodles', scene: 'noodles',
+        tiles: [
+          { art: 'burner', t: 'The stove gets hot',
+            d: 'You turn on the stove. The top of the stove gets hot. The top of the stove has thermal energy.' },
+          { art: 'pan', t: 'The heat moves to the pan, then to the water',
+            d: 'A pan of water sits on the stove. Thermal energy moves from the stove into the pan. Then thermal energy moves from the pan into the water.' },
+          { art: 'noodles', t: 'The heat moves to the noodles',
+            d: 'Thermal energy moves from the hot water into the noodles. The noodles cook. The energy moved from object to object. No energy was lost.' } ] }
+    ]
+  },
+
   /* ── DAY 3 — the district's days 5-8 ──────────────────────────────────
      `fuel` is Activity 12 (the engine reading and its two questions: what
      the engine changes the energy of gasoline into, and how that compares
@@ -345,8 +364,26 @@ window.LEARN = {
             d: 'An object that is moving has kinetic energy.' },
           { art: 'top', t: 'Question 2: Is the object still, but ready to move?',
             d: 'An object that is still, but ready to move, has potential energy.' },
-          { art: 'air', t: 'Some objects have both kinds',
-            d: 'A skater jumps high into the air. The skater is moving, so the skater has kinetic energy. The skater is high up, so the skater has potential energy too.' } ] }
+          { art: 'check', t: 'Now you try',
+            d: 'Read about each object. Ask the two questions. Then pick the kind of energy.' } ] }
+    ]
+  },
+
+  /* `both` is Activity 17 (kinetic and potential energy in winter sports:
+     where a skater has the least and the most kinetic energy, and which
+     pictures show more potential energy) and the "or both" in the district's
+     adjusted Unit Plan. */
+  both: {
+    day: 3, title: 'Some objects have both kinds of energy', rail: 'Both',
+    pages: [
+      { head: 'High up, moving, or both', scene: 'both',
+        tiles: [
+          { art: 'sled', t: 'A sled at the top of a snowy hill',
+            d: 'The sled is still. The sled is high up. The sled has potential energy. The sled has no kinetic energy yet.' },
+          { art: 'air', t: 'A skater in the middle of a high jump',
+            d: 'The skater is moving, so the skater has kinetic energy. The skater is high up, so the skater has potential energy too.' },
+          { art: 'skate', t: 'A skater moving fast on flat ice',
+            d: 'The skater is moving fast. The skater is low down. Almost all of the energy of the skater is kinetic energy.' } ] }
     ]
   },
 
@@ -367,6 +404,27 @@ window.LEARN = {
           { art: 'block', t: 'Look at what the object does to another object',
             d: 'Roll a ball into a block. A fast ball moves the block far. A slow ball moves the block only a little.' } ] }
     ]
+  },
+
+  /* `bump` is where the unit is headed and what the district's quarter
+     assessment asks most: when two objects bump, energy passes from one to
+     the other and does not disappear; and which question about a bump could
+     be tested (the adjusted Unit Plan: "ask testable questions"). Lesson 1.4
+     is the full lesson on collisions; this is one page. */
+  bump: {
+    day: 3, title: 'When objects bump, energy moves', rail: 'Bump',
+    pages: [
+      { head: 'A bump passes energy along', scene: 'cars',
+        tiles: [
+          { art: 'cars', t: 'A moving toy car bumps a still toy car',
+            d: 'The moving toy car has kinetic energy. The still toy car is not moving.' },
+          { art: 'cars2', t: 'The energy moves to the second toy car',
+            d: 'After the bump, the second toy car rolls. The first toy car gave energy to the second toy car. The energy did not go away.' },
+          { art: 'faster', t: 'A faster toy car gives more energy',
+            d: 'A faster toy car has more kinetic energy. So a faster toy car makes the second toy car roll farther.' },
+          { art: 'two', t: 'A question you can test',
+            d: 'To <dfn>test</dfn> a question, you try something and watch what happens. You can test this question: What happens to a still toy car when a moving toy car bumps the still toy car?' } ] }
+    ]
   }
 };
 
@@ -380,11 +438,10 @@ window.LEARN = {
 window.DAY_GATES = {
   daygate: {
     day: 1, head: 'Nice work. You finished Day 1.',
-    did: 'Today you learned three new words: potential energy, kinetic energy and work. ' +
-         'You found out that a thing that is higher up has more potential energy.',
+    did: 'Today you met the roller coaster. You learned three new words: potential energy, kinetic energy and work.',
     nextLabel: 'Next time',
     next: [
-      'You find out <b>where energy goes</b> when a moving thing stops. Mr. O will show you first.'
+      'You find out which object has more potential energy, and <b>where energy goes</b> when a moving thing stops. Mr. O will show you first.'
     ],
     recap: 'day2', go: 'Start Day 2 &rarr;'
   },

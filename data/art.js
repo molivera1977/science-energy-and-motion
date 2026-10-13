@@ -372,6 +372,42 @@ window.art = function (markup, cls) {
     /* a fast ball moves a block */
     block: svg(ground(43) + whoosh(8, 36, 0, 0.5) + ball(16, 36.5, 6) + block(24, 30, 12) + arrow(38, 25, 46, 25, 'var(--accent)', 3))
   });
+  /* ── added when the days were evened out: cooking noodles, winter sports, a bump ── */
+  const burnerBody =
+    '<rect x="6" y="27" width="36" height="15" rx="3" fill="var(--sci-dark)"/>' +
+    '<ellipse cx="24" cy="27" rx="13" ry="4" fill="var(--accent)"/>';
+  const pot = '<path d="M12 13h24v13a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4z" fill="var(--sci)"/>' +
+    '<path d="M7 16h5M36 16h5" stroke="var(--sci-dark)" stroke-width="3" stroke-linecap="round"/>';
+  const panBody = pot + '<path d="M15 18c3-2 4 2 7 0s4 2 7 0 3 1 4 0" fill="none" stroke="var(--surface)" stroke-width="2.500" stroke-linecap="round"/>' +
+    '<ellipse cx="24" cy="38" rx="12" ry="3.500" fill="var(--accent)"/>' + arrow(24, 37, 24, 32.500, 'var(--accent)', 2.500);
+  const noodlesBody = pot + '<path d="M16 15c2-6 5-3 6-9M23 15c2-6 5-3 6-9M30 15c1-4 3-3 4-7" fill="none" stroke="var(--accent)" stroke-width="2.500" stroke-linecap="round"/>' +
+    '<ellipse cx="24" cy="38" rx="12" ry="3.500" fill="var(--accent)" opacity=".5"/>';
+  const sledBody = hill + ground(43) + kid(22, 14.500, 0.42) + '<path d="M15 15.500h17" stroke="var(--sci-dark)" stroke-width="3" stroke-linecap="round"/>';
+  const airBody = ground(43) +
+    '<circle cx="26" cy="8" r="5" fill="var(--accent)"/>' +
+    '<path d="M26 14v11M26 17l-8-5M26 17l8-5M26 25l-6 7M26 25l6 7" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    whoosh(26, 37, -90, 0.42) + arrow(8, 41, 8, 9, 'var(--sci-dark)', 2.5, '3 4');
+  /* a skater on flat ice, going fast: the same runner, with a blade under each foot */
+  const skateBody = runner('var(--accent)') + whoosh(13, 24, 0, 0.5) +
+    '<path d="M12 36h8M29 43.500h8" stroke="var(--sci-dark)" stroke-width="2.500" stroke-linecap="round"/>' +
+    '<path d="M3 45.500h42" stroke="var(--sci)" stroke-width="2.500" stroke-linecap="round" opacity=".7"/>';
+  Object.assign(window.TILE_ART, {
+    burner: svg(burnerBody + heat(24, 19, 0.6)),
+    pan: svg(panBody),
+    noodles: svg(noodlesBody),
+    sled: svg(sledBody),
+    skate: svg(skateBody),
+    /* before the bump: a moving toy car and a still toy car */
+    cars: svg(ground(43) + whoosh(7, 34, 0, 0.42) + car(17, 42.500, 0, 0.6) + car(38, 42.500, 0, 0.6, 'var(--sci)')),
+    /* after the bump: the first toy car is still, the second toy car rolls */
+    cars2: svg(ground(43) + car(9, 42.500, 0, 0.6) + whoosh(27, 34, 0, 0.42) + car(37, 42.500, 0, 0.6, 'var(--sci)') +
+      arrow(9, 22, 35, 22, 'var(--accent)', 3)),
+    /* a faster toy car: longer motion lines, and the second toy car goes far */
+    faster: svg(ground(43) + whoosh(11, 34, 0, 0.62) + car(20, 42.500, 0, 0.6) + arrow(30, 34, 46, 34, 'var(--sci)', 3) +
+      arrow(30, 22, 46, 22, 'var(--accent)', 3))
+  });
+  window.TILE_ART.air = svg(airBody);
+
   /* a slow ball and a fast ball: the picture for "look at the speed" */
   window.TILE_ART.speed = window.THING_ART.speed;
   /* the new words in the help panel's list */
@@ -483,6 +519,23 @@ window.art = function (markup, cls) {
       arrow(130, 60, 174, 60, 'var(--accent)', 4) +
       big(runner('var(--accent)') + whoosh(13, 24, 0, 0.5), 196, 4, 2.3) + floorLine(110) +
       label(262, 131, 'kinetic energy', 'middle', 'var(--accent)'), 138),
+    /* heat moves from the stove to the pan, to the water, to the noodles */
+    noodles: scene(
+      big(burnerBody, 18, 14, 1.8) + heat(61, 34, 1.2) + label(61, 131, 'stove', 'middle', 'var(--sci-dark)') +
+      arrow(116, 62, 150, 62, 'var(--accent)', 4) +
+      big(panBody, 158, 14, 1.8) + label(201, 131, 'pan and water', 'middle', 'var(--sci-dark)') +
+      arrow(256, 62, 290, 62, 'var(--accent)', 4) +
+      big(noodlesBody, 296, 14, 1.8) + label(339, 131, 'noodles', 'middle', 'var(--sci-dark)'), 138),
+    /* still and high up; moving and high up; moving and low down */
+    both: scene(big(sledBody, 14, 8, 2.1) + big(airBody, 148, 8, 2.1) + big(skateBody, 282, 8, 2.1)),
+    /* before the bump and after the bump, with toy cars */
+    cars: scene(
+      floorLine(110) +
+      whoosh(44, 92, 0, 0.9) + car(72, 108, 0, 1.15) + car(140, 108, 0, 1.15, 'var(--sci)') +
+      '<path d="M200 14v90" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round" opacity=".6"/>' +
+      car(246, 108, 0, 1.15) + whoosh(306, 92, 0, 0.9) + car(334, 108, 0, 1.15, 'var(--sci)') +
+      arrow(246, 62, 326, 62, 'var(--accent)', 4) + label(286, 48, 'energy', 'middle', 'var(--accent)') +
+      label(104, 34, 'before', 'middle', 'var(--ink)') + label(290, 26, 'after', 'middle', 'var(--ink)')),
     /* the two questions: is the object moving, or still and ready to move */
     two: scene(
       label(34, 44, '1', 'middle', 'var(--accent)') + big(carGoingDown, 50, 10, 2.1) +
