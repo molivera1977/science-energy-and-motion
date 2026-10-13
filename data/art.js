@@ -372,6 +372,8 @@ window.art = function (markup, cls) {
     /* a fast ball moves a block */
     block: svg(ground(43) + whoosh(8, 36, 0, 0.5) + ball(16, 36.5, 6) + block(24, 30, 12) + arrow(38, 25, 46, 25, 'var(--accent)', 3))
   });
+  /* a slow ball and a fast ball: the picture for "look at the speed" */
+  window.TILE_ART.speed = window.THING_ART.speed;
   /* the new words in the help panel's list */
   Object.assign(window.THING_ART, {
     heat: window.TILE_ART.warm,

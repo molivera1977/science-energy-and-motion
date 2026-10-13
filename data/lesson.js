@@ -26,7 +26,7 @@
 
 /* How many days of this lesson exist yet. The stop at the end of the last
    built day has no way on: it saves and says to close the computer. */
-window.DAYS_BUILT = 2;
+window.DAYS_BUILT = 3;
 
 /* ══════════════════════════════════════════════════════
    WHAT MR. O JUST SHOWED YOU
@@ -360,7 +360,7 @@ window.LEARN = {
     pages: [
       { head: 'Three ways to tell', scene: 'block',
         tiles: [
-          { art: 'fast', t: 'Look at the speed',
+          { art: 'speed', t: 'Look at the speed',
             d: 'A faster object has more kinetic energy. A slower object has less kinetic energy.' },
           { art: 'swing', t: 'Look at how high the object goes',
             d: 'Push a swing gently. Then push the swing hard. The hard push gives the swing more energy. So the swing goes higher.' },
@@ -406,6 +406,11 @@ window.LESSON = {
   code:   'Lesson 1.2',
   days:   '7 science sessions',
   ngss:   ['4-PS3-1'],
+
+  /* What the end screen says the student learned: the answer to the big
+     question, in the lesson's own words. */
+  endLead: 'You found out how moving objects get energy. Stored energy changes into kinetic energy. ' +
+           'Energy can move from one object to another object. Energy is never lost.',
 
   /* Discovery's question for the whole concept ("Can You Explain?"). The
      Unit Plan words the same idea as "Where does the energy to move objects

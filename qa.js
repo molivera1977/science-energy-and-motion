@@ -1191,6 +1191,80 @@
     }
   }
 
+  /* C34 — THE LESSON ENDS AT THE END SCREEN, AND THE END SCREEN IS THE END.
+     10/12: when every day is built there is no "last stop" for C31 to look
+     at; the lesson ends with the last questions and then the end screen. No
+     rule had ever run that path (the fitting of Day 1 left it in the file,
+     unrun). So, once every day is built:
+       - the last questions come right before the end, at least three of them
+       - the last day has no stop of its own (a stop there would ask "go on
+         to Day 4?")
+       - the end screen is the one screen showing, says what the student
+         learned (LESSON.endLead), and shows the score out of exactly the
+         questions the lesson asked
+       - the only things to press are Print and Start over, and Start over
+         asks for the teacher PIN and clears nothing without the PIN
+       - nothing in the engine leads past the end
+     While a day is still unbuilt, this is "not checked" and C31 holds the
+     end of the lesson; the spec wants exactly one of the two to pass. */
+  {
+    const last = PHASES[PHASES.length - 1];
+    const label = 'The lesson ends at the end screen: the score is out of the questions asked, and nothing leads on';
+    if (last !== 'end') {
+      park('C34', label, 'Not every day is built: the lesson ends at a stop (C31), not at the end screen');
+    } else {
+      const endBad = [];
+      const root = document.getElementById('end-screen');
+      if (PHASES[PHASES.length - 2] !== 'exit') endBad.push('the screen before the end is "' + PHASES[PHASES.length - 2] + '", not the last questions');
+      const nExit = bankFor('exit').length;
+      if (nExit < 3) endBad.push('only ' + nExit + ' last question' + (nExit === 1 ? '' : 's'));
+      const lastGate = GATE_KEYS.find(g => (window.DAY_GATES[g].day || 1) === BUILT_DAYS);
+      if (lastGate) endBad.push('the last day has a stop ("' + lastGate + '") as well as the end screen');
+      try {
+        await jump(stopOf('end')); await wait(250);
+        if (app.phase !== 'end' || visible().length !== 1 || visible()[0] !== root) endBad.push('the end screen is not the one screen showing');
+        const asked = Object.keys(Q_PHASE).reduce((n, ph) => n + bankFor(ph).length, 0);
+        const board = plain(document.getElementById('end-scores').textContent);
+        if (app.totalItems() !== asked || !new RegExp('(?:^|\\D)\\d+/' + asked + '(?:\\D|$)').test(board))
+          endBad.push('the score is not out of the ' + asked + ' questions asked: "' + board.slice(0, 40) + '"');
+        const lead = plain(window.LESSON.endLead);
+        if (wordsIn(lead) < 8 || plain(root.textContent).indexOf(lead) === -1) endBad.push('the end screen does not say what the student learned (LESSON.endLead)');
+        /* the only things to press */
+        const extra = [...root.querySelectorAll('button, a, [role="button"]')].filter(shown).filter(b => !b.matches('.mini-spk'))
+          .filter(b => ['end-print', 'end-restart'].indexOf(b.id) === -1).map(b => '"' + (b.textContent || b.tagName).trim().slice(0, 28) + '"');
+        if (extra.length) endBad.push('a way on from the end screen: ' + extra.join(', '));
+        /* Start over: the PIN is asked for, and nothing is cleared without the PIN */
+        const restart = document.getElementById('end-restart'), modal = document.getElementById('pin-modal');
+        if (!shown(restart)) endBad.push('no Start over button on the end screen');
+        else {
+          const before = localStorage.getItem(KEY);
+          /* If the PIN is not asked for, Start over clears the save and loads
+             the page again, and this whole run would start over with it. So
+             for this one press, clearing is caught and stopped. */
+          const realClear = app.clearSaved; let cleared = false;
+          app.clearSaved = () => { cleared = true; throw new Error('QA stopped Start over: the save was about to be cleared with no PIN'); };
+          restart.click(); await wait(40);
+          app.clearSaved = realClear;
+          if (cleared) endBad.push('Start over clears the saved lesson with no PIN');
+          /* (the PIN box is pinned to the window, so `shown` cannot see it: look at its own switch) */
+          const boxOpen = () => !modal.classList.contains('hidden');
+          if (!boxOpen()) endBad.push('Start over does not ask for the teacher PIN');
+          document.getElementById('pin-cancel').click(); await wait(40);
+          if (boxOpen()) endBad.push('the PIN box does not close on Cancel');
+          if (localStorage.getItem(KEY) !== before) endBad.push('Start over changed the saved lesson without the PIN');
+        }
+        /* nothing in the engine leads past the end */
+        const held = holdApp();
+        try { app.phase = 'end'; held.went = ''; app.next();
+              if (held.went && held.went !== 'end') endBad.push('going on from the end leads to "' + held.went + '"'); }
+        finally { held.release(); }
+        seenText.push({ where: 'the end screen', text: allText(root) });
+      } catch (e) { endBad.push('the check itself broke: ' + e.message); }
+      await jump(0); await wait(150);
+      rec('C34', label, endBad.length === 0, [...new Set(endBad)].slice(0, 6).join(' | '));
+    }
+  }
+
   /* C32 — NO LEFTOVER LESSON 1.1 WORDS. This site began as a copy of Lesson
      1.1: a cart pushed on a track, four tests, a data table. The engine alone
      named "push" 129 times and "cart" 63. A leftover does not break anything

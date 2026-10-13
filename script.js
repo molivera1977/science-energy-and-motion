@@ -1658,7 +1658,9 @@ function finish() {
     ? '<hr class="hr"><h3 style="font-size:21px">Look at these again with Mr. O</h3><ul class="misslist">' +
       miss.map(x => '<li><b>' + (x.skill || '') + '</b> — ' + x.q +
         ' <i>(you picked: ' + x.yourAnswer + '; answer: ' + x.correct + ')</i></li>').join('') + '</ul>'
-    : '<hr class="hr"><p class="lead">You got every question right. Nothing to go back over.</p>';
+    : app.score >= total && total
+      ? '<hr class="hr"><p class="lead">You got every question right. Nothing to go back over.</p>'
+      : '';   /* no misses on record and not every point: say nothing (the teacher preview answers no questions) */
 
   submitFinal();
   if (!window.PREVIEW) try {
