@@ -260,6 +260,126 @@ window.art = function (markup, cls) {
       '<path d="M28.5 27h12" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>')
   };
 
+  /* ── DAYS 2 AND 3 — the small pictures ──────────────────
+     Added after Day 1's, from the same pieces. The bodies that a scene uses
+     again are kept as their own strings (48 x 48), so a battery is the same
+     battery in the small picture and in the scene. */
+  /* wavy lines going up: heat coming off a thing */
+  const heat = (x, y, s) => '<g transform="translate(' + x + ',' + y + ') scale(' + (s || 1) + ')" fill="none" stroke="var(--accent)" ' +
+    'stroke-width="3" stroke-linecap="round"><path d="M-9 0c0-4 4-4 4-8s-4-4-4-8M0 0c0-4 4-4 4-8s-4-4-4-8M9 0c0-4 4-4 4-8s-4-4-4-8"/></g>';
+  /* curved lines going out: a sound */
+  const sound = (x, y, s, flip) => '<g transform="translate(' + x + ',' + y + ') scale(' + (flip ? -(s || 1) : (s || 1)) + ',' + (s || 1) + ')" fill="none" ' +
+    'stroke="var(--sci)" stroke-width="3" stroke-linecap="round"><path d="M0 -5c3 3 3 7 0 10M6 -9c6 6 6 12 0 18M12 -13c9 9 9 17 0 26"/></g>';
+  /* the lightning bolt that stands for energy, its top-left corner at (x, y) */
+  const bolt = (x, y, s, fill) => '<g transform="translate(' + x + ',' + y + ') scale(' + (s || 1) + ')">' +
+    '<path d="M15 0L0 24h10l-3 16 17-25H13z" fill="' + (fill || 'var(--accent)') + '"/></g>';
+  /* two hands, one a little higher than the other: one hand slides on the other hand */
+  const handsPair =
+    '<rect x="10" y="38" width="14" height="8" rx="2" fill="var(--sci-dark)"/><rect x="24" y="32" width="14" height="14" rx="2" fill="var(--sci-dark)"/>' +
+    '<rect x="11" y="15" width="12" height="25" rx="5.5" fill="var(--accent)"/>' +
+    '<path d="M11 31c-4-1-6-5-4-8" fill="none" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round"/>' +
+    '<rect x="25" y="9" width="12" height="25" rx="5.5" fill="var(--sci)"/>' +
+    '<path d="M37 25c4-1 6-5 4-8" fill="none" stroke="var(--sci)" stroke-width="4.5" stroke-linecap="round"/>';
+  /* up-and-down lines beside the hands: the hands are moving */
+  const rubbing = '<path d="M4 20v12M43 14v12" stroke="var(--sci)" stroke-width="3" stroke-linecap="round" opacity=".7"/>' +
+    '<path d="M1 23l3-4 3 4M40 23l3 4 3-4" fill="none" stroke="var(--sci)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>';
+  const batteryBody =
+    '<rect x="5" y="15" width="33" height="19" rx="3.5" fill="var(--sci)"/>' +
+    '<rect x="38" y="20" width="5" height="9" rx="1.5" fill="var(--sci-dark)"/>' +
+    '<path d="M27 24.5h7M30.500 21v7M10 24.500h7" stroke="var(--surface)" stroke-width="2.500" stroke-linecap="round"/>';
+  /* a rubber band on a peg, pulled back by a hand and held still; the faint
+     arrow is where the rubber band flies when the hand lets go */
+  const bandBody =
+    '<circle cx="8" cy="27" r="4" fill="var(--sci-dark)"/>' +
+    '<path d="M8 23L35 27L8 31" fill="none" stroke="var(--sci)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>' +
+    '<rect x="33" y="21" width="12" height="12" rx="5" fill="var(--accent)"/>' +
+    arrow(30, 11, 10, 11, 'var(--ink-faint)', 2.5, '3 4');
+  const flashlightBody =
+    '<path d="M31 14l14-7v34l-14-7z" fill="var(--accent)" opacity=".4"/>' +
+    '<rect x="3" y="19" width="19" height="10" rx="3" fill="var(--sci-dark)"/>' +
+    '<path d="M22 17.500l9-4v21l-9-4z" fill="var(--sci)"/>';
+  /* a kid running to the right */
+  const runner = (c) => '<circle cx="29" cy="9" r="5.5" fill="' + c + '"/>' +
+    '<path d="M28 16l-4 13M24 29l-9 5M24 29l8 5v8M26 20l9 3M26 20l-9-1" fill="none" stroke="' + c + '" stroke-width="4.500" stroke-linecap="round" stroke-linejoin="round"/>';
+  const runBody = runner('var(--accent)') + whoosh(13, 24, 0, 0.5) + ground(44);
+  /* a gas can with a spout */
+  const gasBody =
+    '<rect x="11" y="17" width="25" height="25" rx="3.5" fill="var(--accent)"/>' +
+    '<path d="M16 17v-6h11v6" fill="none" stroke="var(--sci-dark)" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M31 15l8-7" stroke="var(--sci-dark)" stroke-width="4.500" stroke-linecap="round"/>' +
+    '<path d="M23.500 23c-4 6-5 8-5 10a5 5 0 0 0 10 0c0-2-1-4-5-10z" fill="var(--surface)" opacity=".9"/>';
+  /* a car from the side; the box under the hood is the engine */
+  const carSide =
+    '<path d="M3 35v-8l9-2 6-9h13l7 9 7 2v8z" fill="var(--sci)"/>' +
+    '<path d="M20 18h10l5 7H16z" fill="var(--surface)" opacity=".85"/>' +
+    '<rect x="35" y="27" width="9" height="6" rx="1.500" fill="var(--accent)"/>' +
+    '<circle cx="13" cy="36" r="5" fill="var(--sci-dark)"/><circle cx="36" cy="36" r="5" fill="var(--sci-dark)"/>';
+  const lunchBody =
+    '<rect x="3" y="30" width="42" height="11" rx="4" fill="var(--sci)" opacity=".3"/>' +
+    '<rect x="3" y="30" width="42" height="11" rx="4" fill="none" stroke="var(--sci)" stroke-width="2.5"/>' +
+    '<circle cx="15" cy="23" r="8" fill="var(--accent)"/>' +
+    '<path d="M15 15c0-3 2-5 5-5" fill="none" stroke="var(--sci-dark)" stroke-width="2.5" stroke-linecap="round"/>' +
+    '<path d="M26 31l8-15 9 15z" fill="var(--sci)"/>' +
+    '<path d="M28.5 27h12" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>';
+  const block = (x, y, w, fill) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + w + '" rx="' + (w * 0.15) + '" fill="' + (fill || 'var(--sci)') + '"/>';
+
+  Object.assign(window.TILE_ART, {
+    /* Day 2 · Energy is never lost */
+    hands: svg(handsPair + rubbing),
+    warm: svg(handsPair + heat(7, 12, 0.5) + heat(42, 9.5, 0.5)),
+    /* the same amount of energy before and after: nothing went away */
+    same: svg(bolt(3, 5, 0.85, 'var(--sci)') + arrow(22, 24, 29, 24, 'var(--ink-faint)', 2.5) + bolt(28, 5, 0.85)),
+    /* the ball on the floor, and the sound going out both ways */
+    thud: svg(ground(43) + ball(24, 36.5, 6.5) + sound(33, 30, 0.55) + sound(15, 30, 0.55, true)),
+    /* energy goes round and round: never made, never lost */
+    rule: svg(
+      '<path d="M9 21A16 16 0 0 1 38 16" fill="none" stroke="var(--sci)" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<path d="M32 15l6 1 1-6" fill="none" stroke="var(--sci)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M39 27A16 16 0 0 1 10 32" fill="none" stroke="var(--sci)" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<path d="M16 33l-6-1-1 6" fill="none" stroke="var(--sci)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      bolt(16, 9, 0.7)),
+    /* a rolling ball on the way to a still ball */
+    roll: svg(ground(43) + whoosh(11, 36, 0, 0.5) + ball(19, 36.5, 6.5) + ball(38, 36.5, 6.5, 'var(--sci)')),
+    /* after the bump: the first ball is still, the second ball rolls */
+    bump: svg(ground(43) + ball(10, 36.5, 6.5) + whoosh(27, 36, 0, 0.5) + ball(35, 36.5, 6.5, 'var(--sci)') +
+      arrow(10, 21, 33, 21, 'var(--accent)', 3) ),
+
+    /* Day 2 · Energy comes in different kinds */
+    battery: svg(batteryBody),
+    band: svg(bandBody),
+    flashlight: svg(flashlightBody),
+    run: svg(runBody),
+
+    /* Day 3 · Fuel */
+    gas: svg(gasBody),
+    engine: svg(carSide + ground(43)),
+    hot: svg(carSide + ground(43) + heat(37, 22, 0.5)),
+    lunch: svg(lunchBody),
+
+    /* Day 3 · Sort: a skater high in the air, still going up */
+    air: svg(ground(43) +
+      '<circle cx="26" cy="8" r="5" fill="var(--accent)"/>' +
+      '<path d="M26 14v11M26 17l-8-5M26 17l8-5M26 25l-6 7M26 25l6 7" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+      whoosh(26, 37, -90, 0.42) + arrow(8, 41, 8, 9, 'var(--sci-dark)', 2.5, '3 4')),
+
+    /* Day 3 · How much energy: a swing pushed high, with a kid on the seat */
+    swing: svg(
+      '<path d="M5 6h38M8 6L4 43M40 6l4 37" fill="none" stroke="var(--ink-faint)" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M24 6v28" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="3 4" stroke-linecap="round" opacity=".7"/>' +
+      '<path d="M24 34c6 0 11-3 13-8" fill="none" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="3 4" stroke-linecap="round" opacity=".7"/>' +
+      '<path d="M24 6L38 27" stroke="var(--sci-dark)" stroke-width="2.500" stroke-linecap="round"/>' +
+      kid(36, 29, 0.55) + '<path d="M31 30h11" stroke="var(--sci-dark)" stroke-width="3" stroke-linecap="round"/>' + ground(44)),
+    /* a fast ball moves a block */
+    block: svg(ground(43) + whoosh(8, 36, 0, 0.5) + ball(16, 36.5, 6) + block(24, 30, 12) + arrow(38, 25, 46, 25, 'var(--accent)', 3))
+  });
+  /* the new words in the help panel's list */
+  Object.assign(window.THING_ART, {
+    heat: window.TILE_ART.warm,
+    battery: window.TILE_ART.battery,
+    fuel: window.TILE_ART.gas,
+    engine: window.TILE_ART.engine
+  });
+
   /* ── THE SCENES at the top of a page (400 wide) ─────────
      One picture for the whole page: what the points under the picture are
      about. The few words inside a scene are the names the page teaches. */
@@ -316,6 +436,65 @@ window.art = function (markup, cls) {
       '<path d="M206 84c14 16 40 18 70 16" fill="none" stroke="var(--ink-faint)" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 6"/>' +
       ball(310, 97, 11))
   };
+
+  /* ── DAYS 2 AND 3 — the scenes ──────────────────────────
+     A small picture is drawn in a 48 x 48 box; `big` puts one into a scene
+     at (x, y), `k` times the size. */
+  const big = (body, x, y, k) => '<g transform="translate(' + x + ',' + y + ') scale(' + k + ')">' + body + '</g>';
+  Object.assign(window.SCENE_ART, {
+    /* the hands move, the hands get warm: kinetic energy changes into thermal energy */
+    hands: scene(
+      big(handsPair + rubbing, 52, 4, 2.2) + label(105, 131, 'kinetic energy', 'middle', 'var(--sci-dark)') +
+      arrow(178, 58, 226, 58, 'var(--accent)', 4) +
+      big(handsPair, 244, 20, 1.8) + heat(262, 34, 1.5) + heat(322, 28, 1.5) + label(290, 131, 'thermal energy', 'middle', 'var(--accent)'), 138),
+    /* the ball falls, hits the floor and stops: sound goes out, the floor gets a little warm */
+    thud: scene(
+      floorLine(110) +
+      '<path d="M96 14c40-4 70 22 96 70" fill="none" stroke="var(--ink-faint)" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 6"/>' +
+      ball(86, 16, 11, 'var(--sci)') + ball(200, 97, 11) +
+      sound(220, 84, 1.3) + label(268, 60, 'sound', 'start', 'var(--sci-dark)') +
+      heat(150, 104, 1.1) + label(142, 60, 'heat', 'end', 'var(--accent)')),
+    /* before the bump and after the bump */
+    bump: scene(
+      floorLine(110) +
+      whoosh(52, 96, 0, 0.9) + ball(70, 97, 11) + ball(128, 97, 11, 'var(--sci)') +
+      '<path d="M200 14v90" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round" opacity=".6"/>' +
+      ball(252, 97, 11) + whoosh(312, 96, 0, 0.9) + ball(330, 97, 11, 'var(--sci)') +
+      arrow(252, 62, 322, 62, 'var(--accent)', 4) + label(287, 48, 'energy', 'middle', 'var(--accent)') +
+      label(100, 34, 'before', 'middle', 'var(--ink)') + label(290, 26, 'after', 'middle', 'var(--ink)')),
+    /* three kinds of stored energy: high up, in a battery, in a rubber band */
+    stored: scene(big(carAtTop, 18, 8, 2.2) + big(batteryBody, 148, 8, 2.2) + big(bandBody, 276, 8, 2.2)),
+    /* the battery's chemical energy changes into light */
+    flashlight: scene(
+      big(batteryBody, 26, 22, 1.8) + label(70, 131, 'chemical energy', 'middle', 'var(--sci-dark)') +
+      arrow(126, 58, 170, 58, 'var(--accent)', 4) +
+      big(flashlightBody, 190, 4, 2.3) + label(280, 131, 'light', 'middle', 'var(--accent)'), 138),
+    /* gas goes in, the engine changes the energy, the car moves */
+    engine: scene(
+      big(gasBody, 22, 14, 1.9) + label(68, 131, 'chemical energy', 'middle', 'var(--sci-dark)') +
+      arrow(120, 60, 164, 60, 'var(--accent)', 4) +
+      whoosh(196, 66, 0, 1.1) + big(carSide, 200, 0, 2.6) + floorLine(110) +
+      label(262, 131, 'kinetic energy', 'middle', 'var(--accent)'), 138),
+    /* lunch goes in, your body changes the energy, you run */
+    lunch: scene(
+      big(lunchBody, 22, 10, 2) + label(70, 131, 'chemical energy', 'middle', 'var(--sci-dark)') +
+      arrow(130, 60, 174, 60, 'var(--accent)', 4) +
+      big(runner('var(--accent)') + whoosh(13, 24, 0, 0.5), 196, 4, 2.3) + floorLine(110) +
+      label(262, 131, 'kinetic energy', 'middle', 'var(--accent)'), 138),
+    /* the two questions: is the object moving, or still and ready to move */
+    two: scene(
+      label(34, 44, '1', 'middle', 'var(--accent)') + big(carGoingDown, 50, 10, 2.1) +
+      label(232, 44, '2', 'middle', 'var(--sci-dark)') + big(carAtTop, 250, 10, 2.1)),
+    /* a slow ball moves the block a little; a fast ball moves the block far */
+    block: scene(
+      floorLine(110) +
+      '<path d="M24 96h14" stroke="var(--sci)" stroke-width="3" stroke-linecap="round" opacity=".7"/>' +
+      ball(54, 97, 11, 'var(--sci)') + block(72, 86, 22, 'var(--sci-dark)') + arrow(100, 74, 118, 74, 'var(--accent)', 4) +
+      label(70, 34, 'slow', 'middle', 'var(--ink)') +
+      '<path d="M200 14v90" stroke="var(--ink-faint)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round" opacity=".6"/>' +
+      whoosh(224, 96, 0, 0.9) + ball(242, 97, 11) + block(260, 86, 22, 'var(--sci-dark)') + arrow(288, 74, 372, 74, 'var(--accent)', 4) +
+      label(262, 34, 'fast', 'middle', 'var(--ink)'))
+  });
 
   /* ── THE COVER ──────────────────────────────────────────
      The first thing a student sees. One picture of the whole lesson: a

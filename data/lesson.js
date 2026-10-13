@@ -26,7 +26,7 @@
 
 /* How many days of this lesson exist yet. The stop at the end of the last
    built day has no way on: it saves and says to close the computer. */
-window.DAYS_BUILT = 1;
+window.DAYS_BUILT = 2;
 
 /* ══════════════════════════════════════════════════════
    WHAT MR. O JUST SHOWED YOU
@@ -259,7 +259,7 @@ window.LEARN = {
           { art: 'hands', t: 'You rub your hands fast',
             d: 'Your hands are moving. So your hands have kinetic energy.' },
           { art: 'warm', t: 'Your hands get warm',
-            d: 'The kinetic energy of your hands changes into heat. The science name for heat energy is <dfn>thermal energy</dfn>.' },
+            d: 'The kinetic energy of your hands changes into <dfn>heat</dfn>. Heat is the energy that makes a thing warm. The science name for heat energy is <dfn>thermal energy</dfn>.' },
           { art: 'same', t: 'No energy went away',
             d: 'The energy did not go away. The energy changed from kinetic energy into thermal energy.' } ] },
       { head: 'Where the energy of the ball went', scene: 'thud',
