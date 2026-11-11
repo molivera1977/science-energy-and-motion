@@ -91,6 +91,7 @@ function post(done) {
      The answers are not lost — they go with the student at "Start the
      lesson" and are in the first row sent after that. */
   if (!app.studentName) return;
+  lastPostAt = Date.now(); clearTimeout(soonTimer); soonTimer = null;   /* this row carries everything so far */
   try {
     fetch(SHEET_URL, {
       method: 'POST', mode: 'no-cors',
@@ -101,6 +102,21 @@ function post(done) {
 }
 const submitPartial = () => post(false);
 const submitFinal   = () => post(true);
+
+/* A ROW AT EVERY SMALL STEP, NOT A FLOOD (Marcos 11/11: "will this make the
+   dashboard show every inch of progress" -> "Yes, build both"). A new screen
+   and every answer send a row at once. A part heard, a page turned or the
+   next question opened sends one too, but no sooner than 15 seconds after the
+   last row: twenty-five students hearing a part every few seconds must not
+   hammer the sheet. The row that goes carries everything up to then. */
+let lastPostAt = 0, soonTimer = null;
+const POST_GAP_MS = 15000;
+function postSoon() {
+  if (window.PREVIEW || !app.studentName) return;
+  const wait = lastPostAt + POST_GAP_MS - Date.now();
+  if (wait <= 0) submitPartial();
+  else if (!soonTimer) soonTimer = setTimeout(() => { soonTimer = null; submitPartial(); }, wait);
+}
 
 /* ── ROSTER ─────────────────────────────────────────── */
 const ROSTER = [
@@ -576,8 +592,13 @@ function joinLabels(root, els) {
    a test's method (trial, average…) come from METHOD_WORDS, which is empty
    until the lesson has a test.
 ══════════════════════════════════════════════════════ */
-/* THE OPENING PAGES, in order: everything a student goes through before the
-   lesson has their name. One list, because six places need to know it (the
+/* THE OPENING PAGES, in order: the cover, the name page, then everything a
+   student goes through before the first word. The name page used to come
+   LAST, so the dashboard saw nothing of a student for the first six minutes
+   or more (11/11: three students that day were on the opening pages from
+   2:06 to 2:12 with no row on the sheet); now it comes right after the
+   cover, and every opening page is saved and sent with the student's name
+   (Marcos 11/11: "Yes, build both"). One list, because six places need to know it (the
    rail, the help bar, the word button, the preview, the resume button, and
    PHASES itself) and a page added to five of them is a page that half works.
 
@@ -588,8 +609,10 @@ const checkAfter = page => page === 'vocab'
   ? ((window.VOCAB_Q || []).length ? 'vq' : '')                         /* the word check follows the words */
   : (Object.keys(window.CHECKS || {}).find(c => window.CHECKS[c].after === page) || '');
 const withCheck = page => checkAfter(page) ? [page, checkAfter(page)] : [page];
-const OPENING_PAGES = ['cover', 'why', 'care', 'summary', 'tool', 'plan', 'goals', 'start'];
+const OPENING_PAGES = ['cover', 'start', 'why', 'care', 'summary', 'tool', 'plan', 'goals'];
 const OPENING = OPENING_PAGES.reduce((all, p) => all.concat(withCheck(p)), []);
+/* the first page after the name page: where a new student starts */
+const FIRST_AFTER_NAME = OPENING[OPENING.indexOf('start') + 1] || 'vocab';
 const WH_HIDE_ON = OPENING.concat(['vocab', 'end']);
 
 function buildWordHelp() {
@@ -707,6 +730,19 @@ function logEvent(kind, extra) {
   }, extra || {}));
   if (app.events.length > 300) app.events.splice(0, app.events.length - 300);
 }
+/* WHERE THE STUDENT IS ON THE SCREEN NOW, for the dashboard's Right Now: the
+   page of a guided screen and how many of its parts were heard, or which
+   question. Only the newest one is kept, so the log does not fill with them
+   (it holds 300 entries, and the answers in it are what the dashboard counts). */
+function logOn(extra) {
+  app.events = (app.events || []).filter(e => e.e !== 'on');
+  logEvent('on', extra);
+}
+/* guide.js says so each time a part is heard and each time a page turns */
+if (window.guide) guide.onProgress = (where, opened) => {
+  logOn(Object.assign({ k: 'read' }, where));
+  if (!opened) postSoon();          /* a screen that just opened sends its own row (app.go) */
+};
 
 /* ══════════════════════════════════════════════════════
    PHASES — worked out from the data, never kept by hand
@@ -777,7 +813,9 @@ function phaseName(p) {
   if ((window.CHECKS || {})[p]) return window.CHECKS[p].title;
   if (isLearn(p)) return window.LEARN[p].rail || window.LEARN[p].title;
   if (isGate(p)) return 'End of Day ' + (window.DAY_GATES[p].day || 1);
-  return ({ exit:'Exit ticket', end:'Done' })[p] || p;
+  if (p === 'tool') return (window.TOOL || {}).title || 'Meet the tool';
+  return ({ exit:'Exit ticket', end:'Done', why:'The big question', care:'Why should you care',
+            summary:'What we just talked about', plan:'Here is the plan', goals:'By the end you can' })[p] || p;
 }
 /* The small label over a working screen's title: "Day 1 · Words". */
 function dayLabel(phase) {
@@ -908,6 +946,7 @@ const app = {
     else if (isQPhase(phase)) { this.qIndex = firstUnanswered(bankFor(phase), answersFor(phase)); renderQ(); }
     else if (isGate(phase))   { renderDayGate(phase); }
     else if (phase === 'end') { finish(); }
+    else if (OPENERS[phase] && phase !== 'start') { this.startTimer(); OPENERS[phase](); }   /* an opening page, after the name */
     submitPartial();
   },
 
@@ -923,22 +962,10 @@ const app = {
       this.go(target);
       return;
     }
-    /* A CHECK AMONG THE OPENING PAGES comes before the name page. A first-time
-       student has no name yet and goes on to the next opening page. A student
-       who already has a name (started over without walking the opening
-       pages) goes to the next opening check not yet answered, then to the
-       first word. */
+    /* A CHECK AMONG THE OPENING PAGES leads on to the next opening page (the
+       name page is behind the student now, so every student walks them all). */
     const at = OPENING.indexOf(this.phase);
-    if (at !== -1 && isQPhase(this.phase)) {
-      if (this.studentName && !window.PREVIEW) {
-        this.go(OPENING.slice(at + 1).find(p => isQPhase(p) && firstUnanswered(bankFor(p), answersFor(p)) < bankFor(p).length) || 'vocab');
-      } else {
-        const page = OPENING[at + 1];
-        if (isQPhase(page)) this.go(page);
-        else OPENERS[page]();
-      }
-      return;
-    }
+    if (at !== -1 && isQPhase(this.phase) && OPENING[at + 1]) { this.go(OPENING[at + 1]); return; }
     const i = PHASES.indexOf(this.phase);
     this.go(PHASES[Math.min(i + 1, PHASES.length - 1)]);
   }
@@ -978,7 +1005,7 @@ function buildCover() {
     '<div class="ptile ctile" data-step>' + art((window.CARE_ART || {})[c.art], 'ptart') +
     '<div><b class="pt">' + c.t + '</b><span class="pd">' + c.d + '</span>' +
     '<span class="ctest">' + c.test + '</span></div></div>').join('');
-  document.getElementById('cover-go').onclick = () => { logEvent('cover_begin'); showWhy(); };
+  document.getElementById('cover-go').onclick = () => { logEvent('cover_begin'); showStart(); };   /* the name first (11/11) */
 
   /* Coming back? The resume button lives on the name-picker page, which is
      ten pages in. If this device holds an unfinished lesson, the cover
@@ -1074,24 +1101,14 @@ function buildStart() {
     attachSpeakers(document.getElementById('start-screen'));
   });
 
-  /* Clears what is saved on this device and starts the lesson at the first word. */
+  /* Clears what is saved on this device and starts the lesson at the first
+     page after the name page. The name page comes right after the cover
+     (11/11), so nothing has been answered yet: the lesson starts clean. */
   const startFresh = () => {
-    /* THE OPENING CHECKS ARE ANSWERED BEFORE THIS PAGE, when the lesson does
-       not know whose answers they are yet. Whoever just walked the opening
-       pages on this device is the student now picking a name, so those
-       answers, their points, their misses and their record go with this
-       student. (Nothing else from before the name is kept, as before.) */
-    const openChecks = OPENING.filter(isQPhase);
-    const openIds = openChecks.reduce((all, p) => all.concat(bankFor(p).map(q => q.id)), []);
-    const kept = {
-      ans: Object.fromEntries(Object.entries(app.checkAns || {}).filter(([id]) => openIds.indexOf(id) !== -1)),
-      missed: (app.missedQuestions || []).filter(m => openIds.indexOf(m.id) !== -1),
-      events: (app.events || []).filter(e => e.e === 'answer' && openIds.indexOf(e.id) !== -1)
-    };
     app.studentName = sel.value;
     app.clearSaved();
-    app.checkAns = kept.ans; app.missedQuestions = kept.missed; app.events = kept.events;
-    app.score = Object.keys(kept.ans).length - kept.missed.length;
+    app.checkAns = {}; app.missedQuestions = []; app.events = [];
+    app.score = 0;
     app.resumeAt = '';
     app.vocabAns = {}; app.exitAns = {};
     app.heard = {};
@@ -1099,9 +1116,7 @@ function buildStart() {
     app.startedAt = new Date().toISOString();
     logEvent('start', { name:app.studentName });
     document.getElementById('who-chip').textContent = app.studentName;
-    /* a student who did not come through the opening pages this time (the
-       lesson was started over) has not had the opening checks: ask them first */
-    app.go(openChecks.find(p => firstUnanswered(bankFor(p), answersFor(p)) < bankFor(p).length) || 'vocab');
+    app.go(FIRST_AFTER_NAME);
   };
 
   if (window.SHARE_MODE) sel.dispatchEvent(new Event('change'));   /* "Guest" is already picked */
@@ -1122,7 +1137,7 @@ function buildStart() {
     if (app.refit) logEvent('refit', { to:app.phase });
     document.getElementById('who-chip').textContent = app.studentName;
     app.startTimer(); app.tickTimer();
-    app.go(isQPhase(app.phase) ? app.phase : OPENING.indexOf(app.phase) !== -1 ? 'vocab' : app.phase);
+    app.go(app.phase === 'cover' || app.phase === 'start' ? FIRST_AFTER_NAME : app.phase);
   });
 
   /* No whole-page reader anywhere now. Marcos 10/9: "I don't like the read to
@@ -1199,7 +1214,7 @@ function showWhy() {
   app.show('why-screen');
   attachSpeakers(document.getElementById('why-screen'));
   guide.run(document.getElementById('why-screen'), { id: 'why' });
-  document.getElementById('why-next').onclick = () => { speech.stop(); showCare(); };
+  document.getElementById('why-next').onclick = () => { speech.stop(); app.go('care'); };
 }
 
 /* Why should you care — its own page, so the three cards are not a scroll
@@ -1209,7 +1224,7 @@ function showCare() {
   app.show('care-screen');
   attachSpeakers(document.getElementById('care-screen'));
   guide.run(document.getElementById('care-screen'), { id: 'care' });
-  document.getElementById('care-next').onclick = () => { speech.stop(); showSummary(); };
+  document.getElementById('care-next').onclick = () => { speech.stop(); app.go('summary'); };
 }
 
 function showSummary() {
@@ -1220,7 +1235,7 @@ function showSummary() {
   guide.run(document.getElementById('summary-screen'), { id: 'summary' });
   /* Nothing on these pages speaks on its own. Marcos 10/9: "this read on its
      own. It shouldn't." Twenty-two devices would all start talking at once. */
-  nextOrCheck('sum-next', 'summary', showTool);
+  nextOrCheck('sum-next', 'summary', () => app.go('tool'));
 }
 
 /* A TEACHING PAGE-SET: one page per idea, one picture at the top of each
@@ -1248,7 +1263,7 @@ function showTool() {
   document.getElementById('tool-pages').innerHTML = pagesHTML(window.TOOL_PAGES);
   app.show('tool-screen');
   guide.run(document.getElementById('tool-screen'), { id: 'tool' });
-  nextOrCheck('tool-next', 'tool', showPlan);     /* the button says what comes next: the questions about the tool */
+  nextOrCheck('tool-next', 'tool', () => app.go('plan'));     /* the button says what comes next: the questions about the tool */
 }
 
 /* A PAGE-SET INSIDE THE LESSON (any key of LEARN): taught the same way, then
@@ -1273,7 +1288,7 @@ function showPlan() {
   app.show('plan-screen');
   attachSpeakers(document.getElementById('plan-screen'));
   guide.run(document.getElementById('plan-screen'), { id: 'plan' });
-  nextOrCheck('ra-next', 'plan', showGoals);
+  nextOrCheck('ra-next', 'plan', () => app.go('goals'));
 }
 
 /* BY THE END YOU CAN — the "I can" lines, each one heard before the
@@ -1291,8 +1306,8 @@ function showGoals() {
   app.show('goals-screen');
   attachSpeakers(document.getElementById('goals-screen'));
   guide.run(document.getElementById('goals-screen'), { id: 'goals' });
-  /* ...and then the name picker, not straight into the lesson. */
-  document.getElementById('goals-next').onclick = () => { speech.stop(); showStart(); };
+  /* ...and then the first word (the name was picked right after the cover) */
+  document.getElementById('goals-next').onclick = () => { speech.stop(); app.next(); };
 }
 
 /* The name page. It asks for a name and nothing else (qa.js C26). */
@@ -1402,6 +1417,7 @@ function renderQ() {
 
   document.getElementById('q-count').textContent =
     'Question ' + (app.qIndex + 1) + ' of ' + bank.length;
+  logOn({ k: 'q', q: app.qIndex + 1, of: bank.length });
   document.getElementById('q-phase').textContent = PHASE_TITLE[app.phase] || '';
   const qt = document.getElementById('q-text');
   qt.innerHTML = wrapWords(stemOf(q));
@@ -1500,7 +1516,7 @@ function answerQ(q, picked, bank, ans) {
   const nx = document.getElementById('q-next');
   nx.classList.remove('hidden');
   nx.textContent = (app.qIndex + 1 >= bank.length) ? 'Finish this step →' : 'Next →';
-  nx.onclick = () => { app.qIndex++; app.save(); renderQ(); };
+  nx.onclick = () => { const here = app.phase; app.qIndex++; app.save(); renderQ(); if (app.phase === here) postSoon(); };
   nx.focus();
 }
 
