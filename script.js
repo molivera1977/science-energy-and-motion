@@ -1040,10 +1040,10 @@ function buildCover() {
    Never: in the teacher preview or a guest link; when this computer holds
    ANOTHER student's work (that still needs the teacher PIN, qa C25); from a
    log that was cut short (its oldest answers would be missing, and the
-   lesson would send the student back to them). No answer within 8 seconds:
+   lesson would send the student back to them). No answer within 15 seconds:
    this computer's work, as before.
 ══════════════════════════════════════════════════════ */
-const SHEET_WAIT_MS = 8000;
+const SHEET_WAIT_MS = 15000;   /* 11/11: 22 lookups at once took 9.6-10.9 s on the first rush, 1.5-2.3 s after (Marcos: "raise the wait") */
 const SESSION_PREFIX = 'EM-';            /* only this lesson's attempts */
 const PICKUP_SINCE = '';                 /* rows before this are an older version of the lesson ('' = all) */
 const sheetSaves = {};                   /* name -> a save rebuilt from the sheet, or null (nothing there) */
@@ -1179,7 +1179,7 @@ function buildStart() {
       resumeBox.classList.remove('hidden');
       resumeBtn.classList.add('hidden');
       resumeBox.querySelector('.lb').textContent = 'Looking for your saved work.';
-      document.getElementById('resume-text').textContent = 'This takes a few seconds.';
+      document.getElementById('resume-text').textContent = 'Please wait. This can take up to 15 seconds.';
       attachSpeakers(document.getElementById('start-screen'));
       return;
     }
